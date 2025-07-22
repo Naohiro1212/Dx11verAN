@@ -70,6 +70,8 @@ HRESULT BillBoard::Load(std::string fileName)
     cb.MiscFlags = 0;
     cb.StructureByteStride = 0;
 
+    Direct3D::pDevice_->CreateBuffer(&cb, nullptr, &pConstantBuffer_);
+
     // テクスチャ
     pTexture_ = new Texture;
     pTexture_->Load(fileName.c_str());

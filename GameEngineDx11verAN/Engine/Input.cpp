@@ -240,8 +240,8 @@ namespace Input
     // 右スティックの傾きを取得
     XMFLOAT3 GetPadStickR(int padID)
     {
-        float x = GetAnalogValue(controllerState_[padID].Gamepad.sThumbRX, 32767, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-        float y = GetAnalogValue(controllerState_[padID].Gamepad.sThumbRY, 32767, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+        float x = GetAnalogValue(controllerState_[padID].Gamepad.sThumbRX, 32767, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+        float y = GetAnalogValue(controllerState_[padID].Gamepad.sThumbRY, 32767, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
         return XMFLOAT3(x, y, 0);
     }
 
