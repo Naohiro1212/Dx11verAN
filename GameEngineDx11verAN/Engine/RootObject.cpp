@@ -1,9 +1,12 @@
 #include "RootObject.h"
 #include "SceneManager.h"
 
-RootObject::RootObject() : GameObject(nullptr, "RootObject")
+
+RootObject::RootObject():
+	GameObject(nullptr, "RootObject")
 {
 }
+
 
 RootObject::~RootObject()
 {

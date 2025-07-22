@@ -1,249 +1,202 @@
-#include "Audio.h"
-#include <vector>
 #include <xaudio2.h>
+#include <vector>
+#include "Audio.h"
 
 #define SAFE_DELETE_ARRAY(p) if(p){delete[] p; p = nullptr;}
-#define READ_AND_CHECK(hFile, ptr, size, dwBytes) \
-    (ReadFile((hFile), (ptr), (DWORD)(size), &(dwBytes), NULL) && (dwBytes) == (size))
 
 namespace Audio
 {
-    // XAudio本体
-    IXAudio2* pXAudio = nullptr;
+	//XAudio本体
+	IXAudio2* pXAudio = nullptr;
 
-    // マスターボイス
-    IXAudio2MasteringVoice* pMasteringVoice = nullptr;
+	//マスターボイス
+	IXAudio2MasteringVoice* pMasteringVoice = nullptr;
 
-    // ファイルごとに必要な情報
-    struct AudioData
-    {
-        // サウンド情報
-        XAUDIO2_BUFFER buf = {};
+	//ファイル毎に必要な情報
+	struct AudioData
+	{
+		//サウンド情報
+		XAUDIO2_BUFFER buf = {};
 
-        // ソースボイス
-        IXAudio2SourceVoice** pSourceVoice = nullptr;
+		//ソースボイス
+		IXAudio2SourceVoice** pSourceVoice = nullptr;
 
-        // 同時再生最大数
-        int svNum;
+		//同時再生最大数
+		int svNum;
 
-        // ファイル名
-        std::wstring fileName;
-    };
-    std::vector<AudioData> audioDatas;
+		//ファイル名
+		std::string fileName;
+	};
+	std::vector<AudioData>	audioDatas;
 }
 
-// 初期化
+//初期化
 void Audio::Initialize()
 {
-    HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
-    if (FAILED(hr)) {
-        // エラー：COM初期化失敗
-        return;
-    }
+	CoInitializeEx(0, COINIT_MULTITHREADED);
 
-    hr = XAudio2Create(&pXAudio);
-    if (FAILED(hr)) {
-        // エラー：XAudio2生成失敗
-        CoUninitialize();
-        return;
-    }
+	XAudio2Create(&pXAudio);
+	pXAudio->CreateMasteringVoice(&pMasteringVoice);
 
-    hr = pXAudio->CreateMasteringVoice(&pMasteringVoice);
-    if (FAILED(hr)) {
-        // エラー：マスターボイス生成失敗
-        pXAudio->Release();
-        CoUninitialize();
-        return;
-    }
 }
 
-// サウンドファイル(.wav)をロード
-int Audio::Load(std::wstring fileName, bool isLoop, int svNum)
+//サウンドファイル(.wav）をロード
+int Audio::Load(std::string fileName, bool isLoop, int svNum)
 {
-    // すでに同じファイルを使ってないかチェック
-    for (int i = 0; i < audioDatas.size(); i++)
-    {
-        if (audioDatas[i].fileName == fileName)
-        {
-            return i;
-        }
-    }
+	//すでに同じファイルを使ってないかチェック
+	for (int i = 0; i < audioDatas.size(); i++)
+	{
+		if (audioDatas[i].fileName == fileName)
+		{
+			return i;
+		}
+	}
 
-    // チャンク構造体
-    struct Chunk
-    {
-        char id[5] = ""; // ID
-        unsigned int size = 0; // サイズ
-    };
+	//チャンク構造体
+	struct Chunk
+	{
+		char	id[5] =""; 			// ID
+		unsigned int	size = 0;	// サイズ
+	};
 
-    // ファイルを開く
-    HANDLE hFile;
-    hFile = CreateFileW(fileName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	//ファイルを開く
+	HANDLE hFile;
+	hFile = CreateFile(fileName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-    DWORD dwBytes = 0;
+	DWORD dwBytes = 0;
 
-    Chunk riffChunk = { 0 };
-    if (!READ_AND_CHECK(hFile, &riffChunk.id, sizeof(riffChunk.id), dwBytes)) {
-        CloseHandle(hFile);
-        return -1;
-    }
-    if (!READ_AND_CHECK(hFile, &riffChunk.size, sizeof(riffChunk.size), dwBytes)) {
-        CloseHandle(hFile);
-        return -1;
-    }
+	Chunk riffChunk = { 0 };
+	ReadFile(hFile, &riffChunk.id, 4, &dwBytes, NULL);
+	ReadFile(hFile, &riffChunk.size, 4, &dwBytes, NULL);
 
-    char wave[4] = "";
-    if (!READ_AND_CHECK(hFile, &wave, sizeof(wave), dwBytes)) {
-        CloseHandle(hFile);
-        return -1;
-    }
+	char wave[4] = "";
+	ReadFile(hFile, &wave, 4, &dwBytes, NULL);
 
-    // ---- formatチャンク
-    Chunk formatChunk = { 0 };
-    do {
-        if (!READ_AND_CHECK(hFile, &formatChunk.id, sizeof(formatChunk.id), dwBytes)) {
-            CloseHandle(hFile);
-            return -1;
-        }
-        // 目的のチャンクが見つかるまで繰り返し
-    } while (formatChunk.id[0] != 'f');
+	Chunk formatChunk = { 0 };
+	while (formatChunk.id[0] != 'f') {
+		ReadFile(hFile, &formatChunk.id, 4, &dwBytes, NULL);
+	}
+	ReadFile(hFile, &formatChunk.size, 4, &dwBytes, NULL);
 
-    if (!READ_AND_CHECK(hFile, &formatChunk.size, sizeof(formatChunk.size), dwBytes)) {
-        CloseHandle(hFile);
-        return -1;
-    }
 
-    // ---- WAVEFORMATEX
-    WAVEFORMATEX fmt;
-    if (!READ_AND_CHECK(hFile, &fmt.wFormatTag, sizeof(fmt.wFormatTag), dwBytes)) { CloseHandle(hFile); return -1; }
-    if (!READ_AND_CHECK(hFile, &fmt.nChannels, sizeof(fmt.nChannels), dwBytes)) { CloseHandle(hFile); return -1; }
-    if (!READ_AND_CHECK(hFile, &fmt.nSamplesPerSec, sizeof(fmt.nSamplesPerSec), dwBytes)) { CloseHandle(hFile); return -1; }
-    if (!READ_AND_CHECK(hFile, &fmt.nAvgBytesPerSec, sizeof(fmt.nAvgBytesPerSec), dwBytes)) { CloseHandle(hFile); return -1; }
-    if (!READ_AND_CHECK(hFile, &fmt.nBlockAlign, sizeof(fmt.nBlockAlign), dwBytes)) { CloseHandle(hFile); return -1; }
-    if (!READ_AND_CHECK(hFile, &fmt.wBitsPerSample, sizeof(fmt.wBitsPerSample), dwBytes)) { CloseHandle(hFile); return -1; }
+	//フォーマットを読み取る
+	//https://learn.microsoft.com/ja-jp/windows/win32/api/mmeapi/ns-mmeapi-waveformatex
+	WAVEFORMATEX fmt;
+	ReadFile(hFile, &fmt.wFormatTag, 2, &dwBytes, NULL);		//形式
+	ReadFile(hFile, &fmt.nChannels, 2, &dwBytes, NULL);			//チャンネル（モノラル/ステレオ）
+	ReadFile(hFile, &fmt.nSamplesPerSec, 4, &dwBytes, NULL);	//サンプリング数
+	ReadFile(hFile, &fmt.nAvgBytesPerSec, 4, &dwBytes, NULL);	//1秒あたりのバイト数
+	ReadFile(hFile, &fmt.nBlockAlign, 2, &dwBytes, NULL);		//ブロック配置
+	ReadFile(hFile, &fmt.wBitsPerSample, 2, &dwBytes, NULL);	//サンプル当たりのビット数
 
-    // ---- dataチャンク
-    Chunk data = { 0 };
-    while (true) {
-        if (!READ_AND_CHECK(hFile, &data.id, sizeof(data.id), dwBytes)) {
-            CloseHandle(hFile);
-            return -1;
-        }
-        if (strcmp(data.id, "data") == 0) break;
 
-        // それ以外の情報はスキップ
-        if (!READ_AND_CHECK(hFile, &data.size, sizeof(data.size), dwBytes)) {
-            CloseHandle(hFile);
-            return -1;
-        }
-        if (data.size > 32 * 1024 * 1024) { // 例: 32MB以上で異常終了
-            CloseHandle(hFile);
-            return -1;
-        }
-        char* pBuffer = new(std::nothrow) char[data.size];
-        if (!pBuffer) {
-            CloseHandle(hFile);
-            return -1;
-        }
-        if (!READ_AND_CHECK(hFile, pBuffer, data.size, dwBytes)) {
-            delete[] pBuffer;
-            CloseHandle(hFile);
-            return -1;
-        }
-        delete[] pBuffer;
-    }
 
-    // データチャンクのサイズ読み取り
-    if (!READ_AND_CHECK(hFile, &data.size, sizeof(data.size), dwBytes)) {
-        CloseHandle(hFile);
-        return -1;
-    }
-    if (data.size > 32 * 1024 * 1024) { // サイズ上限チェック例
-        CloseHandle(hFile);
-        return -1;
-    }
+	//波形データの読み込み
+	Chunk data = { 0 };
+	while (true)
+	{
+		//次のデータのIDを調べる
+		ReadFile(hFile, &data.id, 4, &dwBytes, NULL);
 
-    // 波形データ読み込み
-    char* pBuffer = new(std::nothrow) char[data.size];
-    if (!pBuffer) {
-        CloseHandle(hFile);
-        return -1;
-    }
-    if (!READ_AND_CHECK(hFile, pBuffer, data.size, dwBytes)) {
-        delete[] pBuffer;
-        CloseHandle(hFile);
-        return -1;
-    }
+		//「data」だったらループを抜けて次に進む
+		if (strcmp(data.id, "data") == 0)
+			break;
 
-    CloseHandle(hFile);
+		//それ以外の情報ならサイズ調べて読み込む→使わない
+		else
+		{
+			//サイズ調べて
+			ReadFile(hFile, &data.size, 4, &dwBytes, NULL);
+			char* pBuffer = new char[data.size];
 
-    AudioData ad;
-    ad.fileName = fileName;
-    ad.buf.pAudioData = (BYTE*)pBuffer;
-    ad.buf.Flags = XAUDIO2_END_OF_STREAM;
+			//無駄に読み込む
+			ReadFile(hFile, pBuffer, data.size, &dwBytes, NULL);
+		}
+	}
 
-    if (isLoop) ad.buf.LoopCount = XAUDIO2_LOOP_INFINITE;
-    ad.buf.AudioBytes = data.size;
+	//データチャンクのサイズを取得
+	ReadFile(hFile, &data.size, 4, &dwBytes, NULL);
 
-    ad.pSourceVoice = new IXAudio2SourceVoice * [svNum];
+	//波形データを読み込む
+	char* pBuffer = new char[data.size];
+	ReadFile(hFile, pBuffer, data.size, &dwBytes, NULL);
+	CloseHandle(hFile);
 
-    for (int i = 0; i < svNum; i++)
-    {
-        pXAudio->CreateSourceVoice(&ad.pSourceVoice[i], &fmt);
-    }
-    ad.svNum = svNum;
-    audioDatas.push_back(ad);
 
-    return (int)audioDatas.size() - 1;
+	AudioData ad;
+
+	ad.fileName = fileName;
+
+	ad.buf.pAudioData = (BYTE*)pBuffer;
+	ad.buf.Flags = XAUDIO2_END_OF_STREAM;
+
+	if (isLoop)	ad.buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+
+	ad.buf.AudioBytes = data.size;
+
+
+	ad.pSourceVoice = new IXAudio2SourceVoice * [svNum];
+
+	for (int i = 0; i < svNum; i++)
+	{
+		pXAudio->CreateSourceVoice(&ad.pSourceVoice[i], &fmt);
+	}
+	ad.svNum = svNum;
+	audioDatas.push_back(ad);
+
+	//SAFE_DELETE_ARRAY(pBuffer);
+
+	return (int)audioDatas.size() - 1;
 }
 
-// 再生
+//再生
 void Audio::Play(int ID)
 {
-    for (int i = 0; i < audioDatas[ID].svNum; i++)
-    {
-        XAUDIO2_VOICE_STATE state;
-        audioDatas[ID].pSourceVoice[i]->GetState(&state);
-        
-        if (state.BuffersQueued == 0)
-        {
-            audioDatas[ID].pSourceVoice[i]->SubmitSourceBuffer(&audioDatas[ID].buf);
-            audioDatas[ID].pSourceVoice[i]->Start();
-            break;
-        }
-    }
+	for (int i = 0; i < audioDatas[ID].svNum; i++)
+	{
+		XAUDIO2_VOICE_STATE state;
+		audioDatas[ID].pSourceVoice[i]->GetState(&state);
+
+		if (state.BuffersQueued == 0)
+		{
+			audioDatas[ID].pSourceVoice[i]->SubmitSourceBuffer(&audioDatas[ID].buf);
+			audioDatas[ID].pSourceVoice[i]->Start();
+			break;
+		}
+	}
 }
+
 
 void Audio::Stop(int ID)
 {
-    for (int i = 0; i < audioDatas[ID].svNum; i++)
-    {
-        audioDatas[ID].pSourceVoice[i]->Stop();
-        audioDatas[ID].pSourceVoice[i]->FlushSourceBuffers();
-    }
+	for (int i = 0; i < audioDatas[ID].svNum; i++)
+	{
+		audioDatas[ID].pSourceVoice[i]->Stop();
+		audioDatas[ID].pSourceVoice[i]->FlushSourceBuffers();
+	}
 }
 
-// シーンごとの解放
+//シーンごとの解放
 void Audio::Release()
 {
-    for (int i = 0; i < audioDatas.size(); i++)
-    {
-        for (int j = 0; j < audioDatas[i].svNum; j++)
-        {
-            audioDatas[i].pSourceVoice[j]->DestroyVoice();
-        }
-        SAFE_DELETE_ARRAY(audioDatas[i].buf.pAudioData);
-    }
-    audioDatas.clear();
+	for (int i = 0; i < audioDatas.size(); i++)
+	{
+		for (int j = 0; j < audioDatas[i].svNum; j++)
+		{
+			audioDatas[i].pSourceVoice[j]->DestroyVoice();
+		}
+		SAFE_DELETE_ARRAY(audioDatas[i].buf.pAudioData);
+	}
+	audioDatas.clear();
 }
 
-// 本体の解放
+//本体の解放
 void Audio::AllRelease()
 {
-    CoUninitialize();
-    if (pMasteringVoice)
-    {
-        pMasteringVoice->DestroyVoice();
-    }
-    pXAudio->Release();
+	CoUninitialize();
+	if (pMasteringVoice)
+	{
+		pMasteringVoice->DestroyVoice();
+	}
+	pXAudio->Release();
 }

@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include <windows.h>
 #include "Debug.h"
 
 void Debug::Log(int value, bool isLineFeed)

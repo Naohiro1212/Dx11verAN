@@ -1,3 +1,10 @@
+
+//
+//　最終更新日：2023/10/20
+//
+
+
+
 #include <Windows.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -15,7 +22,7 @@
 #pragma comment(lib,"Winmm.lib")
 
 //定数宣言
-const wchar_t* WIN_CLASS_NAME = L"SampleGame";	//ウィンドウクラス名
+const char* WIN_CLASS_NAME = "SampleGame";	//ウィンドウクラス名
 
 
 //プロトタイプ宣言
@@ -26,18 +33,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // エントリーポイント
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	//#if defined(DEBUG) | defined(_DEBUG)
-	//	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	//#endif
+//#if defined(DEBUG) | defined(_DEBUG)
+//	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+//#endif
 
 	srand((unsigned)time(NULL));
-	SetCurrentDirectoryW(L"Assets");
+	SetCurrentDirectory("Assets");
 
 	//初期化ファイル（setup.ini）から必要な情報を取得
-	int screenWidth = GetPrivateProfileIntW(L"SCREEN", L"Width", 800, L".\\setup.ini");		//スクリーンの幅
-	int screenHeight = GetPrivateProfileIntW(L"SCREEN", L"Height", 600, L".\\setup.ini");	//スクリーンの高さ
-	int fpsLimit = GetPrivateProfileIntW(L"GAME", L"Fps", 60, L".\\setup.ini");				//FPS（画面更新速度）
-	int isDrawFps = GetPrivateProfileIntW(L"DEBUG", L"ViewFps", 0, L".\\setup.ini");		//キャプションに現在のFPSを表示するかどうか
+	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");		//スクリーンの幅
+	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");	//スクリーンの高さ
+	int fpsLimit = GetPrivateProfileInt("GAME", "Fps", 60, ".\\setup.ini");				//FPS（画面更新速度）
+	int isDrawFps = GetPrivateProfileInt("DEBUG", "ViewFps", 0, ".\\setup.ini");		//キャプションに現在のFPSを表示するかどうか
+
+
+
 
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
@@ -90,8 +100,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				if (nowTime - lastFpsResetTime > 1000)
 				{
 					//FPSの値を表示
-					wchar_t string[16];
-					swprintf_s(string, L"FPS:%d", FPS); // Lを付けてワイド文字列を作成
+					char string[16];
+					wsprintf(string, "FPS:%d", FPS);
 					SetWindowText(GetActiveWindow(), string);
 					FPS = 0;
 					lastFpsResetTime = nowTime;
@@ -138,7 +148,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 
 
-
+				
 				//ちょっと休ませる
 				Sleep(1);
 			}
@@ -146,7 +156,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
-
+	
 
 	//いろいろ解放
 	VFX::Release();
@@ -185,8 +195,8 @@ HWND InitApp(HINSTANCE hInstance, int screenWidth, int screenHeight, int nCmdSho
 	AdjustWindowRect(&winRect, WS_OVERLAPPEDWINDOW, FALSE);
 
 	//タイトルバーに表示する内容
-	wchar_t caption[64];
-	GetPrivateProfileString(L"SCREEN", L"Caption", L"***", caption, 64, L"./setup.ini");
+	char caption[64];
+	GetPrivateProfileString("SCREEN", "Caption", "***", caption, 64, ".\\setup.ini");
 
 	//ウィンドウを作成
 	HWND hWnd = CreateWindow(
@@ -215,12 +225,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
-		//ウィンドウを閉じた
+	//ウィンドウを閉じた
 	case WM_DESTROY:
 		PostQuitMessage(0);	//プログラム終了
 		return 0;
 
-		//マウスが動いた
+	//マウスが動いた
 	case WM_MOUSEMOVE:
 		Input::SetMousePosition(LOWORD(lParam), HIWORD(lParam));
 		return 0;

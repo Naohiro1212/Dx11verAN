@@ -2,25 +2,24 @@
 #include "../Engine/GameObject.h"
 #include "../Engine/Model.h"
 
-// テストシーンを管理するクラス
+//テストシーンを管理するクラス
 class TestScene : public GameObject
 {
 public:
-	// コンストラクタ
-	// 引数：parent 親オブジェクト(SceneManager)
+	//コンストラクタ
+	//引数：parent  親オブジェクト（SceneManager）
 	TestScene(GameObject* parent);
-	
-	~TestScene();
 
-	// 初期化
+	//初期化
 	void Initialize() override;
 
-	// 更新
+	//更新
 	void Update() override;
 
-	// 描画
+	//描画
 	void Draw() override;
-	
-	// 開放
+
+	//開放
 	void Release() override;
+	
 };

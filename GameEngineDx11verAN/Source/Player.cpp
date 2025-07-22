@@ -2,25 +2,28 @@
 #include "../Engine/Model.h"
 #include "../Engine/Debug.h"
 #include "TestScene.h"
-#include <assert.h>
 
-Player::Player(GameObject* parent) : GameObject(parent), hSilly(-1)
-{
-}
 
-Player::~Player()
-{
+
+Player::Player(GameObject* parent)
+	:GameObject(parent), hSilly(-1){
+	//swordDirには、初期方向として、ローカルモデルの剣の根っこから
+	//先端までのベクトルとして（0,1,0)を代入しておく
+	//初期位置は原点
 }
 
 void Player::Initialize()
 {
 	hSilly = Model::Load("GS_MotionSet.fbx");
 	Model::SetAnimFrame(hSilly, 0, 1200, 1.0);
+
+
 }
 
 void Player::Update()
 {
-	transform_.rotate_.y += 1;
+	transform_.rotate_.y +=1;
+
 }
 
 void Player::Draw()

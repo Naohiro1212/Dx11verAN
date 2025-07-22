@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 
 namespace Debug
@@ -7,3 +8,4 @@ namespace Debug
 	void Log(float value, bool isLineFeed = false);
 	void Log(std::string value, bool isLineFeed = false);
 };
+
