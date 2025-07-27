@@ -32,7 +32,7 @@ HRESULT Texture::Load(std::string fileName)
 	if(FAILED(hr))
 	{
 		char message[256];
-		wsprintf(message, "「%s」が見つかりまん", fileName.c_str());
+		wsprintf(message, "「%s」が見つかりません", fileName.c_str());
 		MessageBox(0, message, "画像ファイルの読み込みに失敗", MB_OK);
 		return hr;
 	}

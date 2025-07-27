@@ -7,8 +7,13 @@
 #include "BoxCollider.h"
 #include "Transform.h"
 
-
-
+enum class ANIM_STATE
+{
+	Idle,
+	Run,
+	Jump,
+	MAX
+};
 
 using namespace DirectX;
 
@@ -60,7 +65,8 @@ public:
 	//戻値：ワールド行列
 	XMMATRIX GetWorldMatrix();
 
-
+	// アニメーションの状態
+	ANIM_STATE animState_;
 
 	//各フラグの制御
 	bool IsDead();			// 削除するかどうか

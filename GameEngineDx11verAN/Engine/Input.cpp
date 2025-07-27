@@ -72,8 +72,6 @@ namespace Input
 
 	}
 
-
-
 	//開放
 	void Release()
 	{
@@ -81,8 +79,6 @@ namespace Input
 		SAFE_RELEASE(pKeyDevice_);
 		SAFE_RELEASE(pDInput_);
 	}
-
-
 
 	/////////////////////////////　キーボード情報取得　//////////////////////////////////
 
