@@ -253,7 +253,6 @@ int VFX::Start(EmitterData emitterData)
         handle++;
     }
 
-
     Emitter* pEmitter = new Emitter;
 
     pEmitter->data = emitterData;

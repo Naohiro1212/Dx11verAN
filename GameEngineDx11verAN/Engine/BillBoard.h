@@ -29,6 +29,8 @@ class BillBoard
 
 	Texture* pTexture_;	//‰æ‘œ
 
+	CONSTANT_BUFFER cb;
+
 public:
 	BillBoard();
 	~BillBoard();

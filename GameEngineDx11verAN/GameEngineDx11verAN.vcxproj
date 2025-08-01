@@ -171,6 +171,7 @@
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
+    <ClCompile Include="Source\MeshGenerator.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
   </ItemGroup>
@@ -180,6 +181,7 @@
     <ClInclude Include="Engine\BoxCollider.h" />
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\Collider.h" />
+    <ClInclude Include="Engine\CommonType.h" />
     <ClInclude Include="Engine\CsvReader.h" />
     <ClInclude Include="Engine\Debug.h" />
     <ClInclude Include="Engine\Direct3D.h" />
@@ -198,6 +200,7 @@
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\VFX.h" />
+    <ClInclude Include="Source\MeshGenerator.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\TestScene.h" />
   </ItemGroup>
@@ -222,6 +225,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName>
     </FxCompile>
+    <FxCompile Include="Assets\Shader\SimpleOcean.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

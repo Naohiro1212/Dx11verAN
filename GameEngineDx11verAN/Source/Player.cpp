@@ -9,6 +9,7 @@
 namespace
 {
 	const float PLAYER_SPEED = 0.01f; // プレイヤーの移動速度
+	const float PLAYER_ROTATE_SPEED = 0.2f; // プレイヤーの回転速度
 }
 
 Player::Player(GameObject* parent)
@@ -19,11 +20,11 @@ Player::Player(GameObject* parent)
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("characterMedium.fbx");
+	hSilly = Model::Load("ship-medium.fbx");
 	assert(hSilly >= 0);
 	Model::SetAnimFrame(hSilly, 0, 1600, 0.2);
-	animState_ = ANIM_STATE::Idle;
 	transform_.position_ = { 0.0, 0.0, 0.0 };
+	transform_.rotate_ = { 0.0, 180.0, 0.0 };
 	Camera::SetTarget(transform_.position_);
 }
 
@@ -31,29 +32,32 @@ void Player::Update()
 {
 	if(Input::IsKey(DIK_W))
 	{
-		transform_.position_.z += PLAYER_SPEED;
-		animState_ = ANIM_STATE::Run;
+		float rad = XMConvertToDegrees(transform_.rotate_.y) * XM_PI / 180.0f;
+		transform_.position_.x += PLAYER_SPEED * cos(rad);
+		transform_.position_.z += PLAYER_SPEED * sin(rad);
 	}
 	if(Input::IsKey(DIK_S))
 	{
-		transform_.position_.z -= PLAYER_SPEED;
-		animState_ = ANIM_STATE::Run;
+		float rad = XMConvertToDegrees(transform_.rotate_.y) * XM_PI / 180.0f;
+		transform_.position_.x -= PLAYER_SPEED * cos(rad);
+		transform_.position_.z -= PLAYER_SPEED * sin(rad);
 	}
 	if(Input::IsKey(DIK_A))
 	{
-		transform_.position_.x -= PLAYER_SPEED;
-		animState_ = ANIM_STATE::Run;
+		transform_.rotate_.y -= PLAYER_ROTATE_SPEED;
 	}
 	if(Input::IsKey(DIK_D))
 	{
-		transform_.position_.x += PLAYER_SPEED;
-		animState_ = ANIM_STATE::Run;
+		transform_.rotate_.y += PLAYER_ROTATE_SPEED;
 	}
+
+	// カメラの位置を更新
+	Camera::SetPosition(transform_.position_.x, transform_.position_.y + 50.0f, transform_.position_.z - 50.0f);
 }
 
 void Player::Draw()
 {
-	transform_.scale_ = { 0.10,0.10,0.10 };
+	transform_.scale_ = { 0.01,0.01,0.01 };
 	Model::SetTransform(hSilly, transform_);
 	Model::Draw(hSilly);
 }
