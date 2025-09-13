@@ -98,9 +98,6 @@
     <ClCompile Include="Source\TestScene.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MeshGenerator.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -178,9 +175,6 @@
     <ClInclude Include="Source\TestScene.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MeshGenerator.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\CommonType.h">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -196,9 +190,6 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shader\SimpleOcean.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

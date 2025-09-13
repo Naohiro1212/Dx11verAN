@@ -122,7 +122,8 @@
       <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\debug</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>5.0</ShaderModel>
+      <EntryPointName>WinMain</EntryPointName>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,7 +146,8 @@
       <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\release</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>5.0</ShaderModel>
+      <EntryPointName>WinMain</EntryPointName>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -171,7 +173,6 @@
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
-    <ClCompile Include="Source\MeshGenerator.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
   </ItemGroup>
@@ -200,7 +201,6 @@
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\VFX.h" />
-    <ClInclude Include="Source\MeshGenerator.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\TestScene.h" />
   </ItemGroup>
@@ -225,7 +225,6 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName>
     </FxCompile>
-    <FxCompile Include="Assets\Shader\SimpleOcean.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

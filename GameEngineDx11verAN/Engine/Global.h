@@ -6,4 +6,4 @@
 #define SAFE_DELETE_ARRAY(p) {if ((p)!=nullptr) { delete[] (p); (p)=nullptr;}}
 #define SAFE_RELEASE(p) {if ((p)!=nullptr) { p->Release(); (p)=nullptr;}}
 
-extern int totalTime_ = 0; // ゲーム全体の経過時間
+//extern int totalTime_ = 0; // ゲーム全体の経過時間

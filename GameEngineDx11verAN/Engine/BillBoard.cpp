@@ -66,22 +66,17 @@ HRESULT BillBoard::Load(std::string fileName)
 	}
 
 	//コンスタントバッファ作成
-	D3D11_BUFFER_DESC cbd;
-	cbd.ByteWidth = sizeof(CONSTANT_BUFFER);
-	cbd.Usage = D3D11_USAGE_DYNAMIC;
-	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbd.MiscFlags = 0;
-	cbd.StructureByteStride = 0;
+	D3D11_BUFFER_DESC cb;
+	cb.ByteWidth = sizeof(CONSTANT_BUFFER);
+	cb.Usage = D3D11_USAGE_DYNAMIC;
+	cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cb.MiscFlags = 0;
+	cb.StructureByteStride = 0;
 
 	// コンスタントバッファの作成
-	Direct3D::pDevice_->CreateBuffer(&cbd, nullptr, &pConstantBuffer_);
+	Direct3D::pDevice_->CreateBuffer(&cb, nullptr, &pConstantBuffer_);
 
-	// 更新は毎フレーム描画前に行う
-	ConstantBuffer cbValues;
-	cbValues.worldViewProj = XMMatrixTranspose(cb.matWVP);
-	cbValues.time = totalTime_;
-	Direct3D::pContext_->UpdateSubresource(pConstantBuffer_, 0, nullptr, &cbValues, 0, 0);
 
 	//テクスチャ
 	pTexture_ = new Texture;

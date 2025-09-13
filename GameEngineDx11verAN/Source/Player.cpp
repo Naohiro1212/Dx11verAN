@@ -32,13 +32,13 @@ void Player::Update()
 {
 	if(Input::IsKey(DIK_W))
 	{
-		float rad = XMConvertToDegrees(transform_.rotate_.y) * XM_PI / 180.0f;
+		float rad = XMConvertToRadians(transform_.rotate_.y);
 		transform_.position_.x += PLAYER_SPEED * cos(rad);
 		transform_.position_.z += PLAYER_SPEED * sin(rad);
 	}
 	if(Input::IsKey(DIK_S))
 	{
-		float rad = XMConvertToDegrees(transform_.rotate_.y) * XM_PI / 180.0f;
+		float rad = XMConvertToRadians(transform_.rotate_.y);
 		transform_.position_.x -= PLAYER_SPEED * cos(rad);
 		transform_.position_.z -= PLAYER_SPEED * sin(rad);
 	}
