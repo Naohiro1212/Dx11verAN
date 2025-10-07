@@ -20,9 +20,8 @@ Player::Player(GameObject* parent)
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("ship-medium.fbx");
+	hSilly = Model::Load("Cube.fbx");
 	assert(hSilly >= 0);
-	Model::SetAnimFrame(hSilly, 0, 1600, 0.2);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
 	transform_.rotate_ = { 0.0, 180.0, 0.0 };
 	Camera::SetTarget(transform_.position_);
@@ -33,14 +32,14 @@ void Player::Update()
 	if(Input::IsKey(DIK_W))
 	{
 		float rad = XMConvertToRadians(transform_.rotate_.y);
-		transform_.position_.x += PLAYER_SPEED * cos(rad);
-		transform_.position_.z += PLAYER_SPEED * sin(rad);
+		transform_.position_.x += PLAYER_SPEED * sin(rad);
+		transform_.position_.z += PLAYER_SPEED * cos(rad);
 	}
 	if(Input::IsKey(DIK_S))
 	{
 		float rad = XMConvertToRadians(transform_.rotate_.y);
-		transform_.position_.x -= PLAYER_SPEED * cos(rad);
-		transform_.position_.z -= PLAYER_SPEED * sin(rad);
+		transform_.position_.x -= PLAYER_SPEED * sin(rad);
+		transform_.position_.z -= PLAYER_SPEED * cos(rad);
 	}
 	if(Input::IsKey(DIK_A))
 	{
@@ -57,7 +56,7 @@ void Player::Update()
 
 void Player::Draw()
 {
-	transform_.scale_ = { 0.01,0.01,0.01 };
+	transform_.scale_ = { 1,1,1 };
 	Model::SetTransform(hSilly, transform_);
 	Model::Draw(hSilly);
 }

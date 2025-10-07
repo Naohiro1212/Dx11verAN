@@ -20,7 +20,6 @@ cbuffer global
 	float4		g_vecCameraPosition;// 視点（カメラの位置）
 	float		g_shuniness;		// ハイライトの強さ（テカリ具合）
 	bool		g_isTexture;		// テクスチャ貼ってあるかどうか
-
 };
 
 //───────────────────────────────────────
@@ -91,8 +90,8 @@ float4 PS(VS_OUT inData) : SV_Target
 	else
 	{
 		//マテリアルの色
-		diffuse = g_vecDiffuse;
-        //diffuse = float4(0, 0, 0, 0);
+	//	diffuse = g_vecDiffuse;
+        diffuse = float4(1, 1, 1, 1);
     }
 
 	//環境光（アンビエント）
@@ -100,7 +99,7 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 ambient = g_vecAmbient;
 
 	//鏡面反射光（スペキュラー）
-	float4 speculer = float4(0, 0, 0, 0);	//とりあえずハイライトは無しにしておいて…
+	float4 speculer = float4(0, 0, 0, 0);	//とりあえずハイライトは無し
 	if (g_vecSpeculer.a != 0)	//スペキュラーの情報があれば
 	{
 		float4 R = reflect(lightDir, inData.normal);			//正反射ベクトル
