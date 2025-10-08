@@ -9,7 +9,7 @@
 namespace
 {
 	const float PLAYER_SPEED = 0.01f; // プレイヤーの移動速度
-	const float PLAYER_ROTATE_SPEED = 0.2f; // プレイヤーの回転速度
+	const float PLAYER_ROTATE_SPEED = 2.0f; // プレイヤーの回転速度
 }
 
 Player::Player(GameObject* parent)
@@ -20,10 +20,10 @@ Player::Player(GameObject* parent)
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("Cube.fbx");
+	hSilly = Model::Load("Box.fbx");
 	assert(hSilly >= 0);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
-	transform_.rotate_ = { 0.0, 180.0, 0.0 };
+	transform_.rotate_ = { 0.0, 0.0, 0.0 };
 	Camera::SetTarget(transform_.position_);
 }
 
@@ -43,11 +43,15 @@ void Player::Update()
 	}
 	if(Input::IsKey(DIK_A))
 	{
-		transform_.rotate_.y -= PLAYER_ROTATE_SPEED;
+		float rad = XMConvertToRadians(transform_.rotate_.y);
+		transform_.position_.x -= PLAYER_SPEED * cos(rad);
+		transform_.position_.z += PLAYER_SPEED * sin(rad);
 	}
 	if(Input::IsKey(DIK_D))
 	{
-		transform_.rotate_.y += PLAYER_ROTATE_SPEED;
+		float rad = XMConvertToRadians(transform_.rotate_.y);
+		transform_.position_.x += PLAYER_SPEED * cos(rad);
+		transform_.position_.z -= PLAYER_SPEED * sin(rad);
 	}
 
 	// カメラの位置を更新
