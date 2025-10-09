@@ -10,8 +10,7 @@ TestScene::TestScene(GameObject * parent)
 //‰Šú‰»
 void TestScene::Initialize()
 {	
-	//pWp = Instantiate<Weapon>(this);
-	Instantiate <Player>(this);
+//	Instantiate <Player>(this);
 
 }
 

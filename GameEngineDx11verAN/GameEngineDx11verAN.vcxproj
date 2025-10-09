@@ -151,6 +151,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DungeonGenerator.cpp" />
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
     <ClCompile Include="Engine\BoxCollider.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Source\TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DungeonGenerator.h" />
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />
     <ClInclude Include="Engine\BoxCollider.h" />
