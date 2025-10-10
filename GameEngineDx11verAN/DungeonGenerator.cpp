@@ -34,5 +34,6 @@ void DungeonGenerator::GenerateDungeon(int _dWidth, int _dHeight)
 	// ƒ_ƒ“ƒWƒ‡ƒ“‚Ì•‚Æ‰œs‚ğİ’è
 	dungeonWidth_ = _dWidth;
 	dungeonHeight_ = _dHeight;
+	
 
 }

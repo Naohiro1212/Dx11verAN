@@ -4,7 +4,9 @@
 
 struct DungeonMap_Info
 {
-	// 生成される部屋の数
+	// 生成される部屋の数（生成される区域の数）
+	size_t areaCountMin_; // マップの区分け最小数
+	size_t roomCountRand_;
 
 };
 
@@ -12,7 +14,7 @@ class DungeonGenerator :
 	public GameObject
 {
 public:
-	DungeonGenerator(GameObject* parent);
+	DungeonGenerator(GameObject* _parent);
 	~DungeonGenerator();
 	void Initialize() override;
 	void Update() override;
