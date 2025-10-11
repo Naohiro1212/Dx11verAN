@@ -71,8 +71,8 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, T& _maprl)
 	_dng->mapDiv[0][2] = 1; // マップの区分け初期サイズX始点（マップの大きさX軸）
 	_dng->mapDiv[0][3] = 1; // マップの区分け初期サイズY始点（マップの大きさY軸）
 
-	_dng->mapLoad[0][0] = 255; // 初期化用値
-	_dng->mapLoad[0][1] = 255; // 初期化用値
+	_dng->mapRoad[0][0] = 255; // 初期化用値
+	_dng->mapRoad[0][1] = 255; // 初期化用値
 
 	// マップを区分けしていく処理（区域を分割する処理）
 	size_t divAfter_;
@@ -102,7 +102,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, T& _maprl)
 					divAfter_ = j;
 					count_ = RL_COUNT_X;
 				}
-				if(_dng->mapDiv[j][1] - _dng->mapDiv[j][3] > k)
+				if (_dng->mapDiv[j][1] - _dng->mapDiv[j][3] > k)
 				{
 					k = _dng->mapDiv[j][1] - _dng->mapDiv[j][3];
 					divAfter_ = j;
@@ -111,14 +111,14 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, T& _maprl)
 			}
 		}
 
-		_dng->mapLoad[i][0] = divAfter_; // i番目の通路の前の部屋ID
-		_dng->mapLoad[i][1] = count_;    // i番目の通路の方向
+		_dng->mapRoad[i][0] = divAfter_; // i番目の通路の前の部屋ID
+		_dng->mapRoad[i][1] = count_;    // i番目の通路の方向
 
 		for (size_t j = 1; j < i; ++j)
 		{
-			if (_dng->mapLoad[j][0] == divAfter_)
+			if (_dng->mapRoad[j][0] == divAfter_)
 			{
-				_dng->mapLoad[j][0] = i;
+				_dng->mapRoad[j][0] = i;
 			}
 
 			// X軸Y軸の設定
@@ -127,55 +127,124 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, T& _maprl)
 				(size_t)rdn_.GetRand((int)((dng->mapDiv[divAfter_][count_] - dng->mapDiv[divAfter_][count_ + 2]) / 3)); // 0.軸の右端の座標
 			_dng->mapDiv[i][count_ + 2] = _dng->mapDiv[divAfter_][count_ + 2]; // 0.軸の左端の座標
 			_dng->mapDiv[divAfter_][count_ + 2] = _dng->mapDiv[i][count_]; // divAfter_軸の左端の座標
-		
+
 			// count_とは逆の軸(count_がXならY,count_がYならX)
 			_dng->mapDiv[i][abs(count_ - 1)] = _dng->mapDiv[divAfter_][abs(count_ - 1)]; // 軸の右端の座標
 			_dng->mapDiv[i][abs(count_ - 1) + 2] = _dng->mapDiv[divAfter_][abs(count_ - 1) + 2]; // 軸の左端の座標
 		}
+	}
 
-		// 部屋を生成する処理
-		for (size_t i = 0; i < _dng->mapDivCount; ++i) // 区分け
+	// 部屋を生成する処理
+	for (size_t i = 0; i < _dng->mapDivCount; ++i) // 区分け
+	{
+		_dng->mapRoomPlayer[i] = 0; // プレイヤー初期化
+		_dng->mapRoom[i][2] = _dng->mapDiv[i][2]; // 区分けX始点をマップX始点へと代入
+		_dng->mapRoom[i][3] = _dng->mapDiv[i][3]; // 区分けY始点をマップY始点へと代入
+
+		// X座標の部屋の長さを指定
+		_dng->mapRoomPlayer[i][0] = _dng->mapDiv[i][2] + _dng->areaCountRand_ + (size_t)rdn_.GetRand((int)_dng->roomLengthRandX_); // プレイヤーがいる部屋のX座標の右端を決定している
+		if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom[i][0] - _dng->mapRoom[i][2] + 5) // 部屋の長さが区分け範囲の長さと比較し、明らかに大きくなっていないかを判定する
 		{
-			_dng->mapRoomPlayer[i] = 0; // プレイヤー初期化
-			_dng->mapRoom[i][2] = _dng->mapDiv[i][2]; // 区分けX始点をマップX始点へと代入
-			_dng->mapRoom[i][3] = _dng->mapDiv[i][3]; // 区分けY始点をマップY始点へと代入
-
-			// X座標の部屋の長さを指定
-			_dng->mapRoomPlayer[i][0] = _dng->mapDiv[i][2] + _dng->areaCountRand_ + (size_t)rdn_.GetRand((int)_dng->roomLengthRandX_); // プレイヤーがいる部屋のX座標の右端を決定している
-			if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom[i][0] - _dng->mapRoom[i][2] + 5) // 部屋の長さが区分け範囲の長さと比較し、明らかに大きくなっていないかを判定する
+			_dng->mapRoom[i][0] = _dng->mapDiv[i][0] - 4; // 部屋のサイズが区分けサイズに収まるように面積を制限している
+			if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom処理[i][0] - _dng->mapRoom[i][2] + 5) // 再度部屋の長さと区分け範囲の長さと比較
 			{
-				_dng->mapRoom[i][0] = _dng->mapDiv[i][0] - 4; // 部屋のサイズが区分けサイズに収まるように面積を制限している
-				if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom[i][0] - _dng->mapRoom[i][2] + 5) // 再度部屋の長さと区分け範囲の長さと比較
-				{
-					_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + 1; // 部屋の右端を区切り範囲の左端に1足した位置に強制設定
-				}
-			}
-
-			// Y座標の部屋の長さを指定
-			_dng->mapRoomPlayer[i][1] = _dng->mapDiv[i][3] + _dng->roomLengthMinY_ + (size_t)rdn_.GetRand((int)_dng->roomLengthRandY_); // 部屋のY方向の終端座標を決める
-			if (_dng->mapRoom[i][0] - _dng->mapDiv[i][2] <= 1 || _dng->mapRoom[i][1] - _dng->mapDiv[i][3] <= 1) // 部屋の幅もしくは高さが非常に狭い場合の判定
-			{
-				// 条件を満たす場合、部屋の端を区画の開始点に近い位置に修正
-				_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + 1;
-				_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + 1;
-			}
-			// 部屋の右端と上端を区割りの範囲内でランダムに拡張する幅を決める
-			size_t expandWidth = (size_t)rdn_.GetRand((int)(_dng->mapDiv[i][0] - _dng->mapRoom[i][0] - 5)) + 2;
-			size_t expandHeight = (size_t)rdn_.GetRand((int)(_dng->mapDiv[i][1] - _dng->mapRoom[i][1] - 5)) + 2;
-			_dng->mapRoom[i][0] += expandWidth;
-			_dng->mapRoom[i][2] += expandWidth;
-			_dng->mapRoom[i][1] += expandHeight;
-			_dng->mapRoom[i][3] += expandHeight;
-
-			for (size_t j = _dng->mapRoom[i][2]; j < _dng->mapRoom[i][0]; ++j)
-			{
-				for (size_t k = _dng->mapRoom[i][3]; k < _dng->mapRoom[i][1]; ++k)
-				{
-					_maprl[j][k].mapData = 0;
-				}
+				_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + 1; // 部屋の右端を区切り範囲の左端に1足した位置に強制設定
 			}
 		}
 
-		// 通路を生成する処理
+		// Y座標の部屋の長さを指定
+		_dng->mapRoomPlayer[i][1] = _dng->mapDiv[i][3] + _dng->roomLengthMinY_ + (size_t)rdn_.GetRand((int)_dng->roomLengthRandY_); // 部屋のY方向の終端座標を決める
+		if (_dng->mapRoom[i][0] - _dng->mapDiv[i][2] <= 1 || _dng->mapRoom[i][1] - _dng->mapDiv[i][3] <= 1) // 部屋の幅もしくは高さが非常に狭い場合の判定
+		{
+			// 条件を満たす場合、部屋の端を区画の開始点に近い位置に修正
+			_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + 1;
+			_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + 1;
+		}
+		// 部屋の右端と上端を区割りの範囲内でランダムに拡張する幅を決める
+		size_t expandWidth = (size_t)rdn_.GetRand((int)(_dng->mapDiv[i][0] - _dng->mapRoom[i][0] - 5)) + 2;
+		size_t expandHeight = (size_t)rdn_.GetRand((int)(_dng->mapDiv[i][1] - _dng->mapRoom[i][1] - 5)) + 2;
+		_dng->mapRoom[i][0] += expandWidth;
+		_dng->mapRoom[i][2] += expandWidth;
+		_dng->mapRoom[i][1] += expandHeight;
+		_dng->mapRoom[i][3] += expandHeight;
+
+		for (size_t j = _dng->mapRoom[i][2]; j < _dng->mapRoom[i][0]; ++j)
+		{
+			for (size_t k = _dng->mapRoom[i][3]; k < _dng->mapRoom[i][1]; ++k)
+			{
+				_maprl[j][k].mapData = 0;
+			}
+		}
 	}
+
+	// 通路を生成する処理
+	// 通路は2部屋間の細い道のことを指す
+	// 道路を作るために2部屋をそれぞれ前と後で分ける
+	// for文ですべての部屋をチェックして、前後の部屋をつなぐ通路を作る
+	// まず、前の通路を作り、次に後の通路を作る
+	// 最後に前と後の通路を繋げる
+	size_t roomAfter_;
+	for (size_t roomBefore_ = 0; roomBefore_ < _dng->mapDivCount; ++roomBefore_)
+	{
+		roomAfter_ = _dng->mapRoad[roomBefore_][0];
+
+		// X座標の通路
+		switch (_dng->mapRoad[roomBefore_][1])
+		{
+		case RL_COUNT_X:
+			_dng->mapRoad[roomBefore_][2] = (size_t)rdn_.GetRand((int)_dng->mapRoom[roomBefore_][1] - _dng->mapRoom[roomBefore_][3] - 2)); // 前側の通路の位置
+			_dng->mapRoad[roomBefore_][3] = (size_t)rdn_.GetRand((int)_dng->mapRoom[roomAfter_][1] - _dng->mapRoom[roomAfter_][3] - 2);
+
+			// 前の通路
+			for (size_t j = _dng->mapRoom[roomBefore_][0]; j < _dng->mapDiv[roomBefore][0]; ++j)
+			{
+				_maprl[j][_dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomAfter_][3]].mapData = 0; // 通路をマップチップに線画
+			}
+
+			// 後ろの通路
+			for (size_t j = _dng->mapDiv[roomAfter_][2]; j < _dng->mapRoom[roomAfter_][2]; ++j)
+			{
+				_maprl[j][_dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][3]].mapData = 0; // 通路をマップチップに線画
+			}
+
+			// 通路をつなぐ
+			for (size_t j = _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][3]; j <= _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][3]; ++j)
+			{
+				_maprl[_dng->mapDiv[roomBefore_][0]][j].mapData = 0; // 通路をマップチップに線画 2~5（上から下）
+			}
+			for (size_t j = _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][3]; j <= _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][3]; ++j)
+			{
+				_maprl[_dng->mapDiv[roomBefore_][0]][j].mapData = 0; //通路をマップチップに線画 5から2(下から上)
+			}
+			break;
+
+		case RL_COUNT_Y:
+			_dng->mapRoad[roomBefore_][2] = (size_t)rdn_.GetRand((int)(_dng->mapRoom[roomBefore_][0] - _dng->mapRoom[roomBefore_][2] - 2)); // 前側の通路の位置
+			_dng->mapRoad[roomBefore_][3] = (size_t)rdn_.GetRand((int)(_dng->mapRoom[roomAfter_][0] - _dng->mapRoom[roomAfter_][2] - 2));   // 後側の通路の位置
+
+			// 前の通路
+			for (size_t j = _dng->mapRoom[roomBefore_][1]; j < _dng->mapDiv[roomBefore_][1]; ++j)
+			{
+				_maprl[_dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][2]][j].mapData = 0; // 通路をマップチップに線画
+			}
+
+			// 後の通路
+			for (size_t j = _dng->mapDiv[roomAfter_][3]; j < _dng->mapRoom[roomAfter_][3]; ++j)
+			{
+				_maprl[_dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][2]][j].mapData = 0;  // 通路をマップチップに線画
+			}
+
+			// 通路をつなぐ
+			for (size_t j = _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][2]; j <= _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][2]; ++j)
+			{
+				_maprl[j][_dng->mapDiv[roomBefore_][1]].mapData = 0; //通路をマップチップに線画
+			}
+			for (size_t j = _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][2]; j <= _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][2]; ++j)
+			{
+				_maprl[j][_dng->mapDiv[roomBefore_][1]].mapData = 0; // 通路をマップチップに線画
+			}
+			break;
+		}
+	}
+	return 0;
 }
