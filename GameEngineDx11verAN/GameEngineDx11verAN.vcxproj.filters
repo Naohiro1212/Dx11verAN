@@ -98,7 +98,7 @@
     <ClCompile Include="Source\TestScene.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DungeonGenerator.cpp">
+    <ClCompile Include="Source\DungeonGenerator.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -181,8 +181,14 @@
     <ClInclude Include="Engine\CommonType.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="DungeonGenerator.h">
+    <ClInclude Include="Source\DungeonGenerator.h">
       <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DungeonMap.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\RandomNum.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
