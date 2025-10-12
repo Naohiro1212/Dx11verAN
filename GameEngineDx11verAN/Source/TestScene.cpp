@@ -1,5 +1,6 @@
 #include "../Source/TestScene.h"
 #include "../Source/Player.h"
+#include "../Source/DungeonManager.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -11,7 +12,7 @@ TestScene::TestScene(GameObject * parent)
 void TestScene::Initialize()
 {	
 //	Instantiate <Player>(this);
-
+	Instantiate <DungeonManager>(this);
 }
 
 //更新

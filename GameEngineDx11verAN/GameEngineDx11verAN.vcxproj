@@ -174,8 +174,10 @@
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
     <ClCompile Include="Source\DungeonGenerator.cpp" />
+    <ClCompile Include="Source\DungeonManager.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
+    <ClCompile Include="Source\Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Audio.h" />
@@ -203,10 +205,12 @@
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\VFX.h" />
+    <ClInclude Include="Source\DungeonManager.h" />
     <ClInclude Include="Source\DungeonGenerator.h" />
-    <ClInclude Include="Source\DungeonMap.h" />
+    <ClInclude Include="Source\DungeonData.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\TestScene.h" />
+    <ClInclude Include="Source\Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">

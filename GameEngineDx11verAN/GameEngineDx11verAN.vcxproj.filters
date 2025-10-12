@@ -101,6 +101,12 @@
     <ClCompile Include="Source\DungeonGenerator.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DungeonManager.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Wall.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -184,11 +190,17 @@
     <ClInclude Include="Source\DungeonGenerator.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DungeonMap.h">
+    <ClInclude Include="Source\DungeonData.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\RandomNum.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DungeonManager.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Wall.h">
+      <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

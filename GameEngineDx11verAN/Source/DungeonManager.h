@@ -1,0 +1,23 @@
+#pragma once
+#include "../Engine/GameObject.h"
+#include "DungeonData.h"
+#include <vector>
+
+class DungeonGenerator;
+
+class DungeonManager 
+	: public GameObject
+{
+public:
+	DungeonManager(GameObject* _parent);
+	~DungeonManager();
+	void Initialize() override;
+	void Update() override;
+	void Draw() override;
+	void Release() override;
+
+private:
+	DungeonGenerator* dungeonGenerator_;
+	DungeonMap_Info* dungeonMapInfo_;
+	std::vector<std::vector<MapData_RL>> maprl;
+};

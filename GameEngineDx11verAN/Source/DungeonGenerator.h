@@ -1,9 +1,9 @@
 #pragma once
-#include "../Engine/GameObject.h"
 #include <vector>
 
-struct DungeonMap_Info;
 class RandomNum;
+class MapData_RL;
+struct DungeonMap_Info;
 
 // XY軸を示すための定義
 enum :int
@@ -12,24 +12,20 @@ enum :int
 	RL_COUNT_Y
 };
 
-class DungeonGenerator :
-	public GameObject
+class DungeonGenerator
 {
 public:
-	DungeonGenerator(GameObject* _parent);
+	DungeonGenerator();
 	~DungeonGenerator();
-	void Initialize() override;
-	void Draw() override;
-	void Release() override;
 
-	template<typename T>
-	int GenerateDungeon(DungeonMap_Info* const _dng, T& _maprl);
+	void Initialize();
+
+	int GenerateDungeon(DungeonMap_Info* const _dng, std::vector<std::vector<MapData_RL>>& _maprl);
 
 private:
 	// 自動生成されたダンジョンのマップデータ
 	std::vector<std::vector<int>> dungeonMap_;
 	// ダンジョンマップの情報
-	DungeonMap_Info dungeonMapInfo;
 	size_t mapData_;
-	RandomNum rdn_;
+	RandomNum* rdn_;
 };

@@ -19,6 +19,7 @@ struct DungeonMap_Info
 	size_t mapRoomPlayer[8]{}; // マップのプレイヤーの開始位置[部屋ID]
 };
 
+// RogueLikeMapの事を指す
 class MapData_RL
 {
 public:
