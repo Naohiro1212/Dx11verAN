@@ -3,6 +3,7 @@
 #include "DungeonData.h"
 #include <vector>
 
+class Wall;
 class DungeonGenerator;
 
 class DungeonManager 
@@ -20,4 +21,8 @@ private:
 	DungeonGenerator* dungeonGenerator_;
 	DungeonMap_Info* dungeonMapInfo_;
 	std::vector<std::vector<MapData_RL>> maprl;
+
+	// WallÉvÅ[Éã
+	std::vector<Wall*> wallPool_;
+	size_t maxWall_;
 };

@@ -1,5 +1,6 @@
 #include "Wall.h"
 #include "../Engine/Model.h"
+#include "../Engine/Camera.h"
 
 Wall::Wall(GameObject* _parent, XMFLOAT3 _pos)
 	: GameObject(_parent), hModel_(-1)

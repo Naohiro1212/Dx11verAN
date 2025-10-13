@@ -6,8 +6,17 @@ public:
     RandomNum() : mt(rd()) {}
 
     // 0`max‚Ü‚Å‚Ì®”—”‚ğ•Ô‚·
-    int GetRand(int max) {
-        std::uniform_int_distribution<int> dist(0, max);
+    int GetRand(int _max) {
+        return GetRand(0, _max);
+    }
+
+    // min`max‚Ì®”—”‚ğ•Ô‚·
+    int GetRand(int min, int max) {
+        if (min > max)
+        {
+            std::swap(min, max);
+        }
+        std::uniform_int_distribution<int> dist(min, max);
         return dist(mt);
     }
 
