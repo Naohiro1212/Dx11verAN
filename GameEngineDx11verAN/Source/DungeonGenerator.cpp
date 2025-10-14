@@ -6,10 +6,6 @@
 #include "../Engine/RandomNum.h"
 #include "DungeonData.h"
 
-namespace
-{
-}
-
 DungeonGenerator::DungeonGenerator()
 {
 }
@@ -125,7 +121,6 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			_dng->mapDiv[i][abs(count_ - 1) + 2] = _dng->mapDiv[divAfter_][abs(count_ - 1) + 2]; // ²‚Ì¶’[‚ÌÀ•W
 		}
 	}
-
 
 	// •”‰®‚ğ¶¬‚·‚éˆ—
 	for (size_t i = 0; i < _dng->mapDivCount; ++i) // ‹æ•ª‚¯

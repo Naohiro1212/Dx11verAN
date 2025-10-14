@@ -23,7 +23,6 @@ DungeonManager::DungeonManager(GameObject* _parent)
 	dungeonMapInfo_ = new DungeonMap_Info
 	{
 		AREACOUNT_MIN,
-		AREACOUNT_RAND,
 		ROOMLENGTH_MIN_X,
 		ROOMLENGTH_MIN_Y,
 		ROOMLENGTH_RAND_X,
