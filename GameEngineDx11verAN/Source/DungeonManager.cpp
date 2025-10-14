@@ -7,21 +7,19 @@
 
 namespace
 {
-	size_t AREACOUNT_MIN = 3; // マップの区分け最小数
-	size_t AREACOUNT_RAND = 4; // マップの区分け数加算
-	size_t ROOMLENGTH_MIN_X = 5; // 部屋のX座標の最小サイズ
-	size_t ROOMLENGTH_MIN_Y = 5; // 部屋のY座標の最小サイズ
-	size_t ROOMLENGTH_RAND_X = 2; // 部屋のX座標のサイズ加算
-	size_t ROOMLENGTH_RAND_Y = 2; // 部屋のY座標のサイズ加算
-	const size_t MAPX_RLk = 64; //マップ縦サイズ
-	const size_t MAPY_RLk = 32;   //マップ横サイズ
-
+	const size_t AREACOUNT_MIN = 4; // マップの区分け最小数
+	const size_t AREACOUNT_RAND = 3; // マップの区分け数加算
+	const size_t ROOMLENGTH_MIN_X = 3; // 部屋のX座標の最小サイズ
+	const size_t ROOMLENGTH_MIN_Y = 3; // 部屋のY座標の最小サイズ
+	const size_t ROOMLENGTH_RAND_X = 1; // 部屋のX座標のサイズ加算
+	const size_t ROOMLENGTH_RAND_Y = 1; // 部屋のY座標のサイズ加算
+	const size_t MAPX_RLk = 16; //マップ縦サイズ
+	const size_t MAPY_RLk = 16;   //マップ横サイズ
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
 	: dungeonGenerator_(nullptr), maxWall_(0), GameObject(_parent, "DungeonManager")
 {
-	// DungeonMap_RLのことを指している
 	dungeonMapInfo_ = new DungeonMap_Info
 	{
 		AREACOUNT_MIN,
@@ -33,7 +31,7 @@ DungeonManager::DungeonManager(GameObject* _parent)
 	};
 
 	// マップのデータを表す整数値を持つベクター
-	maprl = std::vector<std::vector<MapData_RL>>(MAPX_RLk, std::vector<MapData_RL>(MAPY_RLk, 0));
+	maprl = std::vector<std::vector<MapData_RL>>(MAPX_RLk, std::vector<MapData_RL>(MAPY_RLk, MAPCHIP_WALL));
 }
 
 DungeonManager::~DungeonManager()
@@ -55,7 +53,7 @@ void DungeonManager::Initialize()
 		for (size_t j = 0; j < MAPY_RLk; ++j)
 		{
 			// 1なら壁、0なら床
-			if (maprl[i][j].mapData == 1)
+			if (maprl[i][j].mapData == MAPCHIP_WALL)
 			{
 				++wallTotal_;
 			}
@@ -96,7 +94,7 @@ void DungeonManager::Initialize()
 	{
 		for (size_t j = 0; j < MAPY_RLk && idx < wallPool_.size(); ++j)
 		{
-			if (maprl[i][j].mapData == 1)
+			if (maprl[i][j].mapData == MAPCHIP_WALL)
 			{
 				Wall* w = wallPool_[idx++];
 				w->SetPosition(XMFLOAT3(static_cast<float>(i) * 30.0f, 0.0f, static_cast<float>(j) * 30.0f));

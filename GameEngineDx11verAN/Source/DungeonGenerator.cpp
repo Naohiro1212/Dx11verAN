@@ -1,9 +1,14 @@
 #include <cstdint>
 #include <vector>
+#include <algorithm>
 #include "DungeonGenerator.h"
 #include "../Engine/Model.h"
 #include "../Engine/RandomNum.h"
 #include "DungeonData.h"
+
+namespace
+{
+}
 
 DungeonGenerator::DungeonGenerator()
 {
@@ -41,16 +46,9 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	}
 
 	if (_maprl.size() == 0 || _maprl.front().size() == 0) return -1;
-	for (size_t i = 0; i < _maprl.size(); ++i)
-	{
-		for (size_t j = 0; j < _maprl[i].size(); ++j)
-		{
-			_maprl[i][j].mapData = 1;
-		}
-	}
 
 	// マップの区分け数（部屋の個数）0~nまでの部屋ID
-	_dng->mapDivCount = _dng->areaCountMin_ + (size_t)rdn_->GetRand((int)_dng->areaCountRand_);
+	_dng->mapDivCount = _dng->areaCountMin_ + (size_t)SafeRand((int)_dng->areaCountRand_);
 	if (_dng->mapDivCount > 7)
 	{
 		return -1;
@@ -66,13 +64,12 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 
 	// マップを区分けしていく処理（区域を分割する処理）
 	size_t divAfter_;
-	// 区切りを入れる軸（X軸かY軸か）を示す
 	int count_;
 
 	for (size_t i = 1; i < _dng->mapDivCount; ++i)
 	{
 		//今まで作った区分けをランダムに指定(指定した区域をさらに区分けする)
-		divAfter_ = (size_t)rdn_->GetRand((int)i - 1);
+		divAfter_ = (size_t)SafeRand((int)i - 1);
 
 		// いままで作った区分けをランダムに指定（指定した区域を更に分割する）
 		if (_dng->mapDiv[divAfter_][0] - _dng->mapDiv[divAfter_][2] > _dng->mapDiv[divAfter_][1] - _dng->mapDiv[divAfter_][3])
@@ -129,15 +126,23 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		}
 	}
 
+
 	// 部屋を生成する処理
 	for (size_t i = 0; i < _dng->mapDivCount; ++i) // 区分け
 	{
-		_dng->mapRoomPlayer[i] = 0; // プレイヤー初期化
+	//	_dng->mapRoomPlayer[i] = 0; // プレイヤー初期化
+
+
 		_dng->mapRoom[i][2] = _dng->mapDiv[i][2]; // 区分けX始点をマップX始点へと代入
 		_dng->mapRoom[i][3] = _dng->mapDiv[i][3]; // 区分けY始点をマップY始点へと代入
 
 		// X座標の部屋の長さを指定
-		_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + _dng->areaCountRand_ + (size_t)rdn_->GetRand((int)_dng->roomLengthRandX_); // プレイヤーがいる部屋のX座標の右端を決定している
+		int randX = (int)_dng->roomLengthRandX_;
+		if (randX < 1)
+		{
+			randX = 1;
+		}
+		_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + _dng->areaCountRand_ + (size_t)SafeRand(randX); // プレイヤーがいる部屋のX座標の右端を決定している
 		if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom[i][0] - _dng->mapRoom[i][2] + 5) // 部屋の長さが区分け範囲の長さと比較し、明らかに大きくなっていないかを判定する
 		{
 			_dng->mapRoom[i][0] = _dng->mapDiv[i][0] - 4; // 部屋のサイズが区分けサイズに収まるように面積を制限している
@@ -148,7 +153,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		}
 
 		// Y座標の部屋の長さを指定
-		_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + _dng->roomLengthMinY_ + (size_t)rdn_->GetRand((int)_dng->roomLengthRandY_); // 部屋のY方向の終端座標を決める
+		_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + _dng->roomLengthMinY_ + (size_t)SafeRand((int)_dng->roomLengthRandY_); // 部屋のY方向の終端座標を決める
 		if (_dng->mapRoom[i][0] - _dng->mapDiv[i][2] <= 1 || _dng->mapRoom[i][1] - _dng->mapDiv[i][3] <= 1) // 部屋の幅もしくは高さが非常に狭い場合の判定
 		{
 			// 条件を満たす場合、部屋の端を区画の開始点に近い位置に修正
@@ -163,11 +168,15 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		_dng->mapRoom[i][1] += expandHeight;
 		_dng->mapRoom[i][3] += expandHeight;
 
-		for (size_t j = _dng->mapRoom[i][2]; j < _dng->mapRoom[i][0]; ++j)
+		size_t x0 = std::min<size_t>(_dng->mapRoom[i][2], _dng->mapRoom[i][0]);
+		size_t x1 = std::max<size_t>(_dng->mapRoom[i][2], _dng->mapRoom[i][0]);
+		size_t y0 = std::min<size_t>(_dng->mapRoom[i][3], _dng->mapRoom[i][1]);
+		size_t y1 = std::max<size_t>(_dng->mapRoom[i][3], _dng->mapRoom[i][1]);
+		for (size_t j = x0; j <= x1 && j < _maprl.size(); ++j)
 		{
-			for (size_t k = _dng->mapRoom[i][3]; k < _dng->mapRoom[i][1]; ++k)
+			for (size_t k = y0; k <= y1 && k < _maprl[j].size(); ++k)
 			{
-				_maprl[j][k].mapData = 0;
+				_maprl[j][k].mapData = MAPCHIP_FLOOR;
 			}
 		}
 	}
@@ -181,65 +190,47 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	size_t roomAfter_;
 	for (size_t roomBefore_ = 0; roomBefore_ < _dng->mapDivCount; ++roomBefore_)
 	{
-		roomAfter_ = _dng->mapRoad[roomBefore_][0];
+		roomAfter_ = _dng->mapRoad[roomBefore_][0]; // 前の部屋に繋がる後の部屋を取得
+		if (roomAfter_ == static_cast<size_t>(-1) || roomAfter_ >= _dng->mapDivCount) continue;
 
-		// X座標の通路
-		switch (_dng->mapRoad[roomBefore_][1])
-		{
-		case RL_COUNT_X:
-			_dng->mapRoad[roomBefore_][2] = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapRoom[roomBefore_][1], _dng->mapRoom[roomBefore_][3], 2)));
-			_dng->mapRoad[roomBefore_][3] = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapRoom[roomAfter_][1], _dng->mapRoom[roomAfter_][3], 2)));
+		// 部屋の中央座標を計算
+		size_t beforeCenterX = (_dng->mapRoom[roomBefore_][2] + _dng->mapRoom[roomBefore_][0]) / 2;
+		size_t beforeCenterY = (_dng->mapRoom[roomBefore_][3] + _dng->mapRoom[roomBefore_][1]) / 2;
+		size_t afterCenterX = (_dng->mapRoom[roomAfter_][2] + _dng->mapRoom[roomAfter_][0]) / 2;
+		size_t afterCenterY = (_dng->mapRoom[roomAfter_][3] + _dng->mapRoom[roomAfter_][1]) / 2;
 
-			// 前の通路
-			for (size_t j = _dng->mapRoom[roomBefore_][0]; j < _dng->mapDiv[roomBefore_][0]; ++j)
-			{
-				_maprl[j][_dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomAfter_][3]].mapData = 0; // 通路をマップチップに線画
+		// L字型通路（まずX方向、次にY方向）
+		// X方向
+		if (beforeCenterX <= afterCenterX) {
+			for (size_t x = beforeCenterX; x <= afterCenterX; ++x) {
+				if (x < _maprl.size() && beforeCenterY < _maprl[x].size()) {
+					_maprl[x][beforeCenterY].mapData = MAPCHIP_ROAD;
+				}
 			}
-
-			// 後ろの通路
-			for (size_t j = _dng->mapDiv[roomAfter_][2]; j < _dng->mapRoom[roomAfter_][2]; ++j)
-			{
-				_maprl[j][_dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][3]].mapData = 0; // 通路をマップチップに線画
+		}
+		else {
+			for (size_t x = afterCenterX; x <= beforeCenterX; ++x) {
+				if (x < _maprl.size() && beforeCenterY < _maprl[x].size()) {
+					_maprl[x][beforeCenterY].mapData = MAPCHIP_ROAD;
+				}
 			}
-
-			// 通路をつなぐ
-			for (size_t j = _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][3]; j <= _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][3]; ++j)
-			{
-				_maprl[_dng->mapDiv[roomBefore_][0]][j].mapData = 0; // 通路をマップチップに線画 2~5（上から下）
+		}
+		// Y方向
+		if (beforeCenterY <= afterCenterY) {
+			for (size_t y = beforeCenterY; y <= afterCenterY; ++y) {
+				if (afterCenterX < _maprl.size() && y < _maprl[afterCenterX].size()) {
+					_maprl[afterCenterX][y].mapData = MAPCHIP_ROAD;
+				}
 			}
-			for (size_t j = _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][3]; j <= _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][3]; ++j)
-			{
-				_maprl[_dng->mapDiv[roomBefore_][0]][j].mapData = 0; //通路をマップチップに線画 5から2(下から上)
+		}
+		else {
+			for (size_t y = afterCenterY; y <= beforeCenterY; ++y) {
+				if (afterCenterX < _maprl.size() && y < _maprl[afterCenterX].size()) {
+					_maprl[afterCenterX][y].mapData = MAPCHIP_ROAD;
+				}
 			}
-			break;
-
-		case RL_COUNT_Y:
-			_dng->mapRoad[roomBefore_][2] = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapRoom[roomBefore_][0], _dng->mapRoom[roomBefore_][2], 2)));
-			_dng->mapRoad[roomBefore_][3] = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapRoom[roomAfter_][0], _dng->mapRoom[roomAfter_][2], 2)));
-
-			// 前の通路
-			for (size_t j = _dng->mapRoom[roomBefore_][1]; j < _dng->mapDiv[roomBefore_][1]; ++j)
-			{
-				_maprl[_dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][2]][j].mapData = 0; // 通路をマップチップに線画
-			}
-
-			// 後の通路
-			for (size_t j = _dng->mapDiv[roomAfter_][3]; j < _dng->mapRoom[roomAfter_][3]; ++j)
-			{
-				_maprl[_dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][2]][j].mapData = 0;  // 通路をマップチップに線画
-			}
-
-			// 通路をつなぐ
-			for (size_t j = _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][2]; j <= _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][2]; ++j)
-			{
-				_maprl[j][_dng->mapDiv[roomBefore_][1]].mapData = 0; //通路をマップチップに線画
-			}
-			for (size_t j = _dng->mapRoad[roomBefore_][3] + _dng->mapRoom[roomAfter_][2]; j <= _dng->mapRoad[roomBefore_][2] + _dng->mapRoom[roomBefore_][2]; ++j)
-			{
-				_maprl[j][_dng->mapDiv[roomBefore_][1]].mapData = 0; // 通路をマップチップに線画
-			}
-			break;
 		}
 	}
+
 	return 0;
 }

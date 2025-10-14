@@ -1,5 +1,13 @@
 #pragma once
 
+enum MapChipType : size_t
+{
+	MAPCHIP_WALL = 1, // 壁や未使用
+	MAPCHIP_FLOOR = 2, // 床
+	MAPCHIP_ROAD = 3, // 通路
+	MAPCHIP_PLAYERSTART = 4, // プレイヤーの開始位置
+};
+
 struct DungeonMap_Info
 {
 	// 生成される部屋の数（生成される区域の数）
@@ -23,7 +31,9 @@ struct DungeonMap_Info
 class MapData_RL
 {
 public:
-	MapData_RL(const size_t var_) :mapData(var_) {}
+	MapData_RL(const size_t var_ = MAPCHIP_WALL) :mapData(var_) {}
 	MapData_RL() = default;
-	size_t mapData = 1; //マップ
+	size_t mapData = MAPCHIP_WALL;
+
+private:
 };

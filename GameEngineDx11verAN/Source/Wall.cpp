@@ -15,7 +15,7 @@ Wall::~Wall()
 
 void Wall::Initialize()
 {
-	int hModel_ = Model::Load("Box.fbx");
+	hModel_ = Model::Load("Box.fbx");
 }
 
 void Wall::Update()
