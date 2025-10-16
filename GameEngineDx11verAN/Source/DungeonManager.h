@@ -21,6 +21,7 @@ private:
 	DungeonGenerator* dungeonGenerator_;
 	DungeonMap_Info* dungeonMapInfo_;
 	std::vector<std::vector<MapData_RL>> maprl;
+	int wallModel_;
 
 	// Wallƒv[ƒ‹
 	std::vector<Wall*> wallPool_;

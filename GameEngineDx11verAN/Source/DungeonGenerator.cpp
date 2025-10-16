@@ -45,7 +45,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 
 	// マップの区分け数（部屋の個数）0~nまでの部屋ID
 	_dng->mapDivCount = _dng->areaCountMin_ + (size_t)SafeRand((int)_dng->areaCountRand_);
-	if (_dng->mapDivCount > 7)
+	if (_dng->mapDivCount > 10)
 	{
 		return -1;
 	}
@@ -156,12 +156,12 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + 1;
 		}
 		// 部屋の右端と上端を区割りの範囲内でランダムに拡張する幅を決める
-		size_t expandWidth = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapDiv[i][0], _dng->mapRoom[i][0], 5))) + 2;
+		/*size_t expandWidth = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapDiv[i][0], _dng->mapRoom[i][0], 5))) + 2;
 		size_t expandHeight = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapDiv[i][1], _dng->mapRoom[i][1], 5))) + 2;
 		_dng->mapRoom[i][0] += expandWidth;
 		_dng->mapRoom[i][2] += expandWidth;
 		_dng->mapRoom[i][1] += expandHeight;
-		_dng->mapRoom[i][3] += expandHeight;
+		_dng->mapRoom[i][3] += expandHeight;*/
 
 		size_t x0 = std::min<size_t>(_dng->mapRoom[i][2], _dng->mapRoom[i][0]);
 		size_t x1 = std::max<size_t>(_dng->mapRoom[i][2], _dng->mapRoom[i][0]);

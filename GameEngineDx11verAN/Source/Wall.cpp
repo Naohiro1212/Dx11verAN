@@ -24,7 +24,7 @@ void Wall::Update()
 
 void Wall::Draw()
 {
-	transform_.scale_ = { 1,1,1 };
+	transform_.scale_ = { 10.0f,10.0f,10.0f };
 	Model::SetTransform(hModel_, transform_);
 	Model::Draw(hModel_);
 }
