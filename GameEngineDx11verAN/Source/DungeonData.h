@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 enum MapChipType : size_t
 {
@@ -21,10 +22,10 @@ struct DungeonMap_Info
 	size_t roomLengthRandY_; // 部屋のY座標のサイズ加算
 
 	size_t mapDivCount{}; // マップの区分け数（部屋の個数）0~nまでの部屋ID
-	size_t mapDiv[8][4]{}; // マップの区域情報[部屋ID][X終点,Y終点,X始点,Y始点]
-	size_t mapRoom[8][4]{}; // マップの部屋情報[部屋ID][X終点,Y終点,X始点,Y始点]
-	size_t mapRoad[8][4]{}; // マップの通路情報[部屋ID(前)][つながる先の部屋ID(後), (0.X座標, 1.Y座標), (前)側の通路の位置 , (後)側の通路の位置]
-	size_t mapRoomPlayer[8]{}; // マップのプレイヤーの開始位置[部屋ID]
+	std::vector<std::vector<size_t>> mapDiv; // マップの区域情報[部屋ID][X終点,Y終点,X始点,Y始点]
+	std::vector<std::vector<size_t>> mapRoom; // マップの部屋情報[部屋ID][X終点,Y終点,X始点,Y始点]
+	std::vector<std::vector<size_t>> mapRoad; // マップの通路情報[部屋ID(前)][つながる先の部屋ID(後), (0.X座標, 1.Y座標), (前)側の通路の位置 , (後)側の通路の位置]
+	std::vector<size_t> mapRoomPlayer; // マップのプレイヤーの開始位置[部屋ID]
 };
 
 // RogueLikeMapの事を指す

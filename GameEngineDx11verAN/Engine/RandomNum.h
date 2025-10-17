@@ -10,6 +10,11 @@ public:
         return GetRand(0, _max);
     }
 
+    size_t GetRand(size_t _max)
+    {
+        return GetRand(0, _max);
+    }
+
     // min`max‚Ì®”—”‚ð•Ô‚·
     int GetRand(int min, int max) {
         if (min > max)

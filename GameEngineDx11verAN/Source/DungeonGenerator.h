@@ -38,5 +38,5 @@ private:
 	// ダンジョンマップの情報
 	size_t mapData_;
 	RandomNum* rdn_;
-	int SafeRand(int _max);
+	size_t SafeRand(size_t _max);
 };

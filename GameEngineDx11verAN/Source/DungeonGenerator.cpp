@@ -23,16 +23,24 @@ void DungeonGenerator::Initialize()
 	rdn_ = new RandomNum();
 }
 
-int DungeonGenerator::SafeRand(int _max)
+size_t DungeonGenerator::SafeRand(size_t _max)
 {
-	if (_max <= 0) return 0;
 	return rdn_->GetRand(_max);
 }
 
 int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<std::vector<MapData_RL>>& _maprl)
 {
+	// マップの区分け数（部屋の個数）0~nまでの部屋ID
+	_dng->mapDivCount = _dng->areaCountMin_ + (size_t)SafeRand((int)_dng->areaCountRand_);
+
+	// マップを必要なサイズでリサイズ
+	_dng->mapDiv.resize(_dng->mapDivCount, std::vector<size_t>(4, 0));
+	_dng->mapRoom.resize(_dng->mapDivCount, std::vector<size_t>(4, 0));
+	_dng->mapRoad.resize(_dng->mapDivCount, std::vector<size_t>(4, static_cast<size_t>(-1)));
+	_dng->mapRoomPlayer.resize(_dng->mapDivCount, 0);
+
 	// GenerateDungeon の最初（_dng->mapDivCount を決める前）に追加
-	for (size_t i = 0; i < 8; ++i) {
+	for (size_t i = 0; i < _dng->mapDivCount; ++i) {
 		for (size_t j = 0; j < 4; ++j) {
 			_dng->mapDiv[i][j] = 0;
 			_dng->mapRoom[i][j] = 0;
@@ -43,12 +51,10 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 
 	if (_maprl.size() == 0 || _maprl.front().size() == 0) return -1;
 
-	// マップの区分け数（部屋の個数）0~nまでの部屋ID
-	_dng->mapDivCount = _dng->areaCountMin_ + (size_t)SafeRand((int)_dng->areaCountRand_);
-	if (_dng->mapDivCount > 10)
+	/*if (_dng->mapDivCount > 15)
 	{
-		return -1;
-	}
+		_dng->mapDivCount = 10;
+	}*/
 
 	_dng->mapDiv[0][0] = (_maprl.size() - 1); // マップの区分け初期サイズX終点（マップの大きさX軸）
 	_dng->mapDiv[0][1] = (_maprl.front().size() - 1); // マップの区分け初期サイズY終点（マップの大きさY軸）
@@ -65,7 +71,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	for (size_t i = 1; i < _dng->mapDivCount; ++i)
 	{
 		//今まで作った区分けをランダムに指定(指定した区域をさらに区分けする)
-		divAfter_ = (size_t)SafeRand((int)i - 1);
+		divAfter_ = SafeRand((int)i - 1);
 
 		// いままで作った区分けをランダムに指定（指定した区域を更に分割する）
 		if (_dng->mapDiv[divAfter_][0] - _dng->mapDiv[divAfter_][2] > _dng->mapDiv[divAfter_][1] - _dng->mapDiv[divAfter_][3])
@@ -107,14 +113,40 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 				_dng->mapRoad[j][0] = i;
 			}
 
-			// X軸Y軸の設定
-			// 符号付き差分を取り、負なら0にする
-			int span = DiffClamped(_dng->mapDiv[divAfter_][count_], _dng->mapDiv[divAfter_][count_ + 2]);
-			int third = span / 3;                    // 分割幅の下限
-			int randPart = SafeRand(third);          // third が 0 以下なら 0 を返す
-			_dng->mapDiv[i][count_] = _dng->mapDiv[divAfter_][count_ + 2] + static_cast<size_t>(third + randPart);
-			_dng->mapDiv[i][count_ + 2] = _dng->mapDiv[divAfter_][count_ + 2]; // 0.軸の左端の座標
-			_dng->mapDiv[divAfter_][count_ + 2] = _dng->mapDiv[i][count_]; // divAfter_軸の左端の座標
+			//// X軸Y軸の設定
+			//// 符号付き差分を取り、負なら0にする
+			//size_t span = DiffClamped(_dng->mapDiv[divAfter_][count_], _dng->mapDiv[divAfter_][count_ + 2]);
+			//size_t third = span / 3;                    // 分割幅の下限
+			//size_t randPart = SafeRand(third);          // third が 0 以下なら 0 を返す
+			//_dng->mapDiv[i][count_] = _dng->mapDiv[divAfter_][count_ + 2] + third + randPart;
+			//_dng->mapDiv[i][count_ + 2] = _dng->mapDiv[divAfter_][count_ + 2]; // 0.軸の左端の座標
+			//_dng->mapDiv[divAfter_][count_ + 2] = _dng->mapDiv[i][count_]; // divAfter_軸の左端の座標
+
+			size_t minRoomLen_;
+			if (count_ == RL_COUNT_X)
+			{
+				minRoomLen_ = _dng->roomLengthMinX_;
+			}
+			else
+			{
+				minRoomLen_ = _dng->roomLengthMinY_;
+			}
+			size_t left_ = _dng->mapDiv[divAfter_][count_ + 2];
+			size_t right_ = _dng->mapDiv[divAfter_][count_];
+			if (right_ - left_ + 1 < minRoomLen_ * 2 + 1)
+			{
+				continue; // 分割できない場合はスキップ
+			}
+			size_t minDiv_ = left_ + minRoomLen_;
+			size_t maxDiv_ = right_ - minRoomLen_;
+			if (minDiv_ >= maxDiv_)
+			{
+				continue; // 分割できない場合はスキップ
+			}
+			size_t divPos_ = minDiv_ + SafeRand(maxDiv_ - minDiv_ + 1);
+			_dng->mapDiv[i][count_] = divPos_; // 分割位置を設定
+			_dng->mapDiv[i][count_ + 2] = left_; // 0.軸の左端の座標
+			_dng->mapDiv[divAfter_][count_ + 2] = divPos_; // divAfter_軸の左端の座標
 
 			// count_とは逆の軸(count_がXならY,count_がYならX)
 			_dng->mapDiv[i][abs(count_ - 1)] = _dng->mapDiv[divAfter_][abs(count_ - 1)]; // 軸の右端の座標
@@ -132,12 +164,12 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		_dng->mapRoom[i][3] = _dng->mapDiv[i][3]; // 区分けY始点をマップY始点へと代入
 
 		// X座標の部屋の長さを指定
-		int randX = (int)_dng->roomLengthRandX_;
+		size_t randX = _dng->roomLengthRandX_;
 		if (randX < 1)
 		{
 			randX = 1;
 		}
-		_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + _dng->areaCountRand_ + (size_t)SafeRand(randX); // プレイヤーがいる部屋のX座標の右端を決定している
+		_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + _dng->areaCountRand_ + SafeRand(randX); // プレイヤーがいる部屋のX座標の右端を決定している
 		if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom[i][0] - _dng->mapRoom[i][2] + 5) // 部屋の長さが区分け範囲の長さと比較し、明らかに大きくなっていないかを判定する
 		{
 			_dng->mapRoom[i][0] = _dng->mapDiv[i][0] - 4; // 部屋のサイズが区分けサイズに収まるように面積を制限している
@@ -148,7 +180,8 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		}
 
 		// Y座標の部屋の長さを指定
-		_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + _dng->roomLengthMinY_ + (size_t)SafeRand((int)_dng->roomLengthRandY_); // 部屋のY方向の終端座標を決める
+		size_t randY = _dng->roomLengthRandY_;
+		_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + _dng->roomLengthMinY_ + SafeRand(randY); // 部屋のY方向の終端座標を決める
 		if (_dng->mapRoom[i][0] - _dng->mapDiv[i][2] <= 1 || _dng->mapRoom[i][1] - _dng->mapDiv[i][3] <= 1) // 部屋の幅もしくは高さが非常に狭い場合の判定
 		{
 			// 条件を満たす場合、部屋の端を区画の開始点に近い位置に修正

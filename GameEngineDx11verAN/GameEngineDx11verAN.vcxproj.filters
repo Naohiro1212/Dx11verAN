@@ -104,9 +104,6 @@
     <ClCompile Include="Source\DungeonManager.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Wall.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -197,9 +194,6 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\DungeonManager.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Wall.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>

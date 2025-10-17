@@ -22,8 +22,4 @@ private:
 	DungeonMap_Info* dungeonMapInfo_;
 	std::vector<std::vector<MapData_RL>> maprl;
 	int wallModel_;
-
-	// WallÉvÅ[Éã
-	std::vector<Wall*> wallPool_;
-	size_t maxWall_;
 };

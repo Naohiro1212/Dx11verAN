@@ -179,7 +179,6 @@
     <ClCompile Include="Source\DungeonManager.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
-    <ClCompile Include="Source\Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Audio.h" />
@@ -212,7 +211,6 @@
     <ClInclude Include="Source\DungeonData.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\TestScene.h" />
-    <ClInclude Include="Source\Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">
