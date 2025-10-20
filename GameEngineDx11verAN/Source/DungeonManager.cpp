@@ -1,6 +1,7 @@
 #include "DungeonManager.h"
 #include "DungeonGenerator.h"
 #include "../Engine/Model.h"
+#include "../Engine/Input.h"
 #include <algorithm> 
 #include <vector>
 #include "Player.h"
@@ -31,8 +32,6 @@ DungeonManager::DungeonManager(GameObject* _parent)
 		ROOMLENGTH_RAND_Y
 	};
 
-	// マップのデータを表す整数値を持つベクター
-	maprl = std::vector<std::vector<MapData_RL>>(MAPX_RLk, std::vector<MapData_RL>(MAPY_RLk, MAPCHIP_WALL));
 }
 
 DungeonManager::~DungeonManager()
@@ -45,7 +44,7 @@ void DungeonManager::Initialize()
 
 	dungeonGenerator_ = new DungeonGenerator();
 	dungeonGenerator_->Initialize();
-	dungeonGenerator_->GenerateDungeon(dungeonMapInfo_, maprl);
+	DungeonReset();
 	mapTransform_.scale_ = MAPCHIP_SCALE;
 
 	playerStartPos_ = dungeonGenerator_->GetPlayerStartPos();
@@ -55,6 +54,11 @@ void DungeonManager::Initialize()
 
 void DungeonManager::Update()
 {
+	// pキーでダンジョン再生成テスト
+	if (Input::IsKeyDown(DIK_P))
+	{
+		DungeonReset();
+	}
 }
 
 void DungeonManager::Draw()
@@ -76,4 +80,12 @@ void DungeonManager::Draw()
 
 void DungeonManager::Release()
 {
+}
+
+void DungeonManager::DungeonReset()
+{
+	// ダンジョン再生成
+	// 一度床で塗りつぶす
+	maprl = std::vector<std::vector<MapData_RL>>(MAPX_RLk, std::vector<MapData_RL>(MAPY_RLk, MAPCHIP_WALL));
+	dungeonGenerator_->GenerateDungeon(dungeonMapInfo_, maprl);
 }

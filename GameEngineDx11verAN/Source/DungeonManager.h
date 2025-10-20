@@ -16,6 +16,7 @@ public:
 	void Update() override;
 	void Draw() override;
 	void Release() override;
+	void DungeonReset();
 
 private:
 	DungeonGenerator* dungeonGenerator_;
