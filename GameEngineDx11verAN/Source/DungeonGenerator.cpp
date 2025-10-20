@@ -155,47 +155,56 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	}
 
 	// 部屋を生成する処理
-	for (size_t i = 0; i < _dng->mapDivCount; ++i) // 区分け
+	for (size_t i = 0; i < _dng->mapDivCount; ++i)
 	{
-	//	_dng->mapRoomPlayer[i] = 0; // プレイヤー初期化
+		// 区分け始点をマップX/Y始点へと代入
+		size_t leftBorder = _dng->mapDiv[i][2];
+		size_t rightBorder = _dng->mapDiv[i][0];
+		size_t topBorder = _dng->mapDiv[i][3];
+		size_t bottomBorder = _dng->mapDiv[i][1];
 
+		_dng->mapRoom[i][2] = leftBorder + 1;   // X始点
+		_dng->mapRoom[i][3] = topBorder + 1;    // Y始点
 
-		_dng->mapRoom[i][2] = _dng->mapDiv[i][2]; // 区分けX始点をマップX始点へと代入
-		_dng->mapRoom[i][3] = _dng->mapDiv[i][3]; // 区分けY始点をマップY始点へと代入
-
-		// X座標の部屋の長さを指定
+		// X方向の部屋サイズ決定
 		size_t randX = _dng->roomLengthRandX_;
-		if (randX < 1)
+		if (randX < 1) randX = 1;
+		size_t maxAvailableWidth = 1;
+		if (rightBorder > _dng->mapRoom[i][2] + 1)
 		{
-			randX = 1;
-		}
-		_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + _dng->areaCountRand_ + SafeRand(randX); // プレイヤーがいる部屋のX座標の右端を決定している
-		if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom[i][0] - _dng->mapRoom[i][2] + 5) // 部屋の長さが区分け範囲の長さと比較し、明らかに大きくなっていないかを判定する
-		{
-			_dng->mapRoom[i][0] = _dng->mapDiv[i][0] - 4; // 部屋のサイズが区分けサイズに収まるように面積を制限している
-			if (_dng->mapDiv[i][0] - _dng->mapDiv[i][2] < _dng->mapRoom[i][0] - _dng->mapRoom[i][2] + 5) // 再度部屋の長さと区分け範囲の長さと比較
-			{
-				_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + 1; // 部屋の右端を区切り範囲の左端に1足した位置に強制設定
-			}
+			maxAvailableWidth = rightBorder - (_dng->mapRoom[i][2] + 1);
 		}
 
-		// Y座標の部屋の長さを指定
+		// 希望幅（最小幅＋乱数）
+		size_t desiredWidth = _dng->roomLengthMinX_;
+		if (randX > 0) desiredWidth += SafeRand(randX);
+		size_t actualWidth = (std::min)(maxAvailableWidth, std::max<size_t>(1, desiredWidth));
+		_dng->mapRoom[i][0] = _dng->mapRoom[i][2] + actualWidth; // X終点
+
+		// Y方向の部屋サイズ決定
 		size_t randY = _dng->roomLengthRandY_;
-		_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + _dng->roomLengthMinY_ + SafeRand(randY); // 部屋のY方向の終端座標を決める
-		if (_dng->mapRoom[i][0] - _dng->mapDiv[i][2] <= 1 || _dng->mapRoom[i][1] - _dng->mapDiv[i][3] <= 1) // 部屋の幅もしくは高さが非常に狭い場合の判定
+		if (randY < 1) randY = 1;
+		size_t maxAvailableHeight = 1;
+		if (bottomBorder > _dng->mapRoom[i][3] + 1)
 		{
-			// 条件を満たす場合、部屋の端を区画の開始点に近い位置に修正
-			_dng->mapRoom[i][0] = _dng->mapDiv[i][2] + 1;
-			_dng->mapRoom[i][1] = _dng->mapDiv[i][3] + 1;
+			maxAvailableHeight = bottomBorder - (_dng->mapRoom[i][3] + 1);
 		}
-		// 部屋の右端と上端を区割りの範囲内でランダムに拡張する幅を決める
-		/*size_t expandWidth = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapDiv[i][0], _dng->mapRoom[i][0], 5))) + 2;
-		size_t expandHeight = static_cast<size_t>(SafeRand(DiffClamped(_dng->mapDiv[i][1], _dng->mapRoom[i][1], 5))) + 2;
-		_dng->mapRoom[i][0] += expandWidth;
-		_dng->mapRoom[i][2] += expandWidth;
-		_dng->mapRoom[i][1] += expandHeight;
-		_dng->mapRoom[i][3] += expandHeight;*/
+		size_t desiredHeight = _dng->roomLengthMinY_;
+		if (randY > 0) desiredHeight += SafeRand(randY);
+		size_t actualHeight = (std::min)(maxAvailableHeight, std::max<size_t>(1, desiredHeight));
+		_dng->mapRoom[i][1] = _dng->mapRoom[i][3] + actualHeight;// Y終点
 
+		// 幅や高さが極端に小さい場合の保険
+		if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2])
+		{
+			_dng->mapRoom[i][0] = _dng->mapRoom[i][2] + 2;
+		}
+		if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3])
+		{
+			_dng->mapRoom[i][1] = _dng->mapRoom[i][3] + 2;
+		}
+
+		// 部屋の描画
 		size_t x0 = std::min<size_t>(_dng->mapRoom[i][2], _dng->mapRoom[i][0]);
 		size_t x1 = std::max<size_t>(_dng->mapRoom[i][2], _dng->mapRoom[i][0]);
 		size_t y0 = std::min<size_t>(_dng->mapRoom[i][3], _dng->mapRoom[i][1]);
@@ -206,6 +215,14 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			{
 				_maprl[j][k].mapData = MAPCHIP_FLOOR;
 			}
+		}
+
+		// プレイヤーの開始位置を１つ目の部屋に設定
+		if (i == 0)
+		{
+			playerStartPos_.x = static_cast<float>((_dng->mapRoom[i][2] + _dng->mapRoom[i][0]) / 2) * 30.0f;
+			playerStartPos_.y = 0.0f;
+			playerStartPos_.z = static_cast<float>((_dng->mapRoom[i][3] + _dng->mapRoom[i][1]) / 2) * 30.0f;
 		}
 	}
 

@@ -3,7 +3,7 @@
 #include "DungeonData.h"
 #include <vector>
 
-class Wall;
+class Player;
 class DungeonGenerator;
 
 class DungeonManager 
@@ -21,5 +21,11 @@ private:
 	DungeonGenerator* dungeonGenerator_;
 	DungeonMap_Info* dungeonMapInfo_;
 	std::vector<std::vector<MapData_RL>> maprl;
+	// 壁のモデル
 	int wallModel_;
+	// マップ描画用の座標情報
+	Transform mapTransform_;
+	// プレイヤーの開始位置
+	Player* player_;
+	XMFLOAT3 playerStartPos_;
 };

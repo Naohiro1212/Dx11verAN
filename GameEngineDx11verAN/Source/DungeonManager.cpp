@@ -3,17 +3,19 @@
 #include "../Engine/Model.h"
 #include <algorithm> 
 #include <vector>
+#include "Player.h"
 
 namespace
 {
-	const size_t AREACOUNT_MIN = 12; // マップの区分け最小数
-	const size_t AREACOUNT_RAND = 4; // マップの区分け数加算
-	const size_t ROOMLENGTH_MIN_X = 4; // 部屋のX座標の最小サイズ
-	const size_t ROOMLENGTH_MIN_Y = 4; // 部屋のY座標の最小サイズ
-	const size_t ROOMLENGTH_RAND_X = 1; // 部屋のX座標のサイズ加算
-	const size_t ROOMLENGTH_RAND_Y = 1; // 部屋のY座標のサイズ加算
+	const size_t AREACOUNT_MIN = 8; // マップの区分け最小数
+	const size_t AREACOUNT_RAND = 2; // マップの区分け数加算
+	const size_t ROOMLENGTH_MIN_X = 5; // 部屋のX座標の最小サイズ
+	const size_t ROOMLENGTH_MIN_Y = 5; // 部屋のY座標の最小サイズ
+	const size_t ROOMLENGTH_RAND_X = 2; // 部屋のX座標のサイズ加算
+	const size_t ROOMLENGTH_RAND_Y = 2; // 部屋のY座標のサイズ加算
 	const size_t MAPX_RLk = 32; //マップ縦サイズ
 	const size_t MAPY_RLk = 32;   //マップ横サイズ
+	const XMFLOAT3 MAPCHIP_SCALE = { 23.5f, 15.0f, 15.0f }; // 描画の際のスケール
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -44,6 +46,11 @@ void DungeonManager::Initialize()
 	dungeonGenerator_ = new DungeonGenerator();
 	dungeonGenerator_->Initialize();
 	dungeonGenerator_->GenerateDungeon(dungeonMapInfo_, maprl);
+	mapTransform_.scale_ = MAPCHIP_SCALE;
+
+	playerStartPos_ = dungeonGenerator_->GetPlayerStartPos();
+	player_ = Instantiate<Player>(this);
+	player_->SetPosition(playerStartPos_);
 }
 
 void DungeonManager::Update()
@@ -56,12 +63,10 @@ void DungeonManager::Draw()
 	{
 		for (size_t j = 0;j < MAPY_RLk; ++j)
 		{
-			Transform mapTransform_;
 			mapTransform_.position_ = { static_cast<float>(i) * 30.0f, 0.0f, static_cast<float>(j) * 30.0f };
 			switch (maprl[i][j].mapData)
 			{
 			case MAPCHIP_WALL:
-				mapTransform_.scale_ = { 10.0f, 10.0f, 10.0f };
 				Model::SetTransform(wallModel_, mapTransform_);
 				Model::Draw(wallModel_);
 			}
