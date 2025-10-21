@@ -44,4 +44,8 @@ private:
 	size_t SafeRand(size_t _max);
 	// プレイヤーの開始位置
 	XMFLOAT3 playerStartPos_;
+	// 区域が分割成功したかどうかのフラグ
+	bool divided_;
+	// 区域再分割用の変数
+	size_t retry_ = 0;
 };

@@ -6,6 +6,11 @@
 #include "../Engine/RandomNum.h"
 #include "DungeonData.h"
 
+namespace
+{
+	const size_t MAXRETRY = 100;
+}
+
 DungeonGenerator::DungeonGenerator()
 {
 }
@@ -67,8 +72,10 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	// マップを区分けしていく処理（区域を分割する処理）
 	size_t divAfter_;
 	int count_;
+	divided_ = false;
 
-	for (size_t i = 1; i < _dng->mapDivCount; ++i)
+	retry_ = 0;
+	for (size_t i = 1; i < _dng->mapDivCount && retry_ < MAXRETRY; ++i)
 	{
 		//今まで作った区分けをランダムに指定(指定した区域をさらに区分けする)
 		divAfter_ = SafeRand((int)i - 1);
@@ -106,21 +113,13 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		_dng->mapRoad[i][0] = divAfter_; // i番目の通路の前の部屋ID
 		_dng->mapRoad[i][1] = count_;    // i番目の通路の方向
 
+		divided_ = false;
 		for (size_t j = 1; j < i; ++j)
 		{
 			if (_dng->mapRoad[j][0] == divAfter_)
 			{
 				_dng->mapRoad[j][0] = i;
 			}
-
-			//// X軸Y軸の設定
-			//// 符号付き差分を取り、負なら0にする
-			//size_t span = DiffClamped(_dng->mapDiv[divAfter_][count_], _dng->mapDiv[divAfter_][count_ + 2]);
-			//size_t third = span / 3;                    // 分割幅の下限
-			//size_t randPart = SafeRand(third);          // third が 0 以下なら 0 を返す
-			//_dng->mapDiv[i][count_] = _dng->mapDiv[divAfter_][count_ + 2] + third + randPart;
-			//_dng->mapDiv[i][count_ + 2] = _dng->mapDiv[divAfter_][count_ + 2]; // 0.軸の左端の座標
-			//_dng->mapDiv[divAfter_][count_ + 2] = _dng->mapDiv[i][count_]; // divAfter_軸の左端の座標
 
 			size_t minRoomLen_;
 			if (count_ == RL_COUNT_X)
@@ -133,24 +132,27 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			}
 			size_t left_ = _dng->mapDiv[divAfter_][count_ + 2];
 			size_t right_ = _dng->mapDiv[divAfter_][count_];
-			if (right_ - left_ + 1 < minRoomLen_ * 2 + 1)
-			{
-				continue; // 分割できない場合はスキップ
-			}
 			size_t minDiv_ = left_ + minRoomLen_;
 			size_t maxDiv_ = right_ - minRoomLen_;
-			if (minDiv_ >= maxDiv_)
+			if (right_ - left_ + 1 >= minRoomLen_ * 2 + 1 && minDiv_ < maxDiv_)
 			{
-				continue; // 分割できない場合はスキップ
-			}
-			size_t divPos_ = minDiv_ + SafeRand(maxDiv_ - minDiv_ + 1);
-			_dng->mapDiv[i][count_] = divPos_; // 分割位置を設定
-			_dng->mapDiv[i][count_ + 2] = left_; // 0.軸の左端の座標
-			_dng->mapDiv[divAfter_][count_ + 2] = divPos_; // divAfter_軸の左端の座標
+				size_t divPos_ = minDiv_ + SafeRand(maxDiv_ - minDiv_ + 1);
+				_dng->mapDiv[i][count_] = divPos_; // 分割位置を設定
+				_dng->mapDiv[i][count_ + 2] = left_; // 0.軸の左端の座標
+				_dng->mapDiv[divAfter_][count_ + 2] = divPos_; // divAfter_軸の左端の座標
 
-			// count_とは逆の軸(count_がXならY,count_がYならX)
-			_dng->mapDiv[i][abs(count_ - 1)] = _dng->mapDiv[divAfter_][abs(count_ - 1)]; // 軸の右端の座標
-			_dng->mapDiv[i][abs(count_ - 1) + 2] = _dng->mapDiv[divAfter_][abs(count_ - 1) + 2]; // 軸の左端の座標
+				// count_とは逆の軸(count_がXならY,count_がYならX)
+				_dng->mapDiv[i][abs(count_ - 1)] = _dng->mapDiv[divAfter_][abs(count_ - 1)]; // 軸の右端の座標
+				_dng->mapDiv[i][abs(count_ - 1) + 2] = _dng->mapDiv[divAfter_][abs(count_ - 1) + 2]; // 軸の左端の座標
+
+				divided_ = true;
+			}
+
+			if (!divided_)
+			{
+				--i;
+				retry_++;
+			}
 		}
 	}
 

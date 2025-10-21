@@ -20,6 +20,7 @@ void TestScene::Initialize()
 
 //	Instantiate <Player>(this);
 	Instantiate <DungeonManager>(this);
+	Camera::SetTarget(XMFLOAT3(15.0f * 15.0f, 0.0f, 15.0f * 15.0f));
 }
 
 //çXêV
@@ -44,8 +45,6 @@ void TestScene::Update()
 	if (Input::IsKey(DIK_S)) {
 		Camera::SetPosition(Camera::GetPosition().x, Camera::GetPosition().y, Camera::GetPosition().z - 1.0f);
 	}
-
-	Camera::SetTarget(XMFLOAT3(15.0f * 15.0f, 0.0f, 15.0f * 15.0f));
 }
 
 //ï`âÊ
