@@ -2,6 +2,7 @@
 #include "DungeonGenerator.h"
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
+#include "../Engine/Global.h"
 #include <algorithm> 
 #include <vector>
 #include "Player.h"
@@ -17,6 +18,7 @@ namespace
 	const size_t MAPX_RLk = 32; //マップ縦サイズ
 	const size_t MAPY_RLk = 32;   //マップ横サイズ
 	const XMFLOAT3 MAPCHIP_SCALE = { 23.5f, 15.0f, 15.0f }; // 描画の際のスケール
+	const float MAPTILE_SIZE = 30.0f;
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -36,6 +38,8 @@ DungeonManager::DungeonManager(GameObject* _parent)
 
 DungeonManager::~DungeonManager()
 {
+	SAFE_DELETE(dungeonGenerator_);
+	SAFE_DELETE(dungeonMapInfo_);
 }
 
 void DungeonManager::Initialize()
@@ -64,7 +68,7 @@ void DungeonManager::Draw()
 	{
 		for (size_t j = 0;j < MAPY_RLk; ++j)
 		{
-			mapTransform_.position_ = { static_cast<float>(i) * 30.0f, 0.0f, static_cast<float>(j) * 30.0f };
+			mapTransform_.position_ = { static_cast<float>(i) * MAPTILE_SIZE, 0.0f, static_cast<float>(j) * MAPTILE_SIZE };
 			switch (maprl[i][j].mapData)
 			{
 			case MAPCHIP_WALL:

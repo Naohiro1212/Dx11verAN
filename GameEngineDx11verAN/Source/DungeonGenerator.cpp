@@ -172,21 +172,21 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 
 		// 希望幅（最小幅＋乱数）
 		size_t desiredWidth = _dng->roomLengthMinX_;
-		if (randX > 0) desiredWidth += SafeRand(randX);
 		size_t actualWidth = (std::min)(maxAvailableWidth, std::max<size_t>(1, desiredWidth));
+		if (randX > 0) desiredWidth += SafeRand(randX);
 		_dng->mapRoom[i][0] = _dng->mapRoom[i][2] + actualWidth; // X終点
 
 		// Y方向の部屋サイズ決定
 		size_t randY = _dng->roomLengthRandY_;
-		if (randY < 1) randY = 1;
 		size_t maxAvailableHeight = 1;
+		if (randY < 1) randY = 1;
 		if (bottomBorder > _dng->mapRoom[i][3] + 1)
 		{
 			maxAvailableHeight = bottomBorder - (_dng->mapRoom[i][3] + 1);
 		}
 		size_t desiredHeight = _dng->roomLengthMinY_;
-		if (randY > 0) desiredHeight += SafeRand(randY);
 		size_t actualHeight = (std::min)(maxAvailableHeight, std::max<size_t>(1, desiredHeight));
+		if (randY > 0) desiredHeight += SafeRand(randY);
 		_dng->mapRoom[i][1] = _dng->mapRoom[i][3] + actualHeight;// Y終点
 
 		// 幅や高さが極端に小さい場合の保険

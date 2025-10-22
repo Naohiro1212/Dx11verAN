@@ -177,6 +177,8 @@
     <ClCompile Include="Engine\VFX.cpp" />
     <ClCompile Include="Source\DungeonGenerator.cpp" />
     <ClCompile Include="Source\DungeonManager.cpp" />
+    <ClCompile Include="Source\EnemyBox.cpp" />
+    <ClCompile Include="Source\EnemyGenerator.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
   </ItemGroup>
@@ -209,6 +211,8 @@
     <ClInclude Include="Source\DungeonManager.h" />
     <ClInclude Include="Source\DungeonGenerator.h" />
     <ClInclude Include="Source\DungeonData.h" />
+    <ClInclude Include="Source\EnemyBox.h" />
+    <ClInclude Include="Source\EnemyGenerator.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\TestScene.h" />
   </ItemGroup>

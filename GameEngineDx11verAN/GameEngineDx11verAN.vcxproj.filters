@@ -104,6 +104,12 @@
     <ClCompile Include="Source\DungeonManager.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\EnemyBox.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EnemyGenerator.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -194,6 +200,12 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\DungeonManager.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnemyBox.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnemyGenerator.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -24,6 +24,7 @@ void Player::Initialize()
 	assert(hSilly >= 0);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
 	transform_.rotate_ = { 0.0, 180.0, 0.0 };
+	transform_.scale_ = { 10.0f,10.0f,10.0f };
 	Camera::SetTarget(transform_.position_);
 }
 
@@ -56,7 +57,6 @@ void Player::Update()
 
 void Player::Draw()
 {
-	transform_.scale_ = { 10.0f,10.0f,10.0f };
 	Model::SetTransform(hSilly, transform_);
 	Model::Draw(hSilly);
 }
