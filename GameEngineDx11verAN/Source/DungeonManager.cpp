@@ -41,15 +41,12 @@ DungeonManager::~DungeonManager()
 void DungeonManager::Initialize()
 {
 	wallModel_ = Model::Load("Box.fbx");
+	player_ = Instantiate<Player>(this);
 
 	dungeonGenerator_ = new DungeonGenerator();
 	dungeonGenerator_->Initialize();
 	DungeonReset();
 	mapTransform_.scale_ = MAPCHIP_SCALE;
-
-	playerStartPos_ = dungeonGenerator_->GetPlayerStartPos();
-	player_ = Instantiate<Player>(this);
-	player_->SetPosition(playerStartPos_);
 }
 
 void DungeonManager::Update()
@@ -88,4 +85,10 @@ void DungeonManager::DungeonReset()
 	// 一度床で塗りつぶす
 	maprl = std::vector<std::vector<MapData_RL>>(MAPX_RLk, std::vector<MapData_RL>(MAPY_RLk, MAPCHIP_WALL));
 	dungeonGenerator_->GenerateDungeon(dungeonMapInfo_, maprl);
+
+	// 最初の部屋にプレイヤー開始位置を指定
+	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * 30.0f;
+	playerStartPos_.y = 0.0f;
+	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * 30.0f;
+	player_->SetPosition(playerStartPos_);
 }

@@ -11,7 +11,7 @@ namespace
 	const size_t MAXRETRY = 100;
 }
 
-DungeonGenerator::DungeonGenerator()
+DungeonGenerator::DungeonGenerator() : retry_(0), divided_(false), rdn_(nullptr)
 {
 }
 
@@ -56,11 +56,6 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 
 	if (_maprl.size() == 0 || _maprl.front().size() == 0) return -1;
 
-	/*if (_dng->mapDivCount > 15)
-	{
-		_dng->mapDivCount = 10;
-	}*/
-
 	_dng->mapDiv[0][0] = (_maprl.size() - 1); // マップの区分け初期サイズX終点（マップの大きさX軸）
 	_dng->mapDiv[0][1] = (_maprl.front().size() - 1); // マップの区分け初期サイズY終点（マップの大きさY軸）
 	_dng->mapDiv[0][2] = 1; // マップの区分け初期サイズX始点（マップの大きさX軸）
@@ -78,7 +73,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	for (size_t i = 1; i < _dng->mapDivCount && retry_ < MAXRETRY; ++i)
 	{
 		//今まで作った区分けをランダムに指定(指定した区域をさらに区分けする)
-		divAfter_ = SafeRand((int)i - 1);
+		divAfter_ = SafeRand(i);
 
 		// いままで作った区分けをランダムに指定（指定した区域を更に分割する）
 		if (_dng->mapDiv[divAfter_][0] - _dng->mapDiv[divAfter_][2] > _dng->mapDiv[divAfter_][1] - _dng->mapDiv[divAfter_][3])
@@ -114,45 +109,43 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		_dng->mapRoad[i][1] = count_;    // i番目の通路の方向
 
 		divided_ = false;
-		for (size_t j = 1; j < i; ++j)
+
+		// 分割可能範囲の算出
+		size_t minRoomLen_ = (count_ == RL_COUNT_X) ? _dng->roomLengthMinX_ : _dng->roomLengthMinY_;
+		size_t left_ = _dng->mapDiv[divAfter_][count_ + 2];
+		size_t right_ = _dng->mapDiv[divAfter_][count_];
+		size_t minDiv_ = left_ + minRoomLen_;
+		size_t maxDiv_ = right_ - minRoomLen_;
+
+		if (right_ - left_ + 1 >= minRoomLen_ * 2 + 1 && minDiv_ < maxDiv_)
 		{
-			if (_dng->mapRoad[j][0] == divAfter_)
+			size_t divPos_ = minDiv_ + SafeRand(maxDiv_ - minDiv_ + 1);
+
+			// 新区画 i
+			_dng->mapDiv[i][count_] = divPos_;
+			_dng->mapDiv[i][count_ + 2] = left_;
+			_dng->mapDiv[i][abs(count_ - 1)] = _dng->mapDiv[divAfter_][abs(count_ - 1)];
+			_dng->mapDiv[i][abs(count_ - 1) + 2] = _dng->mapDiv[divAfter_][abs(count_ - 1) + 2];
+
+			// 既存区画 divAfter_ を更新
+			_dng->mapDiv[divAfter_][count_ + 2] = divPos_;
+
+			// 既存の道の接続を更新
+			for (size_t j = 1; j < i; ++j)
 			{
-				_dng->mapRoad[j][0] = i;
+				if (_dng->mapRoad[j][0] == divAfter_)
+				{
+					_dng->mapRoad[j][0] = i;
+				}
 			}
 
-			size_t minRoomLen_;
-			if (count_ == RL_COUNT_X)
-			{
-				minRoomLen_ = _dng->roomLengthMinX_;
-			}
-			else
-			{
-				minRoomLen_ = _dng->roomLengthMinY_;
-			}
-			size_t left_ = _dng->mapDiv[divAfter_][count_ + 2];
-			size_t right_ = _dng->mapDiv[divAfter_][count_];
-			size_t minDiv_ = left_ + minRoomLen_;
-			size_t maxDiv_ = right_ - minRoomLen_;
-			if (right_ - left_ + 1 >= minRoomLen_ * 2 + 1 && minDiv_ < maxDiv_)
-			{
-				size_t divPos_ = minDiv_ + SafeRand(maxDiv_ - minDiv_ + 1);
-				_dng->mapDiv[i][count_] = divPos_; // 分割位置を設定
-				_dng->mapDiv[i][count_ + 2] = left_; // 0.軸の左端の座標
-				_dng->mapDiv[divAfter_][count_ + 2] = divPos_; // divAfter_軸の左端の座標
+			divided_ = true;
+		}
 
-				// count_とは逆の軸(count_がXならY,count_がYならX)
-				_dng->mapDiv[i][abs(count_ - 1)] = _dng->mapDiv[divAfter_][abs(count_ - 1)]; // 軸の右端の座標
-				_dng->mapDiv[i][abs(count_ - 1) + 2] = _dng->mapDiv[divAfter_][abs(count_ - 1) + 2]; // 軸の左端の座標
-
-				divided_ = true;
-			}
-
-			if (!divided_)
-			{
-				--i;
-				retry_++;
-			}
+		if (!divided_)
+		{
+			--i;
+			++retry_;
 		}
 	}
 
@@ -217,14 +210,6 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			{
 				_maprl[j][k].mapData = MAPCHIP_FLOOR;
 			}
-		}
-
-		// プレイヤーの開始位置を１つ目の部屋に設定
-		if (i == 0)
-		{
-			playerStartPos_.x = static_cast<float>((_dng->mapRoom[i][2] + _dng->mapRoom[i][0]) / 2) * 30.0f;
-			playerStartPos_.y = 0.0f;
-			playerStartPos_.z = static_cast<float>((_dng->mapRoom[i][3] + _dng->mapRoom[i][1]) / 2) * 30.0f;
 		}
 	}
 

@@ -21,7 +21,6 @@ public:
 	~DungeonGenerator();
 	void Initialize();
 	int GenerateDungeon(DungeonMap_Info* const _dng, std::vector<std::vector<MapData_RL>>& _maprl);
-	XMFLOAT3 GetPlayerStartPos() const { return playerStartPos_; }
 
 private:
 
@@ -42,10 +41,8 @@ private:
 	RandomNum* rdn_;
 	// 安全に乱数を取得する関数
 	size_t SafeRand(size_t _max);
-	// プレイヤーの開始位置
-	XMFLOAT3 playerStartPos_;
 	// 区域が分割成功したかどうかのフラグ
 	bool divided_;
 	// 区域再分割用の変数
-	size_t retry_ = 0;
+	size_t retry_;
 };
