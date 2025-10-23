@@ -6,6 +6,7 @@
 #include <algorithm> 
 #include <vector>
 #include "Player.h"
+#include "EnemyBox.h"
 
 namespace
 {
@@ -22,7 +23,7 @@ namespace
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
-	: dungeonGenerator_(nullptr), GameObject(_parent, "DungeonManager")
+	: dungeonGenerator_(nullptr), enemyGenerator_(nullptr),GameObject(_parent, "DungeonManager")
 {
 	dungeonMapInfo_ = new DungeonMap_Info
 	{
@@ -38,6 +39,16 @@ DungeonManager::DungeonManager(GameObject* _parent)
 
 DungeonManager::~DungeonManager()
 {
+	for(auto* enemy : enemies_)
+	{
+		if (enemy)
+		{
+			enemy->KillMe();
+		}
+	}
+	enemies_.clear();
+	
+	SAFE_DELETE(enemyGenerator_);
 	SAFE_DELETE(dungeonGenerator_);
 	SAFE_DELETE(dungeonMapInfo_);
 }
@@ -48,6 +59,7 @@ void DungeonManager::Initialize()
 	player_ = Instantiate<Player>(this);
 
 	dungeonGenerator_ = new DungeonGenerator();
+	enemyGenerator_ = new EnemyGenerator();
 	dungeonGenerator_->Initialize();
 	DungeonReset();
 	mapTransform_.scale_ = MAPCHIP_SCALE;
@@ -85,6 +97,16 @@ void DungeonManager::Release()
 
 void DungeonManager::DungeonReset()
 {
+	// Šù‘¶‚Ì“G‚ğíœ
+	for (auto* enemy : enemies_)
+	{
+		if (enemy)
+		{
+			enemy->KillMe();
+		}
+	}
+	enemies_.clear();
+
 	// ƒ_ƒ“ƒWƒ‡ƒ“Ä¶¬
 	// ˆê“x°‚Å“h‚è‚Â‚Ô‚·
 	maprl = std::vector<std::vector<MapData_RL>>(MAPX_RLk, std::vector<MapData_RL>(MAPY_RLk, MAPCHIP_WALL));
@@ -95,4 +117,15 @@ void DungeonManager::DungeonReset()
 	playerStartPos_.y = 0.0f;
 	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * 30.0f;
 	player_->SetPosition(playerStartPos_);
+
+	// “G‚ÌˆÊ’uæ“¾E“G¶¬
+	enemyPositions_.clear();
+	enemyGenerator_->GenerateEnemies(dungeonMapInfo_, maprl, enemyPositions_);
+
+	for (size_t i = 0; i < enemyPositions_.size(); ++i)
+	{
+		EnemyBox* enemy_ = Instantiate<EnemyBox>(this);
+		enemy_->SetPosition(enemyPositions_[i]);
+		enemies_.push_back(enemy_);
+	}
 }

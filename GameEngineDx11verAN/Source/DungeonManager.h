@@ -1,10 +1,13 @@
 #pragma once
 #include "../Engine/GameObject.h"
+#include "EnemyGenerator.h"
 #include "DungeonData.h"
 #include <vector>
 
 class Player;
+class EnemyBox;
 class DungeonGenerator;
+class EnemyGenerator;
 
 class DungeonManager 
 	: public GameObject
@@ -21,7 +24,12 @@ public:
 private:
 	DungeonGenerator* dungeonGenerator_;
 	DungeonMap_Info* dungeonMapInfo_;
+	EnemyGenerator* enemyGenerator_;
+
 	std::vector<std::vector<MapData_RL>> maprl;
+	// 敵の位置の配列
+	std::vector<XMFLOAT3> enemyPositions_;
+	std::vector<EnemyBox*> enemies_;
 	// 壁のモデル
 	int wallModel_;
 	// マップ描画用の座標情報
