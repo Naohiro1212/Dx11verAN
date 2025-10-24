@@ -3,6 +3,7 @@
 
 EnemyBox::EnemyBox(GameObject* parent) : hSilly(-1)
 {
+	objectName_ = "EnemyBox";
 }
 
 void EnemyBox::Initialize()

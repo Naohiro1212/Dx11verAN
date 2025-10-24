@@ -6,6 +6,7 @@
 #include <algorithm> 
 #include <vector>
 #include "Player.h"
+#include "MiniMap.h"
 #include "EnemyBox.h"
 
 namespace
@@ -34,7 +35,7 @@ DungeonManager::DungeonManager(GameObject* _parent)
 		ROOMLENGTH_RAND_X,
 		ROOMLENGTH_RAND_Y
 	};
-
+	objectName_ = "DungeonManager";
 }
 
 DungeonManager::~DungeonManager()
@@ -63,6 +64,9 @@ void DungeonManager::Initialize()
 	dungeonGenerator_->Initialize();
 	DungeonReset();
 	mapTransform_.scale_ = MAPCHIP_SCALE;
+
+	// ミニマップを最後に生成
+	Instantiate<MiniMap>(this);
 }
 
 void DungeonManager::Update()
@@ -128,4 +132,9 @@ void DungeonManager::DungeonReset()
 		enemy_->SetPosition(enemyPositions_[i]);
 		enemies_.push_back(enemy_);
 	}
+}
+
+XMFLOAT3 DungeonManager::GetPlayerPosition() const
+{
+	return player_->GetPosition();
 }

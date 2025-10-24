@@ -107,8 +107,14 @@
     <ClCompile Include="Source\EnemyBox.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\MiniMap.h">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Source\EnemyGenerator.cpp">
-      <Filter>Shader</Filter>
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MiniMap.cpp">
+      <Filter>リソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

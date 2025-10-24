@@ -21,6 +21,11 @@ public:
 	void Release() override;
 	void DungeonReset();
 
+	// ミニマップ用のゲッター
+	const std::vector<std::vector<MapData_RL>>& GetMap() const { return maprl; }
+	XMFLOAT3 GetPlayerPosition() const;
+	const std::vector<EnemyBox*>& GetEnemies() const { return enemies_; }
+
 private:
 	DungeonGenerator* dungeonGenerator_;
 	DungeonMap_Info* dungeonMapInfo_;

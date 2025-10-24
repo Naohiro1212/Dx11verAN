@@ -16,6 +16,7 @@ Player::Player(GameObject* parent)
 	:GameObject(parent), hSilly(-1){
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
+	objectName_ = "Player";
 }
 
 void Player::Initialize()

@@ -179,6 +179,8 @@
     <ClCompile Include="Source\DungeonManager.cpp" />
     <ClCompile Include="Source\EnemyBox.cpp" />
     <ClCompile Include="Source\EnemyGenerator.cpp" />
+    <ClCompile Include="Source\MiniMap.cpp" />
+    <ClCompile Include="Source\MiniMap.h" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
   </ItemGroup>
