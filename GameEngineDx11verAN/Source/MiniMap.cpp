@@ -28,6 +28,7 @@ void MiniMap::Initialize()
 	// 同階層から DungeonManager を取得
 	dungeonManager_ = dynamic_cast<DungeonManager*>(FindObject("DungeonManager"));
 	wallModel_ = Model::Load("Box.fbx");
+	playerModel_ = Model::Load("Cube.fbx");
 
 	// 深度テスト向こうのデプス・ステンシルステートを作成
 	D3D11_DEPTH_STENCIL_DESC dcDesc{};
@@ -74,13 +75,13 @@ void MiniMap::Draw()
 	mini.Width    = MINIMAP_SCALE;
 	mini.Height   = MINIMAP_SCALE;
 	mini.TopLeftX = static_cast<float>(screenWidth_) - MINIMAP_SCALE - MINIMAP_MARGIN;
-	mini.TopLeftY = MINIMAP_MARGIN;
+	mini.TopLeftY = MINIMAP_MARGIN - 50.0f;
 	mini.MinDepth = 0.0f;
 	mini.MaxDepth = 1.0f;
 	pContext_->RSSetViewports(1, &mini);
 
 	// オーバーレイとして深度書き込みを無効化
-	SetDepthBafferWriteEnable(false);
+//	SetDepthBafferWriteEnable(false);
 	if (noDepthState_)
 	{
 		pContext_->OMSetDepthStencilState(noDepthState_, 0);
@@ -90,11 +91,14 @@ void MiniMap::Draw()
 	const float tileSize = MAPTILE_SIZE;
 	const float mapW = static_cast<float>(map.size()) * tileSize;
 	const float mapH = static_cast<float>(map[0].size()) * tileSize;
-	const float cx = mapW * 0.5f;
-	const float cz = mapH * 0.5f;
-	const float h  = (std::max)(mapW, mapH);
-	Camera::SetPosition({ cx, h, cz - h }); // 斜め上から
-	Camera::SetTarget({ cx, 0.0f, cz });
+	const XMFLOAT3 playerPos_ = dungeonManager_->GetPlayerPosition();
+	const float maxDim = (std::max)(mapW, mapH);
+	float h = (std::max)(mapW, mapH) * 0.6f;
+	h = (std::max)(h, 80.0f); // 低くしすぎて地面下にもぐらないように制限を付ける
+	// 真上から見下ろす位置に設定
+	const float eps = 1e-3f;
+	Camera::SetPosition({playerPos_.x + eps, h, playerPos_.z });
+	Camera::SetTarget({ playerPos_.x, 0.0f, playerPos_.z });
 	Camera::Update();
 
 	const XMFLOAT3 baseScale = MINIMAP_WALL_SCALE;
@@ -117,16 +121,15 @@ void MiniMap::Draw()
 	}
 
 	// プレイヤーマーカー（小さめ）
-	Transform plTransform_;
 	plTransform_.scale_ = { baseScale.x * 0.5f, baseScale.y * 0.2f, baseScale.z * 0.5f };
 	plTransform_.rotate_ = {0,0,0};
 	plTransform_.position_ = dungeonManager_->GetPlayerPosition();
-	Model::SetTransform(wallModel_, plTransform_);
-	Model::Draw(wallModel_);
+	Model::SetTransform(playerModel_, plTransform_);
+	Model::Draw(playerModel_);
 	
 
+
 	// 敵マーカー（さらに小さめ）
-	Transform enTransform_;
 	enTransform_.scale_ = { baseScale.x * 0.4f, baseScale.y * 0.2f, baseScale.z * 0.4f };
 	enTransform_.rotate_ = {0,0,0};
 	for (auto* enemy_ : dungeonManager_->GetEnemies())
@@ -141,7 +144,7 @@ void MiniMap::Draw()
 	Camera::SetPosition(oldCamPos);
 	Camera::SetTarget(oldCamTarget);
 	Camera::Update();
-	SetDepthBafferWriteEnable(true);
+//	SetDepthBafferWriteEnable(true);
 	if (oldDSS)
 	{
 		pContext_->OMSetDepthStencilState(oldDSS, oldStencilRef);

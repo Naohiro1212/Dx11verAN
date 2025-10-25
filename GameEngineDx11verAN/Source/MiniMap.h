@@ -18,7 +18,12 @@ public:
 private:
 	DungeonManager* dungeonManager_;
 	int wallModel_;
+	int playerModel_;
 
 	// ミニマップ描画用：深度テスト無効ステート
 	ID3D11DepthStencilState* noDepthState_;
+
+	Transform plTransform_;
+	Transform enTransform_;
+
 };
