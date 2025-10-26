@@ -24,6 +24,18 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="リソース ファイル\Dungeon">
+      <UniqueIdentifier>{5f0bf41a-bb34-4b8b-9500-9644a3dc7589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Enemy">
+      <UniqueIdentifier>{c1094ee3-5093-4286-a6c5-3745e320bdb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\UI">
+      <UniqueIdentifier>{9ad28170-e0b0-4648-b6f9-2478e5fb0b06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Player">
+      <UniqueIdentifier>{3ff7f718-3239-4e22-ac54-6148a3dcd2a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Main.cpp">
@@ -92,29 +104,29 @@
     <ClCompile Include="Engine\VFX.cpp">
       <Filter>Engine\ResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Player.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Source\TestScene.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\DungeonGenerator.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Dungeon</Filter>
     </ClCompile>
     <ClCompile Include="Source\DungeonManager.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Dungeon</Filter>
     </ClCompile>
     <ClCompile Include="Source\EnemyBox.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\MiniMap.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Source\EnemyGenerator.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Source\MiniMap.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MiniMap.h">
+      <Filter>リソース ファイル\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player.cpp">
+      <Filter>リソース ファイル\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -187,32 +199,32 @@
     <ClInclude Include="Engine\Texture.h">
       <Filter>Engine\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Player.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Source\TestScene.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\CommonType.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DungeonGenerator.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DungeonData.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\RandomNum.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\DungeonManager.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Dungeon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DungeonData.h">
+      <Filter>リソース ファイル\Dungeon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DungeonGenerator.h">
+      <Filter>リソース ファイル\Dungeon</Filter>
     </ClInclude>
     <ClInclude Include="Source\EnemyBox.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Source\EnemyGenerator.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player.h">
+      <Filter>リソース ファイル\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -23,6 +23,11 @@ MiniMap::MiniMap(GameObject* parent)
 {
 }
 
+MiniMap::~MiniMap()
+{
+	dungeonManager_ = nullptr;
+}
+
 void MiniMap::Initialize()
 {
 	// “¯ŠK‘w‚©‚ç DungeonManager ‚ðŽæ“¾

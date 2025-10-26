@@ -10,6 +10,7 @@ class MiniMap : public GameObject
 {
 public:
 	MiniMap(GameObject* parent);
+	~MiniMap();
 	void Initialize() override;
 	void Update() override;
 	void Draw() override;
