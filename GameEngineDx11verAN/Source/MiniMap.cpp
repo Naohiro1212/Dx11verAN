@@ -5,6 +5,7 @@
 #include "../Engine/Camera.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
+#include "../Engine/Image.h"
 #include <algorithm>
 
 using namespace Direct3D;
@@ -18,7 +19,7 @@ namespace
 }
 
 MiniMap::MiniMap(GameObject* parent)
-	: GameObject(parent, "MiniMap"), wallModel_(-1), dungeonManager_(nullptr)
+	: GameObject(parent, "MiniMap"), wallModel_(-1), playerModel_(-1), frameImage_(-1),dungeonManager_(nullptr)
 	, noDepthState_(nullptr)
 {
 }
@@ -34,6 +35,7 @@ void MiniMap::Initialize()
 	dungeonManager_ = dynamic_cast<DungeonManager*>(FindObject("DungeonManager"));
 	wallModel_ = Model::Load("Box.fbx");
 	playerModel_ = Model::Load("Cube.fbx");
+	frameImage_ = Image::Load("white.png");
 
 	// 深度テスト向こうのデプス・ステンシルステートを作成
 	D3D11_DEPTH_STENCIL_DESC dcDesc{};
@@ -75,6 +77,27 @@ void MiniMap::Draw()
 	UINT oldStencilRef = 0;
 	pContext_->OMGetDepthStencilState(&oldDSS, &oldStencilRef);
 
+	// 画面右上のミニマップ矩形（画面ピクセル座標）
+	const float mmX = static_cast<float>(screenWidth_) - MINIMAP_SCALE - MINIMAP_MARGIN;
+	const float mmY = MINIMAP_MARGIN; // 不要な -50 は削除
+	const float mmW = MINIMAP_SCALE;
+	const float mmH = MINIMAP_SCALE;
+
+	// 1) 2Dの白背景を先に描く（Image/Sprite は画面サイズ基準のため、ビューポート切替前に描画）
+	// 切り抜き = 表示サイズ（px）
+	Image::SetRect(frameImage_, 0, 0, static_cast<int>(mmW), static_cast<int>(mmH));
+
+	// 2D Transform（画面左上からのpx）
+	Transform bgT{};
+	bgT.position_ = { mmX, mmY, 0.0f }; // zは未使用
+	bgT.rotate_ = { 0, 0, 0 };
+	bgT.scale_ = { 1, 1, 1 };        // サイズはRECTで出す
+
+	// 透明度を付けたいときは Image::SetAlpha(frameImage_, 200) などを呼ぶ（0-255）
+	// Image::SetAlpha(frameImage_, 220);
+	Image::SetTransform(frameImage_, bgT);
+	Image::Draw(frameImage_);
+
 	// 右上にミニマップ用ビューポートを設定
 	D3D11_VIEWPORT mini{};
 	mini.Width    = MINIMAP_SCALE;
@@ -85,17 +108,14 @@ void MiniMap::Draw()
 	mini.MaxDepth = 1.0f;
 	pContext_->RSSetViewports(1, &mini);
 
-	// オーバーレイとして深度書き込みを無効化
-//	SetDepthBafferWriteEnable(false);
 	if (noDepthState_)
 	{
 		pContext_->OMSetDepthStencilState(noDepthState_, 0);
 	}
 
 	// マップ全体が入るように俯瞰カメラに一時変更
-	const float tileSize = MAPTILE_SIZE;
-	const float mapW = static_cast<float>(map.size()) * tileSize;
-	const float mapH = static_cast<float>(map[0].size()) * tileSize;
+	const float mapW = static_cast<float>(map.size()) * MAPTILE_SIZE;
+	const float mapH = static_cast<float>(map[0].size()) * MAPTILE_SIZE;
 	const XMFLOAT3 playerPos_ = dungeonManager_->GetPlayerPosition();
 	const float maxDim = (std::max)(mapW, mapH);
 	float h = (std::max)(mapW, mapH) * 0.6f;
@@ -118,7 +138,7 @@ void MiniMap::Draw()
 				Transform wallTransform_;
 				wallTransform_.scale_ = baseScale;
 				wallTransform_.rotate_ = {0,0,0};
-				wallTransform_.position_ = { static_cast<float>(i) * tileSize, 0.0f, static_cast<float>(j) * tileSize };
+				wallTransform_.position_ = { static_cast<float>(i) * MAPTILE_SIZE, 0.0f, static_cast<float>(j) * MAPTILE_SIZE };
 				Model::SetTransform(wallModel_, wallTransform_);
 				Model::Draw(wallModel_);
 			}
@@ -149,7 +169,6 @@ void MiniMap::Draw()
 	Camera::SetPosition(oldCamPos);
 	Camera::SetTarget(oldCamTarget);
 	Camera::Update();
-//	SetDepthBafferWriteEnable(true);
 	if (oldDSS)
 	{
 		pContext_->OMSetDepthStencilState(oldDSS, oldStencilRef);

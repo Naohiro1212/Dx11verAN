@@ -7,10 +7,7 @@
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-//#pragma comment(lib, "LibFbxSDK-MT.lib")
-//#pragma comment(lib, "LibXml2-MT.lib")
-//#pragma comment(lib, "zlib-MT.lib")
-#pragma comment( lib, "WindowsCodecs.lib" )
+#pragma comment(lib, "WindowsCodecs.lib" )
 
 using namespace DirectX;
 
@@ -31,6 +28,8 @@ public:
 	//引数：fileName	画像ファイル名
 	//戻値：成功/失敗
 	HRESULT Load(std::string fileName);
+
+	HRESULT CreateSolidColor(UINT _width, UINT _height, const DirectX::XMFLOAT4& _color);
 
 	//各アクセス関数
 	ID3D11SamplerState* GetSampler() { return pSampleLinear_; }	//サンプラーの取得

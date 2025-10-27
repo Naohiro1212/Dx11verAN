@@ -67,6 +67,8 @@ public:
 	//戻値：成功/失敗
 	HRESULT Load(std::string fileName);
 
+	HRESULT LoadSolidColor(const DirectX::XMFLOAT4& color);
+
 	//描画
 	//引数：matrix	変換行列（ワールド行列）
 	//引数：rect	画像の切り抜き範囲
