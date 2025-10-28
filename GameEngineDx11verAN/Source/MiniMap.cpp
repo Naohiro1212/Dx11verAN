@@ -20,7 +20,6 @@ namespace
 
 MiniMap::MiniMap(GameObject* parent)
 	: GameObject(parent, "MiniMap"), wallModel_(-1), playerModel_(-1), frameImage_(-1),dungeonManager_(nullptr)
-	, noDepthState_(nullptr)
 {
 }
 
@@ -36,20 +35,7 @@ void MiniMap::Initialize()
 	wallModel_ = Model::Load("Box.fbx");
 	playerModel_ = Model::Load("Cube.fbx");
 	frameImage_ = Image::Load("white.png");
-
-	// 深度テスト向こうのデプス・ステンシルステートを作成
-	D3D11_DEPTH_STENCIL_DESC dcDesc{};
-	dcDesc.DepthEnable = FALSE; // 深度テスト無効
-	dcDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	dcDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
-	dcDesc.StencilEnable = FALSE;
-	if (pDevice_)
-	{
-		pDevice_->CreateDepthStencilState(&dcDesc, &noDepthState_);
-	}
-
 }
-
 void MiniMap::Update()
 {
 }
@@ -83,15 +69,14 @@ void MiniMap::Draw()
 	const float mmW = MINIMAP_SCALE;
 	const float mmH = MINIMAP_SCALE;
 
-	// 1) 2Dの白背景を先に描く（Image/Sprite は画面サイズ基準のため、ビューポート切替前に描画）
-	// 切り抜き = 表示サイズ（px）
+	// 2Dの白背景を先に描く
 	Image::SetRect(frameImage_, 0, 0, static_cast<int>(mmW), static_cast<int>(mmH));
 
 	// 2D Transform（画面左上からのpx）
 	Transform bgT{};
-	bgT.position_ = { mmX, mmY, 0.0f }; // zは未使用
+	bgT.position_ = { mmX, mmY, 0.0f }; 
 	bgT.rotate_ = { 0, 0, 0 };
-	bgT.scale_ = { 1, 1, 1 };        // サイズはRECTで出す
+	bgT.scale_ = { 1, 1, 1 };      
 
 	// 透明度を付けたいときは Image::SetAlpha(frameImage_, 200) などを呼ぶ（0-255）
 	// Image::SetAlpha(frameImage_, 220);
@@ -108,18 +93,13 @@ void MiniMap::Draw()
 	mini.MaxDepth = 1.0f;
 	pContext_->RSSetViewports(1, &mini);
 
-	if (noDepthState_)
-	{
-		pContext_->OMSetDepthStencilState(noDepthState_, 0);
-	}
-
 	// マップ全体が入るように俯瞰カメラに一時変更
 	const float mapW = static_cast<float>(map.size()) * MAPTILE_SIZE;
 	const float mapH = static_cast<float>(map[0].size()) * MAPTILE_SIZE;
 	const XMFLOAT3 playerPos_ = dungeonManager_->GetPlayerPosition();
 	const float maxDim = (std::max)(mapW, mapH);
-	float h = (std::max)(mapW, mapH) * 0.6f;
-	h = (std::max)(h, 80.0f); // 低くしすぎて地面下にもぐらないように制限を付ける
+	// 下に行き過ぎないように調整
+	float h = (std::max)(maxDim * 0.6f, 80.0f);
 	// 真上から見下ろす位置に設定
 	const float eps = 1e-3f;
 	Camera::SetPosition({playerPos_.x + eps, h, playerPos_.z });
@@ -127,7 +107,6 @@ void MiniMap::Draw()
 	Camera::Update();
 
 	const XMFLOAT3 baseScale = MINIMAP_WALL_SCALE;
-
 	// 壁チップ描画
 	for (size_t i = 0; i < map.size(); ++i)
 	{
@@ -179,5 +158,4 @@ void MiniMap::Draw()
 
 void MiniMap::Release()
 {
-	SAFE_RELEASE(noDepthState_);
 }
