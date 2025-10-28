@@ -65,7 +65,7 @@ void MiniMap::Draw()
 
 	// 画面右上のミニマップ矩形（画面ピクセル座標）
 	const float mmX = static_cast<float>(screenWidth_) - MINIMAP_SCALE - MINIMAP_MARGIN;
-	const float mmY = MINIMAP_MARGIN; // 不要な -50 は削除
+	const float mmY = MINIMAP_MARGIN;
 	const float mmW = MINIMAP_SCALE;
 	const float mmH = MINIMAP_SCALE;
 
@@ -78,8 +78,7 @@ void MiniMap::Draw()
 	bgT.rotate_ = { 0, 0, 0 };
 	bgT.scale_ = { 1, 1, 1 };      
 
-	// 透明度を付けたいときは Image::SetAlpha(frameImage_, 200) などを呼ぶ（0-255）
-	// Image::SetAlpha(frameImage_, 220);
+	Image::SetAlpha(frameImage_, 255);
 	Image::SetTransform(frameImage_, bgT);
 	Image::Draw(frameImage_);
 
@@ -87,8 +86,8 @@ void MiniMap::Draw()
 	D3D11_VIEWPORT mini{};
 	mini.Width    = MINIMAP_SCALE;
 	mini.Height   = MINIMAP_SCALE;
-	mini.TopLeftX = static_cast<float>(screenWidth_) - MINIMAP_SCALE - MINIMAP_MARGIN;
-	mini.TopLeftY = MINIMAP_MARGIN - 50.0f;
+	mini.TopLeftX = mmX;
+	mini.TopLeftY = mmY;
 	mini.MinDepth = 0.0f;
 	mini.MaxDepth = 1.0f;
 	pContext_->RSSetViewports(1, &mini);

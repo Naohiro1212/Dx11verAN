@@ -66,7 +66,8 @@ void DungeonManager::Initialize()
 	mapTransform_.scale_ = MAPCHIP_SCALE;
 
 	// ミニマップを最後に生成
-	Instantiate<MiniMap>(this);
+	// だいぶ時間がかかってしまいそうだったので後回し
+//	Instantiate<MiniMap>(this);
 }
 
 void DungeonManager::Update()
