@@ -8,8 +8,8 @@
 
 namespace
 {
-	const float PLAYER_SPEED = 0.01f; // プレイヤーの移動速度
-	const float PLAYER_ROTATE_SPEED = 0.2f; // プレイヤーの回転速度
+	const float PLAYER_SPEED = 0.2f; // プレイヤーの移動速度
+	const float PLAYER_ROTATE_SPEED = 2.5f; // プレイヤーの回転速度
 }
 
 Player::Player(GameObject* parent)
@@ -20,11 +20,13 @@ Player::Player(GameObject* parent)
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("Cube.fbx");
+	hSilly = Model::Load("Box.fbx");
 	assert(hSilly >= 0);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
 	transform_.rotate_ = { 0.0, 180.0, 0.0 };
 	Camera::SetTarget(transform_.position_);
+	// プレイヤーの後方上位位置にカメラを設定
+	Camera::SetPosition(transform_.position_.x, transform_.position_.y + 10.0f, transform_.position_.z - 20.0f);
 }
 
 void Player::Update()
@@ -50,8 +52,6 @@ void Player::Update()
 		transform_.rotate_.y += PLAYER_ROTATE_SPEED;
 	}
 
-	// カメラの位置を更新
-	Camera::SetPosition(transform_.position_.x, transform_.position_.y + 50.0f, transform_.position_.z - 50.0f);
 }
 
 void Player::Draw()

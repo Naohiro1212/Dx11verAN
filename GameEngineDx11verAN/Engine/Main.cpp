@@ -16,6 +16,7 @@
 #include "Image.h"
 #include "Camera.h"
 #include "Input.h"
+#include "GameTime.h"
 #include "Audio.h"
 #include "VFX.h"
 
@@ -64,6 +65,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//オーディオ（効果音）の準備
 	Audio::Initialize();
 
+	// 時間計測の準備
+	GameTime::Initialize();
 
 	//ルートオブジェクト準備
 	//すべてのゲームオブジェクトの親となるオブジェクト
@@ -130,6 +133,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//エフェクトの更新
 				VFX::Update();
 
+				// 時間計測の更新
+				GameTime::Update();
 
 				//このフレームの描画開始
 				Direct3D::BeginDraw();
