@@ -8,7 +8,13 @@
 
 namespace
 {
+	// ダンジョン生成のリトライ上限回数
 	const size_t MAXRETRY = 100;
+	// 区域・部屋・通路の座標を表す配列の要素数
+	const size_t AREA_COORD_COUNT = 4;
+	// 区域分割の最小しきい値
+	const size_t MIN_DIVIDABLE_MARGIN = 8;
+
 }
 
 DungeonGenerator::DungeonGenerator() : retry_(0), divided_(false), rdn_(nullptr)
@@ -39,14 +45,15 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	_dng->mapDivCount = _dng->areaCountMin_ + (size_t)SafeRand((int)_dng->areaCountRand_);
 
 	// マップを必要なサイズでリサイズ
-	_dng->mapDiv.resize(_dng->mapDivCount, std::vector<size_t>(4, 0));
-	_dng->mapRoom.resize(_dng->mapDivCount, std::vector<size_t>(4, 0));
-	_dng->mapRoad.resize(_dng->mapDivCount, std::vector<size_t>(4, static_cast<size_t>(-1)));
+	// 4つの値で区域を定義するため、内側の配列サイズは4で固定
+	_dng->mapDiv.resize(_dng->mapDivCount, std::vector<size_t>(AREA_COORD_COUNT, 0));
+	_dng->mapRoom.resize(_dng->mapDivCount, std::vector<size_t>(AREA_COORD_COUNT, 0));
+	_dng->mapRoad.resize(_dng->mapDivCount, std::vector<size_t>(AREA_COORD_COUNT, static_cast<size_t>(-1)));
 	_dng->mapRoomPlayer.resize(_dng->mapDivCount, 0);
 
 	// GenerateDungeon の最初（_dng->mapDivCount を決める前）に追加
 	for (size_t i = 0; i < _dng->mapDivCount; ++i) {
-		for (size_t j = 0; j < 4; ++j) {
+		for (size_t j = 0; j < AREA_COORD_COUNT; ++j) {
 			_dng->mapDiv[i][j] = 0;
 			_dng->mapRoom[i][j] = 0;
 			_dng->mapRoad[i][j] = static_cast<size_t>(-1);
@@ -54,6 +61,12 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		_dng->mapRoomPlayer[i] = 0;
 	}
 
+	// マップサイズの取得と初期化
+	// mapDiv[num][0] : X終点
+	// mapDiv[num][1] : Y終点
+	// mapDiv[num][2] : X始点
+	// mapDiv[num][3] : Y始点
+	
 	if (_maprl.size() == 0 || _maprl.front().size() == 0) return -1;
 
 	_dng->mapDiv[0][0] = (_maprl.size() - 1); // マップの区分け初期サイズX終点（マップの大きさX軸）
@@ -85,7 +98,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			count_ = RL_COUNT_Y;
 		}
 
-		if (_dng->mapDiv[divAfter_][count_] - _dng->mapDiv[divAfter_][count_ + 2] < _dng->areaCountRand_ * 2 + 8)
+		if (_dng->mapDiv[divAfter_][count_] - _dng->mapDiv[divAfter_][count_ + 2] < _dng->areaCountRand_ * 2 + MIN_DIVIDABLE_MARGIN)
 		{
 			size_t k = 0;
 			for (size_t j = 1; j < _dng->mapDivCount; ++j)
@@ -122,6 +135,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			size_t divPos_ = minDiv_ + SafeRand(maxDiv_ - minDiv_ + 1);
 
 			// 新区画 i
+			// +2は始点と終点の壁分
 			_dng->mapDiv[i][count_] = divPos_;
 			_dng->mapDiv[i][count_ + 2] = left_;
 			_dng->mapDiv[i][abs(count_ - 1)] = _dng->mapDiv[divAfter_][abs(count_ - 1)];
@@ -190,6 +204,7 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		_dng->mapRoom[i][1] = _dng->mapRoom[i][3] + actualHeight;// Y終点
 
 		// 幅や高さが極端に小さい場合の保険
+		// +2は最低でも2マス分の広さを確保するため
 		if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2])
 		{
 			_dng->mapRoom[i][0] = _dng->mapRoom[i][2] + 2;

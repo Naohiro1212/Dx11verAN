@@ -118,9 +118,9 @@ void DungeonManager::DungeonReset()
 	dungeonGenerator_->GenerateDungeon(dungeonMapInfo_, maprl);
 
 	// 最初の部屋にプレイヤー開始位置を指定
-	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * 30.0f;
+	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * MAPTILE_SIZE;
 	playerStartPos_.y = 0.0f;
-	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * 30.0f;
+	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * MAPTILE_SIZE;
 	player_->SetPosition(playerStartPos_);
 
 	// 敵の位置取得・敵生成

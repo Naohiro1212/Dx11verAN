@@ -3,7 +3,10 @@
 
 namespace
 {
+	// マップタイル1マスのサイズ
 	const float MAPTILE_SIZE = 30.0f;
+	// 区域・部屋の座標を表す配列の要素数
+	const size_t AREA_COORD_COUNT = 4;
 }
 
 EnemyGenerator::EnemyGenerator()
@@ -20,7 +23,7 @@ void EnemyGenerator::GenerateEnemies(DungeonMap_Info* const _dng, std::vector<st
 	// 敵を生成する部屋の中心座標を計算して登録
 	for (size_t i = 1; i < _dng->mapDivCount; ++i)
 	{
-		if (_dng->mapRoom[i].size() < 4)
+		if (_dng->mapRoom[i].size() < AREA_COORD_COUNT)
 		{
 			continue;
 		}

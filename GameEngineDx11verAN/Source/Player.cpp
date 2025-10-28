@@ -31,29 +31,6 @@ void Player::Initialize()
 
 void Player::Update()
 {
-	//if(Input::IsKey(DIK_W))
-	//{
-	//	float rad = XMConvertToRadians(transform_.rotate_.y);
-	//	transform_.position_.x += PLAYER_SPEED * sin(rad);
-	//	transform_.position_.z += PLAYER_SPEED * cos(rad);
-	//}
-	//if(Input::IsKey(DIK_S))
-	//{
-	//	float rad = XMConvertToRadians(transform_.rotate_.y);
-	//	transform_.position_.x -= PLAYER_SPEED * sin(rad);
-	//	transform_.position_.z -= PLAYER_SPEED * cos(rad);
-	//}
-	//if(Input::IsKey(DIK_A))
-	//{
-	//	transform_.rotate_.y -= PLAYER_ROTATE_SPEED;
-	//}
-	//if(Input::IsKey(DIK_D))
-	//{
-	//	transform_.rotate_.y += PLAYER_ROTATE_SPEED;
-	//}
-
-	//// カメラの位置を更新
-	//Camera::SetPosition(transform_.position_.x, transform_.position_.y + 50.0f, transform_.position_.z - 50.0f);
 }
 
 void Player::Draw()
