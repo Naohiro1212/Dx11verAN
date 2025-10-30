@@ -98,6 +98,12 @@
     <ClCompile Include="Source\TestScene.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\PlayerCamera.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\GameTime.cpp">
+      <Filter>Engine\GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -177,6 +183,12 @@
     </ClInclude>
     <ClInclude Include="Engine\CommonType.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlayerCamera.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GameTime.h">
+      <Filter>Engine\GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
