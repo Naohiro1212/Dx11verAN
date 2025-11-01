@@ -42,6 +42,13 @@ private:
 	PlayerCamera plvision_;
 
 	bool wasMoving_;
+	// ジャンプ関連
 	float JumpV0_;
+	float velocityY_;
+
+	// ジャンプ上限
+	size_t jumpCount_;
+
+	bool onGround_;
 };
 

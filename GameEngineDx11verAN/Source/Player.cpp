@@ -20,8 +20,9 @@ namespace
 	const float CAMERA_INIT_PITCH_DEG = 20.0f;
 	const float CAMERA_INIT_DISTANCE = 20.0f;
 
-    const float GRAVITY = 9.8f;
-    const float JUMP_HEIGHT = 5.0f;
+    const float GRAVITY = 16.0f;
+    const float JUMP_HEIGHT = 20.0f;
+    const size_t JUMP_MAX_COUNT = 1;
 }
 
 Player::Player(GameObject* parent)
@@ -42,19 +43,23 @@ void Player::Initialize()
 	Camera::SetPosition(transform_.position_.x, transform_.position_.y + 10.0f, transform_.position_.z - 20.0f);
 
     // ジャンプの初速度
-    JumpV0_ = -sqrtf(2.0f * GRAVITY * JUMP_HEIGHT);
+    JumpV0_ = sqrtf(2.0f * GRAVITY * JUMP_HEIGHT);
+    velocityY_ = 0.0f;
+
+    // ジャンプ初期化
+    jumpCount_ = 0;
+    onGround_ = true;
 
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
 }
 
 void Player::Update()
 {
-    // カメラ更新
-    plvision_.Update(transform_.position_);
+    float dt_ = GameTime::DeltaTime();
 
     // カメラ前方（XZ）を正規化
-    DirectX::XMFLOAT3 focus = plvision_.GetFocus();
-    DirectX::XMFLOAT3 camPos = plvision_.GetCameraPosition();
+    XMFLOAT3 focus = plvision_.GetFocus();
+    XMFLOAT3 camPos = plvision_.GetCameraPosition();
     float fx = focus.x - camPos.x;
     float fz = focus.z - camPos.z;
     float fl = std::sqrt(fx * fx + fz * fz);
@@ -90,8 +95,19 @@ void Player::Update()
     // 入力が入った時・入り続けているときにだけカメラ正面へ向きを合わせる（スナップ）
     if ((isMovingNow && !wasMoving_) || (isMovingNow && wasMoving_))
     {
-        float targetYawDeg = std::atan2f(fx, fz) * (180.0f / DirectX::XM_PI);
-        transform_.rotate_.y = targetYawDeg; // 即一致（スムーズにしたいならここだけ補間に変更）
+        float targetYawDeg = std::atan2f(fx, fz) * (180.0f / XM_PI);
+        float TURN_RATE_DEG = 540.0f; // 1秒あたりの最大回頭角
+        float diff = targetYawDeg - transform_.rotate_.y;
+        // -180~180 に折り返し
+        while (diff > 180.0f) diff -= 360.0f;
+        while (diff < -180.0f) diff += 360.0f;
+        float step = TURN_RATE_DEG * dt_;
+        if (std::fabs(diff) <= step) {
+            transform_.rotate_.y = targetYawDeg;
+        }
+        else {
+            transform_.rotate_.y += (diff > 0 ? step : -step);
+        }
     }
 
     // カメラ相対の移動ベクトルで移動
@@ -100,17 +116,47 @@ void Player::Update()
     float ml = std::sqrt(mvx * mvx + mvz * mvz);
     if (ml > 1e-5f) { mvx /= ml; mvz /= ml; }
 
-    transform_.position_.x += mvx * PLAYER_SPEED * GameTime::DeltaTime();
-    transform_.position_.z += mvz * PLAYER_SPEED * GameTime::DeltaTime();
+    transform_.position_.x += mvx * PLAYER_SPEED * dt_;
+    transform_.position_.z += mvz * PLAYER_SPEED * dt_;
 
     // 入力状態を保存（エッジ検出用）
     wasMoving_ = isMovingNow;
 
     // ジャンプや重力処理
-    if (Input::IsKeyDown(DIK_SPACE))
+    if (Input::IsKeyDown(DIK_SPACE) && (onGround_ || jumpCount_ < JUMP_MAX_COUNT))
     {
-
+        velocityY_ = JumpV0_;   // 上向き初速
+        onGround_ = false;
+        ++jumpCount_;
     }
+
+    float gravity_ = GRAVITY;
+	// 落下中は速度を加算
+    if (velocityY_ < 0.0f)
+    {
+        gravity_ *= 2.0f;
+    }
+
+    // 重力加速度による速度変化
+    transform_.position_.y += velocityY_ * dt_ + (-gravity_) * 0.5f * dt_ * dt_;
+    velocityY_ += (-gravity_) * dt_;
+
+    // 地面との当たり判定（Y=0）
+    if (transform_.position_.y <= 0.0f)
+    {
+        transform_.position_.y = 0.0f;
+        // 接地時、下降中のみ速度をクリア
+        if (velocityY_ < 0.0f) velocityY_ = 0.0f;
+        onGround_ = true;
+        jumpCount_ = 0;
+    }
+    else
+    {
+        onGround_ = false;
+    }
+
+    // カメラ更新
+    plvision_.Update(transform_.position_);
 }
 
 void Player::Draw()
