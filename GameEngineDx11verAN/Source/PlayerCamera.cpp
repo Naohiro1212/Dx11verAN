@@ -9,7 +9,7 @@ using namespace DirectX;
 
 void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance) 
 { 
-    mouseSens_ = 0.01f;
+    mouseSens_ = 0.2f;
     zoomSens_ = 2.0f;
     minPitchDeg_ = -50.0f;
     maxPitchDeg_ = 60.0f;
@@ -30,12 +30,12 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos)
     float wheelSteps_ = md_.z / 120.0f;
 
     // radïœä∑Ç∑ÇÈ
-	float minPitchRad_ = XMConvertToRadians(minPitchDeg_);
-	float maxPitchRad_ = XMConvertToRadians(maxPitchDeg_);
+    float minPitchRad_ = XMConvertToRadians(minPitchDeg_);
+    float maxPitchRad_ = XMConvertToRadians(maxPitchDeg_);
 
     // äpìxçXêV
-    yawRad_ += dx_ * mouseSens_;
-	pitchRad_ = std::clamp(pitchRad_ + dy_ * mouseSens_, minPitchRad_, maxPitchRad_);
+    yawRad_ += dx_ * mouseSens_ * GameTime::DeltaTime();
+	pitchRad_ = std::clamp(pitchRad_ + dy_ * mouseSens_ * GameTime::DeltaTime(), minPitchRad_, maxPitchRad_);
 
     if (wheelSteps_ != 0.0f)
     {

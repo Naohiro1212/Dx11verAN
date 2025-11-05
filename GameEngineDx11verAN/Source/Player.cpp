@@ -23,6 +23,11 @@ namespace
     const float GRAVITY = 16.0f;
     const float JUMP_HEIGHT = 20.0f;
     const size_t JUMP_MAX_COUNT = 1;
+
+    // カメラの逆方向にする
+    const float FACE_OFFSET_DEG = 180.0f;
+    // 1秒当たりのターン率
+    const float TURN_SPEED_DEG = 540.0f;
 }
 
 Player::Player(GameObject* parent)
@@ -33,10 +38,10 @@ Player::Player(GameObject* parent)
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("Box.fbx");
+	hSilly = Model::Load("Models/warrior.fbx");
 	assert(hSilly >= 0);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
-	transform_.rotate_ = { 0.0, 180.0, 0.0 };
+	transform_.rotate_ = { 90.0, 0.0, 0.0 };
 	Camera::SetTarget(transform_.position_);
     wasMoving_ = false;
 	// プレイヤーの後方上位位置にカメラを設定
@@ -95,13 +100,12 @@ void Player::Update()
     // 入力が入った時・入り続けているときにだけカメラ正面へ向きを合わせる（スナップ）
     if ((isMovingNow && !wasMoving_) || (isMovingNow && wasMoving_))
     {
-        float targetYawDeg = std::atan2f(fx, fz) * (180.0f / XM_PI);
-        float TURN_RATE_DEG = 540.0f; // 1秒あたりの最大回頭角
+		float targetYawDeg = std::atan2f(fx, fz) * (180.0f / XM_PI) + FACE_OFFSET_DEG;
         float diff = targetYawDeg - transform_.rotate_.y;
         // -180~180 に折り返し
         while (diff > 180.0f) diff -= 360.0f;
         while (diff < -180.0f) diff += 360.0f;
-        float step = TURN_RATE_DEG * dt_;
+        float step = TURN_SPEED_DEG * dt_;
         if (std::fabs(diff) <= step) {
             transform_.rotate_.y = targetYawDeg;
         }
