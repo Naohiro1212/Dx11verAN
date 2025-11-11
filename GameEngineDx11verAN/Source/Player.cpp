@@ -20,8 +20,8 @@ namespace
 	const float CAMERA_INIT_PITCH_DEG = 20.0f;
 	const float CAMERA_INIT_DISTANCE = 20.0f;
 
-    const float GRAVITY = 16.0f;
-    const float JUMP_HEIGHT = 20.0f;
+    const float GRAVITY = 18.0f;
+    const float JUMP_HEIGHT = 12.0f;
     const size_t JUMP_MAX_COUNT = 1;
 
     // カメラの逆方向にする
@@ -71,7 +71,7 @@ void Player::Initialize()
 
     nowModel_ = idleModel_;
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
-    Model::SetAnimFrame(nowModel_, 1, 76, 1.0f);
+    Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
 }
 
 void Player::Update()
@@ -147,19 +147,19 @@ void Player::Update()
     if (prevModel != targetModel) {
         nowModel_ = targetModel;
         if (nowModel_ == rightStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 21, 1.0f);
+            Model::SetAnimFrame(nowModel_, 1, 21, 0.5f);
         }
         else if (nowModel_ == leftStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 20, 1.0f);
+            Model::SetAnimFrame(nowModel_, 1, 21, 0.5f);
         }
         else if (nowModel_ == walkModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 33, 1.0f);
+            Model::SetAnimFrame(nowModel_, 1, 32, 0.5f);
         }
         else if (nowModel_ == backStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 17, 1.0f);
+            Model::SetAnimFrame(nowModel_, 1, 17, 0.5f);
         }
         else if (nowModel_ == idleModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 76, 1.0f);
+            Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
         }
     }
 
@@ -224,6 +224,9 @@ void Player::Update()
     {
         onGround_ = false;
     }
+
+    // 武器に右手の位置を追従させる
+	XMFLOAT3 rightHandPos = Model::GetBonePosition(nowModel_, "RightHand");
 
     // カメラ更新
     plvision_.Update(transform_.position_);
