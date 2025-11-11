@@ -27,7 +27,14 @@ public:
 
 
 private:
-	int hSilly;
+	// モデルハンドル
+	int walkModel_;
+	int runModel_;
+	int leftStrafeModel_;
+	int rightStrafeModel_;
+	int backStrafeModel_;
+	int idleModel_;
+	int nowModel_;
 
 	// カメラパラメーター
 	float camYawRad_;

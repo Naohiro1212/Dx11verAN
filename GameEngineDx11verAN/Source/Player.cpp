@@ -31,17 +31,31 @@ namespace
 }
 
 Player::Player(GameObject* parent)
-	:GameObject(parent), hSilly(-1){
+	:GameObject(parent), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
+	, backStrafeModel_(-1), idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true)
+    , nowModel_(-1)
+{
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
 }
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("Models/warrior.fbx");
-	assert(hSilly >= 0);
+	walkModel_ = Model::Load("Models/walk.fbx");
+    runModel_ = Model::Load("Models/run.fbx");
+    leftStrafeModel_ = Model::Load("Models/leftstrafe.fbx");
+    rightStrafeModel_ = Model::Load("Models/rightstrafe.fbx");
+    backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
+	idleModel_ = Model::Load("Models/idle.fbx");
+	assert(walkModel_ != -1);
+    assert(runModel_ != -1);
+    assert(leftStrafeModel_ != -1);
+    assert(rightStrafeModel_ != -1);
+    assert(backStrafeModel_ != -1);
+    assert(idleModel_ != -1);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
-	transform_.rotate_ = { 90.0, 0.0, 0.0 };
+	transform_.rotate_ = { 0.0, 0.0, 0.0 };
+    transform_.scale_ = { 0.1f, 0.1f, 0.1f };
 	Camera::SetTarget(transform_.position_);
     wasMoving_ = false;
 	// プレイヤーの後方上位位置にカメラを設定
@@ -55,7 +69,9 @@ void Player::Initialize()
     jumpCount_ = 0;
     onGround_ = true;
 
+    nowModel_ = idleModel_;
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
+    Model::SetAnimFrame(nowModel_, 1, 76, 1.0f);
 }
 
 void Player::Update()
@@ -95,6 +111,56 @@ void Player::Update()
     bool isMovingNow = false;
     if (fwd != 0 || str != 0) {
         isMovingNow = true;
+    }
+
+    // 入力によるモデル切り替え
+    // 切り替えたタイミングでアニメーションを最初から再生
+    int prevModel = nowModel_;
+    int targetModel = nowModel_;
+
+    if (fwd > 0) {
+        if (str > 0) {
+            targetModel = rightStrafeModel_;
+        }
+        else if (str < 0) {
+            targetModel = leftStrafeModel_;
+        }
+        else {
+            targetModel = walkModel_;
+        }
+    }
+    else if (fwd < 0) {
+        targetModel = backStrafeModel_;
+    }
+    else {
+        if (str > 0) {
+            targetModel = rightStrafeModel_;
+        }
+        else if (str < 0) {
+            targetModel = leftStrafeModel_;
+        }
+        else {
+            targetModel = idleModel_;
+        }
+    }
+
+    if (prevModel != targetModel) {
+        nowModel_ = targetModel;
+        if (nowModel_ == rightStrafeModel_) {
+            Model::SetAnimFrame(nowModel_, 1, 21, 1.0f);
+        }
+        else if (nowModel_ == leftStrafeModel_) {
+            Model::SetAnimFrame(nowModel_, 1, 20, 1.0f);
+        }
+        else if (nowModel_ == walkModel_) {
+            Model::SetAnimFrame(nowModel_, 1, 33, 1.0f);
+        }
+        else if (nowModel_ == backStrafeModel_) {
+            Model::SetAnimFrame(nowModel_, 1, 17, 1.0f);
+        }
+        else if (nowModel_ == idleModel_) {
+            Model::SetAnimFrame(nowModel_, 1, 76, 1.0f);
+        }
     }
 
     // 入力が入った時・入り続けているときにだけカメラ正面へ向きを合わせる（スナップ）
@@ -165,9 +231,9 @@ void Player::Update()
 
 void Player::Draw()
 {
-	transform_.scale_ = { 1,1,1 };
-	Model::SetTransform(hSilly, transform_);
-	Model::Draw(hSilly);
+    // 現在のモデルを描画
+	Model::SetTransform(nowModel_, transform_);
+	Model::Draw(nowModel_);
 }
 
 

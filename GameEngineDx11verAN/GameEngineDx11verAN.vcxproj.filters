@@ -98,11 +98,14 @@
     <ClCompile Include="Source\TestScene.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\GameTime.cpp">
+      <Filter>Engine\GameObject</Filter>
+    </ClCompile>
     <ClCompile Include="Source\PlayerCamera.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\GameTime.cpp">
-      <Filter>Engine\GameObject</Filter>
+    <ClCompile Include="Source\Plane.cpp">
+      <Filter>Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -184,11 +187,14 @@
     <ClInclude Include="Engine\CommonType.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\GameTime.h">
+      <Filter>Engine\GameObject</Filter>
+    </ClInclude>
     <ClInclude Include="Source\PlayerCamera.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\GameTime.h">
-      <Filter>Engine\GameObject</Filter>
+    <ClInclude Include="Source\Plane.h">
+      <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
