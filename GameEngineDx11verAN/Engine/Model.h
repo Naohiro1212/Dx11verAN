@@ -100,7 +100,6 @@ namespace Model
 	//戻値：ワールド行列
 	XMMATRIX GetMatrix(int handle);
 
-
 	//レイキャスト（レイを飛ばして当たり判定）　※未実装
 	//引数：handle	判定したいモデルの番号
 	//引数：data	必要なものをまとめたデータ

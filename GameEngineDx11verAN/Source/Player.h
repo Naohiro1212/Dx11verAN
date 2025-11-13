@@ -2,6 +2,8 @@
 #include "../Engine/GameObject.h"
 #include "PlayerCamera.h"
 
+class Sword;
+
 class Player :
     public GameObject
 {
@@ -21,11 +23,10 @@ public:
 
 	//開放
 	void Release() override;
-	
-	//カメラ移動
-	void UpdateOrbitCamera(const XMFLOAT3& _targetPos);
 
-
+	// 武器を右手にセットするための関数
+	void AttachSwordInit();
+	void SetweaponToRightHand();
 private:
 	// モデルハンドル
 	int walkModel_;
@@ -57,5 +58,8 @@ private:
 	size_t jumpCount_;
 
 	bool onGround_;
+
+	// 武器オブジェクトへのポインタ
+	Sword* pSword;
 };
 

@@ -7,6 +7,7 @@
 #include "../Engine/Camera.h"
 #include "../Engine/GameTime.h"
 #include "PlayerCamera.h"
+#include "Sword.h"
 #include <cmath>
 #include <algorithm>
 using namespace DirectX;
@@ -72,6 +73,10 @@ void Player::Initialize()
     nowModel_ = idleModel_;
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
+
+    // 剣モデル子オブジェクトに追加
+    pSword = Instantiate<Sword>(this);
+    SetweaponToRightHand();
 }
 
 void Player::Update()
@@ -225,8 +230,10 @@ void Player::Update()
         onGround_ = false;
     }
 
-    // 武器に右手の位置を追従させる
-	XMFLOAT3 rightHandPos = Model::GetBonePosition(nowModel_, "RightHand");
+    // モデルのワールド行列更新
+    Model::SetTransform(nowModel_, transform_);
+
+    SetweaponToRightHand();
 
     // カメラ更新
     plvision_.Update(transform_.position_);
@@ -235,7 +242,6 @@ void Player::Update()
 void Player::Draw()
 {
     // 現在のモデルを描画
-	Model::SetTransform(nowModel_, transform_);
 	Model::Draw(nowModel_);
 }
 
@@ -244,7 +250,15 @@ void Player::Release()
 {
 }
 
-void Player::UpdateOrbitCamera(const XMFLOAT3& _targetPos)
+void Player::AttachSwordInit()
 {
-
+	
 }
+
+void Player::SetweaponToRightHand()
+{
+    // 右手のボーン位置を取得して剣オブジェクトを配置
+    XMFLOAT3 rightHandPos_ = Model::GetAnimBonePosition(nowModel_, "mixamorig:LeftUpLeg");
+    pSword->SetPosition(rightHandPos_);
+}
+
