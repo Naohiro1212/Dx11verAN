@@ -7,7 +7,6 @@
 #include "../Engine/Camera.h"
 #include "../Engine/GameTime.h"
 #include "PlayerCamera.h"
-#include "Sword.h"
 #include <cmath>
 #include <algorithm>
 using namespace DirectX;
@@ -48,15 +47,20 @@ void Player::Initialize()
     rightStrafeModel_ = Model::Load("Models/rightstrafe.fbx");
     backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
 	idleModel_ = Model::Load("Models/idle.fbx");
+	swordModel_ = Model::Load("Models/sword.fbx");
 	assert(walkModel_ != -1);
     assert(runModel_ != -1);
     assert(leftStrafeModel_ != -1);
     assert(rightStrafeModel_ != -1);
     assert(backStrafeModel_ != -1);
     assert(idleModel_ != -1);
+    assert(swordModel_ != -1);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
     transform_.scale_ = { 0.1f, 0.1f, 0.1f };
+	weaponTransform_.position_ = { 0.0f, 0.0f, 0.0f };
+	weaponTransform_.rotate_ = { 0.0f, 0.0f, 0.0f };
+	weaponTransform_.scale_ = { 3.0f, 3.0f, 3.0f };
 	Camera::SetTarget(transform_.position_);
     wasMoving_ = false;
 	// プレイヤーの後方上位位置にカメラを設定
@@ -74,8 +78,6 @@ void Player::Initialize()
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
 
-    // 剣モデル子オブジェクトに追加
-    pSword = Instantiate<Sword>(this);
     SetweaponToRightHand();
 }
 
@@ -243,6 +245,7 @@ void Player::Draw()
 {
     // 現在のモデルを描画
 	Model::Draw(nowModel_);
+    Model::Draw(swordModel_);
 }
 
 
@@ -250,15 +253,9 @@ void Player::Release()
 {
 }
 
-void Player::AttachSwordInit()
-{
-	
-}
-
 void Player::SetweaponToRightHand()
 {
-    // 右手のボーン位置を取得して剣オブジェクトを配置
-    XMFLOAT3 rightHandPos_ = Model::GetAnimBonePosition(nowModel_, "mixamorig:LeftUpLeg");
-    pSword->SetPosition(rightHandPos_);
+    weaponTransform_.position_ = Model::GetAnimBonePosition(nowModel_, "mixamorig:RightHand");
+    weaponTransform_.rotate_ = { transform_.rotate_.x + 45.0f, transform_.rotate_.y, transform_.rotate_.z + 90.0f };
+	Model::SetTransform(swordModel_, weaponTransform_);
 }
-

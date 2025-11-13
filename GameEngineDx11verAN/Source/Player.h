@@ -2,8 +2,6 @@
 #include "../Engine/GameObject.h"
 #include "PlayerCamera.h"
 
-class Sword;
-
 class Player :
     public GameObject
 {
@@ -25,7 +23,6 @@ public:
 	void Release() override;
 
 	// 武器を右手にセットするための関数
-	void AttachSwordInit();
 	void SetweaponToRightHand();
 private:
 	// モデルハンドル
@@ -36,6 +33,10 @@ private:
 	int backStrafeModel_;
 	int idleModel_;
 	int nowModel_;
+
+	// 剣モデル
+	int swordModel_;
+	Transform weaponTransform_;
 
 	// カメラパラメーター
 	float camYawRad_;
@@ -58,8 +59,5 @@ private:
 	size_t jumpCount_;
 
 	bool onGround_;
-
-	// 武器オブジェクトへのポインタ
-	Sword* pSword;
 };
 
