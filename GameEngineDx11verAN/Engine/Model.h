@@ -90,6 +90,12 @@ namespace Model
 	//戻値：ボーンの位置（ワールド座標）
 	XMFLOAT3 GetAnimBonePosition(int handle, std::string boneName);
 
+	//スキンメッシュアニメ中の現在時刻の任意のボーンの回転を取得
+	//引数：handle		調べたいモデルの番号
+	//引数：boneName	調べたいボーンの名前
+	//戻値：ボーンの回転（ワールド座標）
+	XMFLOAT3 GetAnimBoneRotation(int handle, std::string boneName);
+
 	//ワールド行列を設定
 	//引数：handle	設定したいモデルの番号
 	//引数：matrix	ワールド行列
