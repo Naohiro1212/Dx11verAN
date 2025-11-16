@@ -47,20 +47,15 @@ void Player::Initialize()
     rightStrafeModel_ = Model::Load("Models/rightstrafe.fbx");
     backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
 	idleModel_ = Model::Load("Models/idle.fbx");
-	swordModel_ = Model::Load("Models/sword.fbx");
 	assert(walkModel_ != -1);
     assert(runModel_ != -1);
     assert(leftStrafeModel_ != -1);
     assert(rightStrafeModel_ != -1);
     assert(backStrafeModel_ != -1);
     assert(idleModel_ != -1);
-    assert(swordModel_ != -1);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
     transform_.scale_ = { 0.1f, 0.1f, 0.1f };
-	weaponTransform_.position_ = { 0.0f, 0.0f, 0.0f };
-	weaponTransform_.rotate_ = { 0.0f, 0.0f, 0.0f };
-	weaponTransform_.scale_ = { 3.0f, 3.0f, 3.0f };
 	Camera::SetTarget(transform_.position_);
     wasMoving_ = false;
 	// プレイヤーの後方上位位置にカメラを設定
@@ -245,18 +240,9 @@ void Player::Draw()
 {
     // 現在のモデルを描画
 	Model::Draw(nowModel_);
-    Model::Draw(swordModel_);
 }
 
 
 void Player::Release()
 {
-}
-
-void Player::SetweaponToRightHand()
-{
-    // ボーン位置（ワールド）を使用
-    weaponTransform_.position_ = Model::GetAnimBonePosition(nowModel_, bone);
-
-    Model::SetTransform(swordModel_, weaponTransform_);
 }

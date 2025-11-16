@@ -34,10 +34,6 @@ private:
 	int idleModel_;
 	int nowModel_;
 
-	// 剣モデル
-	int swordModel_;
-	Transform weaponTransform_;
-
 	// カメラパラメーター
 	float camYawRad_;
 	float camPitchRad_;
