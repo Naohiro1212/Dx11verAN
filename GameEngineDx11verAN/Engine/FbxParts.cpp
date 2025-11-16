@@ -738,15 +738,7 @@ bool FbxParts::GetBonePositionAtNow(std::string boneName, XMFLOAT3* position)
 
 bool FbxParts::GetBoneRotationAtNow(std::string boneName, XMFLOAT3* rotation)
 {
-	auto it = bonePair.find(boneName);
-	if (it != bonePair.end())
-	{
-		XMFLOAT4X4 m;
-		XMStoreFloat4x4(&m, it->second->newPose);
-		XMVECTOR quat = XMQuaternionRotationMatrix(XMLoadFloat4x4(&m));
-		XMVECTOR euler = XMQuaternionToEuler(quat);
-		XMStoreFloat3(rotation, euler);
-	}
+	// ˆê’U”pŽ~
 }
 
 void FbxParts::RayCast(RayCastData* data)

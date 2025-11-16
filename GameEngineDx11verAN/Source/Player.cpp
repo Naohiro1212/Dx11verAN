@@ -255,7 +255,8 @@ void Player::Release()
 
 void Player::SetweaponToRightHand()
 {
-    weaponTransform_.position_ = Model::GetAnimBonePosition(nowModel_, "mixamorig:Sword_joint");
-    weaponTransform_.rotate_ = { transform_.rotate_.x + 45.0f, transform_.rotate_.y, transform_.rotate_.z + 90.0f };
-	Model::SetTransform(swordModel_, weaponTransform_);
+    // ボーン位置（ワールド）を使用
+    weaponTransform_.position_ = Model::GetAnimBonePosition(nowModel_, bone);
+
+    Model::SetTransform(swordModel_, weaponTransform_);
 }
