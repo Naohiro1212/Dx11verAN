@@ -172,12 +172,6 @@ public:
 	//戻値：見つかればtrue
 	bool GetBonePositionAtNow(std::string boneName, XMFLOAT3* position);
 
-	//任意のボーンの回転を取得（スキンメッシュアニメーションの時）
-	//引数：boneName	取得したいボーンの位置
-	//引数：rotation	ワールド座標での回転【out】
-	//戻値：見つかればtrue
-	bool GetBoneRotationAtNow(std::string boneName, XMFLOAT3* rotation);
-
 	//スキンメッシュ情報を取得
 	//戻値：スキンメッシュ情報
 	FbxSkin* GetSkinInfo() { return pSkinInfo_; }

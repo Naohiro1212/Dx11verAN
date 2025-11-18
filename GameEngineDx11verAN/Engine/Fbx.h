@@ -91,11 +91,6 @@ public:
 	//戻値：ボーンの位置
 	XMFLOAT3 GetAnimBonePosition(std::string boneName);
 
-	//スキンメッシュアニメ中の現在の任意のボーンの回転を取得
-	//引数：boneName	取得したいボーンの回転
-	//戻値：ボーンの回転
-	XMFLOAT3 GetAnimBoneRotation(std::string boneName);
-
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);

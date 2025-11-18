@@ -31,9 +31,9 @@ namespace
 }
 
 Player::Player(GameObject* parent)
-	:GameObject(parent), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
-	, backStrafeModel_(-1), idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true)
-    , nowModel_(-1)
+    :GameObject(parent), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
+    , backStrafeModel_(-1), idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true)
+	, nowModel_(-1), attackTimer_(0.0f), isAttacking_(false)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -47,6 +47,8 @@ void Player::Initialize()
     rightStrafeModel_ = Model::Load("Models/rightstrafe.fbx");
     backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
 	idleModel_ = Model::Load("Models/idle.fbx");
+    slashModel_ = Model::Load("Models/slash.fbx");
+
 	assert(walkModel_ != -1);
     assert(runModel_ != -1);
     assert(leftStrafeModel_ != -1);
@@ -72,13 +74,31 @@ void Player::Initialize()
     nowModel_ = idleModel_;
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
-
-    SetweaponToRightHand();
 }
 
 void Player::Update()
 {
     float dt_ = GameTime::DeltaTime();
+    // 攻撃中の処理
+    if (isAttacking_)
+    {
+        attackTimer_ += dt_;
+        if (nowModel_ != slashModel_)
+        {
+            nowModel_ = slashModel_;
+            Model::SetAnimFrame(nowModel_, 1, 45, 0.5f);
+        }
+        // 攻撃モーション終了後、idleモーションへ戻す
+        if (attackTimer_ >= 45.0f)
+        {
+            isAttacking_ = false;
+            nowModel_ = idleModel_;
+            Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
+        }
+        Model::SetTransform(nowModel_, transform_);
+        plvision_.Update(transform_.position_);
+        return;
+    }
 
     // カメラ前方（XZ）を正規化
     XMFLOAT3 focus = plvision_.GetFocus();
@@ -95,19 +115,21 @@ void Player::Update()
 
     // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレーフ）
     int fwd = 0;
-    if (Input::IsKey(DIK_W)) {
-        fwd += 1;
-    }
-    if (Input::IsKey(DIK_S)) {
-        fwd -= 1;
-    }
-
     int str = 0;
-    if (Input::IsKey(DIK_D)) {
-        str += 1;
-    }
-    if (Input::IsKey(DIK_A)) {
-        str -= 1;
+    if (!isAttacking_)
+    {
+        if (Input::IsKey(DIK_W)) {
+            fwd += 1;
+        }
+        if (Input::IsKey(DIK_S)) {
+            fwd -= 1;
+        }
+        if (Input::IsKey(DIK_D)) {
+            str += 1;
+        }
+        if (Input::IsKey(DIK_A)) {
+            str -= 1;
+        }
     }
 
     bool isMovingNow = false;
@@ -146,6 +168,15 @@ void Player::Update()
         }
     }
 
+    // 左クリックで攻撃モーション
+	// モーション中は移動が出来ず、攻撃モーションが優先される
+    // 終了するまで攻撃モーション含め他のモーションが行われず、攻撃モーションが終了するとidleモーションへ戻る
+    if (Input::IsMouseButtonDown(0))
+    {
+        isAttacking_ = true;
+        attackTimer_ = 0.0f;
+    }
+
     if (prevModel != targetModel) {
         nowModel_ = targetModel;
         if (nowModel_ == rightStrafeModel_) {
@@ -163,6 +194,9 @@ void Player::Update()
         else if (nowModel_ == idleModel_) {
             Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
         }
+		else if (nowModel_ == slashModel_) {
+			Model::SetAnimFrame(nowModel_, 1, 45, 0.5f);
+		}
     }
 
     // 入力が入った時・入り続けているときにだけカメラ正面へ向きを合わせる（スナップ）
@@ -229,8 +263,6 @@ void Player::Update()
 
     // モデルのワールド行列更新
     Model::SetTransform(nowModel_, transform_);
-
-    SetweaponToRightHand();
 
     // カメラ更新
     plvision_.Update(transform_.position_);

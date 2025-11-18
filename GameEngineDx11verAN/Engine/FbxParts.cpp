@@ -736,11 +736,6 @@ bool FbxParts::GetBonePositionAtNow(std::string boneName, XMFLOAT3* position)
 	return false;
 }
 
-bool FbxParts::GetBoneRotationAtNow(std::string boneName, XMFLOAT3* rotation)
-{
-	// ˆê’U”pŽ~
-}
-
 void FbxParts::RayCast(RayCastData* data)
 {
 	data->hit = FALSE;

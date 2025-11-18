@@ -22,8 +22,6 @@ public:
 	//開放
 	void Release() override;
 
-	// 武器を右手にセットするための関数
-	void SetweaponToRightHand();
 private:
 	// モデルハンドル
 	int walkModel_;
@@ -32,6 +30,7 @@ private:
 	int rightStrafeModel_;
 	int backStrafeModel_;
 	int idleModel_;
+	int slashModel_;
 	int nowModel_;
 
 	// カメラパラメーター
@@ -51,9 +50,13 @@ private:
 	float JumpV0_;
 	float velocityY_;
 
+	// 攻撃時間計測
+	float attackTimer_;
+
 	// ジャンプ上限
 	size_t jumpCount_;
 
 	bool onGround_;
+	bool isAttacking_;
 };
 

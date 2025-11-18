@@ -168,14 +168,6 @@ namespace Model
 		return pos;
 	}
 
-	XMFLOAT3 GetAnimBoneRotation(int handle, std::string boneName)
-	{
-		XMFLOAT3 rot = _datas[handle]->pFbx->GetAnimBoneRotation(boneName);
-		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&rot), _datas[handle]->transform.GetWorldMatrix());
-		XMStoreFloat3(&rot, vec);
-		return rot;
-	}
-
 	//ƒ[ƒ‹ƒhs—ñ‚ğİ’è
 	void SetTransform(int handle, Transform & transform)
 	{

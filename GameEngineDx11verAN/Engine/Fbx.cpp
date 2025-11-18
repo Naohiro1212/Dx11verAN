@@ -172,17 +172,6 @@ XMFLOAT3 Fbx::GetAnimBonePosition(std::string boneName)
 	return position;
 }
 
-XMFLOAT3 Fbx::GetAnimBoneRotation(std::string boneName)
-{
-	XMFLOAT3 rotation = XMFLOAT3(0, 0, 0);
-	for (int i = 0; i < parts_.size(); i++)
-	{
-		if (parts_[i]->GetBoneRotationAtNow(boneName, &rotation))
-			break;
-	}
-	return rotation;
-}
-
 void Fbx::Draw(Transform& transform, int frame)
 {
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
