@@ -63,8 +63,9 @@ public:
 	bool IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circleB);
 
 	//テスト表示用の枠を描画
-	//引数：position	オブジェクトの位置
-	void Draw(XMFLOAT3 position);
+	//引数：position	当たり判定の位置
+	//引数：rotate	当たり判定の回転
+	void Draw(XMFLOAT3 position, XMFLOAT3 rotate);
 
 	//セッター
 	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }

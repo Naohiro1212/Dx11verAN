@@ -8,6 +8,7 @@
 Collider::Collider():
 	pGameObject_(nullptr)
 {
+	hDebugModel_ = Model::Load("Assets/Box.fbx");
 }
 
 //デストラクタ
@@ -86,11 +87,12 @@ bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circ
 
 //テスト表示用の枠を描画
 //引数：position	オブジェクトの位置
-void Collider::Draw(XMFLOAT3 position)
+void Collider::Draw(XMFLOAT3 position, XMFLOAT3 rotate)
 {
 	Transform transform;
 	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
 	transform.scale_ = size_;
+	transform.rotate_ = rotate;
 	transform.Calclation();
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);

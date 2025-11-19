@@ -9,6 +9,7 @@
 #include "PlayerCamera.h"
 #include <cmath>
 #include <algorithm>
+#include "../Engine/BoxCollider.h"
 using namespace DirectX;
 
 namespace
@@ -42,7 +43,7 @@ namespace
 Player::Player(GameObject* parent)
     :GameObject(parent), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
     , backStrafeModel_(-1), idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true)
-	, nowModel_(-1), attackTimer_(0.0f), isAttacking_(false), prevMouseLeftDown_(false)
+	, nowModel_(-1), attackTimer_(0.0f), isAttacking_(false), prevMouseLeftDown_(false),pCollider_(nullptr)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -83,6 +84,10 @@ void Player::Initialize()
     nowModel_ = idleModel_;
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
+
+	// 当たり判定の追加
+	pCollider_ = new BoxCollider(transform_.position_, XMFLOAT3(1.0f, 1.0f, 1.0f));
+	AddCollider(pCollider_);
 }
 
 void Player::Update()

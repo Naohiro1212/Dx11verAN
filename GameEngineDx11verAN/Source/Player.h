@@ -2,6 +2,8 @@
 #include "../Engine/GameObject.h"
 #include "PlayerCamera.h"
 
+class BoxCollider;
+
 class Player :
     public GameObject
 {
@@ -60,4 +62,7 @@ private:
 	bool isAttacking_;
 	bool prevMouseLeftDown_;
 	float lastSlashFrame_;
+
+	// “–‚½‚è”»’è
+	BoxCollider* pCollider_;
 };
