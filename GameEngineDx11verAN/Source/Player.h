@@ -58,5 +58,6 @@ private:
 
 	bool onGround_;
 	bool isAttacking_;
+	bool prevMouseLeftDown_;
+	float lastSlashFrame_;
 };
-

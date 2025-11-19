@@ -28,12 +28,21 @@ namespace
     const float FACE_OFFSET_DEG = 180.0f;
     // 1秒当たりのターン率
     const float TURN_SPEED_DEG = 540.0f;
+
+	// スラッシュアニメーション関連
+    const int   SLASH_ANIM_START = 1;
+    const int   SLASH_ANIM_END = 45;
+    const float BASE_ANIM_FPS = 30.0f;     // モーションが想定する基準FPS（仮定）
+    const float SLASH_PLAY_SPEED = 0.65f;      // 既存指定の再生スピード
+    // 実時間 = (フレーム数 / FPS) / 再生スピード
+    const float SLASH_DURATION_SEC = (SLASH_ANIM_END - SLASH_ANIM_START + 1) / BASE_ANIM_FPS / SLASH_PLAY_SPEED;
+
 }
 
 Player::Player(GameObject* parent)
     :GameObject(parent), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
     , backStrafeModel_(-1), idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true)
-	, nowModel_(-1), attackTimer_(0.0f), isAttacking_(false)
+	, nowModel_(-1), attackTimer_(0.0f), isAttacking_(false), prevMouseLeftDown_(false)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -79,22 +88,36 @@ void Player::Initialize()
 void Player::Update()
 {
     float dt_ = GameTime::DeltaTime();
-    // 攻撃中の処理
+
+    // 攻撃モーション中は他の動作を行えない
+    // 攻撃中
     if (isAttacking_)
     {
-        attackTimer_ += dt_;
-        if (nowModel_ != slashModel_)
-        {
-            nowModel_ = slashModel_;
-            Model::SetAnimFrame(nowModel_, 1, 45, 0.5f);
-        }
-        // 攻撃モーション終了後、idleモーションへ戻す
-        if (attackTimer_ >= 45.0f)
+        // 1周目の途中でループ（startに戻る）したら終了
+        int cur = Model::GetAnimFrame(slashModel_);
+        if (cur < lastSlashFrame_) // startへ巻き戻った＝ループ発生
         {
             isAttacking_ = false;
             nowModel_ = idleModel_;
             Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
         }
+        else
+        {
+            lastSlashFrame_ = cur;
+        }
+
+        Model::SetTransform(nowModel_, transform_);
+        plvision_.Update(transform_.position_);
+        return;
+    }
+
+    // 攻撃開始（開始時だけセット）
+    if (Input::IsMouseButtonDown(0) && onGround_)
+    {
+        isAttacking_ = true;
+        nowModel_ = slashModel_;
+        Model::SetAnimFrame(nowModel_, SLASH_ANIM_START, SLASH_ANIM_END, SLASH_PLAY_SPEED);
+        lastSlashFrame_ = SLASH_ANIM_START; // 巻き戻り検知の基準
         Model::SetTransform(nowModel_, transform_);
         plvision_.Update(transform_.position_);
         return;
@@ -168,15 +191,7 @@ void Player::Update()
         }
     }
 
-    // 左クリックで攻撃モーション
-	// モーション中は移動が出来ず、攻撃モーションが優先される
-    // 終了するまで攻撃モーション含め他のモーションが行われず、攻撃モーションが終了するとidleモーションへ戻る
-    if (Input::IsMouseButtonDown(0))
-    {
-        isAttacking_ = true;
-        attackTimer_ = 0.0f;
-    }
-
+    // 移動のアニメーション
     if (prevModel != targetModel) {
         nowModel_ = targetModel;
         if (nowModel_ == rightStrafeModel_) {
@@ -194,9 +209,6 @@ void Player::Update()
         else if (nowModel_ == idleModel_) {
             Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
         }
-		else if (nowModel_ == slashModel_) {
-			Model::SetAnimFrame(nowModel_, 1, 45, 0.5f);
-		}
     }
 
     // 入力が入った時・入り続けているときにだけカメラ正面へ向きを合わせる（スナップ）
