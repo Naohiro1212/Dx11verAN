@@ -107,6 +107,9 @@
     <ClCompile Include="Source\Plane.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AttackCollider.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -194,6 +197,9 @@
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Plane.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AttackCollider.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
