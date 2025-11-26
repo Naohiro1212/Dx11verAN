@@ -30,6 +30,7 @@ protected:
 	ColliderType	type_;			//種類
 	XMFLOAT3		center_;		//中心位置（ゲームオブジェクトの原点から見た位置）
 	XMFLOAT3		size_;			//判定サイズ（幅、高さ、奥行き）
+	Role			role_;			//コライダーの属性（体 or 攻撃）
 	int				hDebugModel_;	//デバッグ表示用のモデルのID
 
 public:
@@ -69,6 +70,20 @@ public:
 
 	//セッター
 	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }
+
+	// コライダー属性
+	enum Role { Body, Attack };
+	void SetRole(Role r) { role_ = r; }
+	Role GetRole() const { return role_; }
+
+	// 追加: ローカル中心の更新（攻撃判定を前方へ追従させるため）
+	void SetCenter(const DirectX::XMFLOAT3& c) { center_ = c; }
+	const DirectX::XMFLOAT3& GetCenter() const { return center_; }
+
+	// 追加: サイズ更新が必要なら
+	void SetSize(const DirectX::XMFLOAT3& s) { size_ = s; }
+	const DirectX::XMFLOAT3& GetSize() const { return size_; }
+
 
 };
 

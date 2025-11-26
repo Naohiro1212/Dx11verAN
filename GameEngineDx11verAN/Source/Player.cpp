@@ -85,9 +85,17 @@ void Player::Initialize()
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
 
-	// 当たり判定の追加
-	pCollider_ = new BoxCollider(transform_.position_, XMFLOAT3(1.0f, 1.0f, 1.0f));
-	AddCollider(pCollider_);
+    pCollider_ = new BoxCollider(transform_.position_, XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 300.0f, transform_.scale_.z * 40.0f));
+    AddCollider(pCollider_);
+    pCollider_->SetRole(Collider::Role::Body);
+
+    attackCollider_ = new BoxCollider(
+        XMFLOAT3(0.0f, transform_.scale_.y * 100.0f, transform_.scale_.z * 50.0f),
+        XMFLOAT3(transform_.scale_.x * 60.0f, transform_.scale_.y * 100.0f, transform_.scale_.z * 100.0f)
+    );
+
+    AddCollider(attackCollider_);
+    attackCollider_->SetRole(Collider::Role::Attack);
 }
 
 void Player::Update()
@@ -110,6 +118,7 @@ void Player::Update()
         {
             lastSlashFrame_ = cur;
         }
+
 
         Model::SetTransform(nowModel_, transform_);
         plvision_.Update(transform_.position_);
@@ -281,6 +290,26 @@ void Player::Update()
     // モデルのワールド行列更新
     Model::SetTransform(nowModel_, transform_);
 
+    // プレイヤーのヨー角（度→ラジアン）
+    float yawRad = transform_.rotate_.y * XM_PI / 180.0f;
+
+    // 前方ベクトル（walk アニメと同じ前方が +Z なら (sin,0,cos) で一致）
+    float attackfrontX = -std::sinf(yawRad);
+    float attackfrontZ = -std::cosf(yawRad);
+
+    // ローカル基準オフセット（元に使っていた値）
+    float forwardDist = transform_.scale_.z * 50.0f;
+    float height = transform_.scale_.y * 100.0f;
+
+    // 回転を反映した中心オフセット
+    XMFLOAT3 rotatedCenter(
+        attackfrontX * forwardDist,       // X
+        height,                 // Y（高さは回転させない）
+        attackfrontZ * forwardDist        // Z
+    );
+
+    attackCollider_->SetCenter(rotatedCenter);
+
     // カメラ更新
     plvision_.Update(transform_.position_);
 }
@@ -289,9 +318,21 @@ void Player::Draw()
 {
     // 現在のモデルを描画
 	Model::Draw(nowModel_);
+    pCollider_->Draw(transform_.position_, transform_.rotate_);
+	attackCollider_->Draw(transform_.position_, transform_.rotate_);
 }
 
 
 void Player::Release()
 {
+}
+
+void Player::OnCollision(GameObject* pTarget)
+{
+    // 直近の衝突元が攻撃コライダー以外なら無視
+    Collider* src = GetLastHitCollider();
+    if (!src || src != attackCollider_) return;
+
+    // ここに攻撃ヒット時の処理を書く
+    // 例: pTarget->KillMe(); や ヒットエフェクト、ダメージ適用など
 }

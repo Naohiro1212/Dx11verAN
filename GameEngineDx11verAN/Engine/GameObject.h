@@ -28,6 +28,9 @@ protected:
 	//衝突判定リスト
 	std::list<Collider*>	colliderList_;	
 
+	//Collision()内部で設定
+	Collider* lastHitCollider_ = nullptr;
+
 public:
 	//コンストラクタ
 	GameObject();
@@ -103,8 +106,6 @@ public:
 	//子オブジェクトを全て削除
 	void KillAllChildren();
 
-
-
 	//コライダー（衝突判定）を追加する
 	void AddCollider(Collider * collider);
 
@@ -121,6 +122,9 @@ public:
 
 	//テスト用の衝突判定枠を表示
 	void CollisionDraw();
+
+	//直近の衝突元コライダーを取得
+	Collider* GetLastHitCollider() const { return lastHitCollider_; }
 
 	//RootJobを取得
 	GameObject* GetRootJob();

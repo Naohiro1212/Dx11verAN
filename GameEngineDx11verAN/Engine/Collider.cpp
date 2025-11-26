@@ -3,12 +3,14 @@
 #include "GameObject.h"
 #include "Model.h"
 #include "Transform.h"
+#include <assert.h>
 
 //コンストラクタ
 Collider::Collider():
 	pGameObject_(nullptr)
 {
-	hDebugModel_ = Model::Load("Assets/Box.fbx");
+	hDebugModel_ = Model::Load("Box.fbx");
+	assert(hDebugModel_ != -1);
 }
 
 //デストラクタ

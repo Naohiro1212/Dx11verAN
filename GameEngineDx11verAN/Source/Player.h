@@ -24,6 +24,8 @@ public:
 	//開放
 	void Release() override;
 
+	void OnCollision(GameObject* pTarget) override;
+
 private:
 	// モデルハンドル
 	int walkModel_;
@@ -65,4 +67,5 @@ private:
 
 	// 当たり判定
 	BoxCollider* pCollider_;
+	BoxCollider* attackCollider_;
 };
