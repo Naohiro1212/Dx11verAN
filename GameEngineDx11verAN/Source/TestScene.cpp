@@ -1,6 +1,7 @@
 #include "../Source/TestScene.h"
 #include "../Source/Player.h"
 #include "../Source/Plane.h"
+#include "../Source/testEnemy.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -12,8 +13,9 @@ TestScene::TestScene(GameObject * parent)
 void TestScene::Initialize()
 {	
 	//pWp = Instantiate<Weapon>(this);
-	Instantiate <Player>(this);
+	Instantiate<Player>(this);
 	Instantiate<Plane>(this);
+	Instantiate<testEnemy>(this);
 }
 
 //更新

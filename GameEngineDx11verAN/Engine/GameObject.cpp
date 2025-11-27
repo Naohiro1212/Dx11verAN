@@ -242,47 +242,58 @@ void GameObject::ClearCollider()
 	colliderList_.clear();
 }
 
-//衝突判定
+void GameObject::RemoveCollider(Collider* collider)
+{
+	if (!collider) return;
+	for (auto it = colliderList_.begin(); it != colliderList_.end(); it++)
+	{
+		if (*it == collider)
+		{
+			SAFE_DELETE(*it);
+			colliderList_.erase(it);
+			break;
+		}
+	}
+}
+
 void GameObject::Collision(GameObject* pTarget)
 {
-	//自分同士の当たり判定はしない
-	if (pTarget == nullptr || this == pTarget)
-	{
-		return;
-	}
+	if (pTarget == nullptr || this == pTarget) return;
 
-	// 自分とpTargetのコリジョン情報を使って当たり判定
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); ++i)
 	{
 		for (auto j = pTarget->colliderList_.begin(); j != pTarget->colliderList_.end(); ++j)
 		{
-			if ((*i)->IsHit(*j))
+			Collider* a = *i;
+			Collider* b = *j;
+
+			if (a->IsHit(b))
 			{
-				// 当たった: 直近の衝突元コライダーを保存
-				this->lastHitCollider_ = *i;
+				this->lastHitCollider_ = a;
+				pTarget->lastHitCollider_ = b;
 
-				// 攻撃用コライダーのみ通知したい場合は役割でフィルタ
-				// （役割を使わないなら、Player側で lastHitCollider_ == attackCollider_ を判定してもOK）
-				if ((*i)->GetRole() == Collider::Role::Attack)
+				const auto roleA = a->GetRole();
+				const auto roleB = b->GetRole();
+
+				const bool anyAttack = (roleA == Collider::Role::Attack || roleB == Collider::Role::Attack);
+
+				if (anyAttack)
 				{
+					// Attack×Body も Attack×Attack も同じ通知
 					this->OnCollision(pTarget);
-				}
-
-				// 相手側にも通知したいなら（必要に応じて）
-				pTarget->lastHitCollider_ = *j;
-				if ((*j)->GetRole() == Collider::Role::Attack)
-				{
 					pTarget->OnCollision(this);
+				}
+				else
+				{
+					// Body×Body は接触ダメージ用途で必要なら通知
+					// this->OnCollision(pTarget);
+					// pTarget->OnCollision(this);
 				}
 			}
 		}
 	}
 
-	// 子供がいないなら終わり
-	if (pTarget->childList_.empty())
-		return;
-
-	// 子供も当たり判定
+	if (pTarget->childList_.empty()) return;
 	for (auto it = pTarget->childList_.begin(); it != pTarget->childList_.end(); ++it)
 	{
 		Collision(*it);

@@ -176,9 +176,11 @@
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
+    <ClCompile Include="Source\MagicSphere.cpp" />
     <ClCompile Include="Source\Plane.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\PlayerCamera.cpp" />
+    <ClCompile Include="Source\testEnemy.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -207,9 +209,11 @@
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\VFX.h" />
+    <ClInclude Include="Source\MagicSphere.h" />
     <ClInclude Include="Source\Plane.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\PlayerCamera.h" />
+    <ClInclude Include="Source\testEnemy.h" />
     <ClInclude Include="Source\TestScene.h" />
   </ItemGroup>
   <ItemGroup>

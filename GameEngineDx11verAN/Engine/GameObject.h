@@ -116,6 +116,9 @@ public:
 	//コライダー（衝突判定）を削除
 	void ClearCollider();
 
+	//指定したコライダー（衝突判定）を削除
+	void RemoveCollider(Collider* collider);
+
 	//衝突判定
 	//引数：pTarget	衝突してるか調べる相手
 	void Collision(GameObject* pTarget);

@@ -10,6 +10,7 @@
 #include <cmath>
 #include <algorithm>
 #include "../Engine/BoxCollider.h"
+#include "../Source/MagicSphere.h"
 using namespace DirectX;
 
 namespace
@@ -41,9 +42,10 @@ namespace
 }
 
 Player::Player(GameObject* parent)
-    :GameObject(parent), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
+    :GameObject(parent, "Player"), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
     , backStrafeModel_(-1), idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true)
 	, nowModel_(-1), attackTimer_(0.0f), isAttacking_(false), prevMouseLeftDown_(false),pCollider_(nullptr)
+	, magicDir_(0.0f, 0.0f, 0.0f)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -65,7 +67,7 @@ void Player::Initialize()
     assert(rightStrafeModel_ != -1);
     assert(backStrafeModel_ != -1);
     assert(idleModel_ != -1);
-	transform_.position_ = { 0.0, 0.0, 0.0 };
+	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
     transform_.scale_ = { 0.1f, 0.1f, 0.1f };
 	Camera::SetTarget(transform_.position_);
@@ -85,17 +87,9 @@ void Player::Initialize()
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
 
-    pCollider_ = new BoxCollider(transform_.position_, XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 300.0f, transform_.scale_.z * 40.0f));
+    pCollider_ = new BoxCollider(XMFLOAT3(0.0f,0.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 300.0f, transform_.scale_.z * 40.0f));
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
-
-    attackCollider_ = new BoxCollider(
-        XMFLOAT3(0.0f, transform_.scale_.y * 100.0f, transform_.scale_.z * 50.0f),
-        XMFLOAT3(transform_.scale_.x * 60.0f, transform_.scale_.y * 100.0f, transform_.scale_.z * 100.0f)
-    );
-
-    AddCollider(attackCollider_);
-    attackCollider_->SetRole(Collider::Role::Attack);
 }
 
 void Player::Update()
@@ -103,7 +97,6 @@ void Player::Update()
     float dt_ = GameTime::DeltaTime();
 
     // 攻撃モーション中は他の動作を行えない
-    // 攻撃中
     if (isAttacking_)
     {
         // 1周目の途中でループ（startに戻る）したら終了
@@ -111,6 +104,13 @@ void Player::Update()
         if (cur < lastSlashFrame_) // startへ巻き戻った＝ループ発生
         {
             isAttacking_ = false;
+
+            // 攻撃用コライダー破棄
+            if(attackCollider_)
+            {
+                RemoveCollider(attackCollider_);
+                attackCollider_ = nullptr;
+            }
             nowModel_ = idleModel_;
             Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
         }
@@ -128,6 +128,17 @@ void Player::Update()
     // 攻撃開始（開始時だけセット）
     if (Input::IsMouseButtonDown(0) && onGround_)
     {
+        attackCollider_ = new BoxCollider(
+            XMFLOAT3(0.0f, transform_.scale_.y * 100.0f, transform_.scale_.z * 50.0f),
+            XMFLOAT3(transform_.scale_.x * 60.0f,
+                     transform_.scale_.y * 100.0f, 
+                     transform_.scale_.z * 100.0f)
+        );
+
+        AddCollider(attackCollider_);
+        attackCollider_->SetRole(Collider::Role::Attack);
+        attackCollider_->SetCenter(rotateCenter_);
+
         isAttacking_ = true;
         nowModel_ = slashModel_;
         Model::SetAnimFrame(nowModel_, SLASH_ANIM_START, SLASH_ANIM_END, SLASH_PLAY_SPEED);
@@ -140,15 +151,24 @@ void Player::Update()
     // カメラ前方（XZ）を正規化
     XMFLOAT3 focus = plvision_.GetFocus();
     XMFLOAT3 camPos = plvision_.GetCameraPosition();
-    float fx = focus.x - camPos.x;
-    float fz = focus.z - camPos.z;
-    float fl = std::sqrt(fx * fx + fz * fz);
-    if (fl > 1e-5f) { fx /= fl; fz /= fl; }
-    else { fx = 0.0f; fz = 1.0f; }
+    XMFLOAT3 forward = {
+        focus.x - camPos.x,
+        0.0f,
+        focus.z - camPos.z
+    };
+    XMVECTOR vForward = XMLoadFloat3(&forward);
+    vForward = XMVector3Normalize(vForward);
+    XMStoreFloat3(&forward, vForward);
 
     // 右ベクトル（XZ）
-    float rx = fz;
-    float rz = -fx;
+    XMFLOAT3 right = {
+        forward.z,
+        0.0f,
+        -forward.x
+    };
+    XMVECTOR vRight = XMLoadFloat3(&right);
+    vRight = XMVector3Normalize(vRight);
+    XMStoreFloat3(&right, vRight);
 
     // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレーフ）
     int fwd = 0;
@@ -225,16 +245,29 @@ void Player::Update()
         }
     }
 
-    // 入力が入った時・入り続けているときにだけカメラ正面へ向きを合わせる（スナップ）
-    if ((isMovingNow && !wasMoving_) || (isMovingNow && wasMoving_))
+    if (isMovingNow)
     {
-		float targetYawDeg = std::atan2f(fx, fz) * (180.0f / XM_PI) + FACE_OFFSET_DEG;
+        // カメラ前方ベクトル（XZ）をDirectXMathで取得済みとする
+        XMVECTOR vForward = XMLoadFloat3(&forward);
+
+        // プレイヤーの現在の向き（Y軸回転）をラジアンで取得
+        float currentYawRad = XMConvertToRadians(transform_.rotate_.y);
+
+        // プレイヤーの前方ベクトル（XZ, Y=0）
+        XMVECTOR vPlayerForward = XMVectorSet(-sinf(currentYawRad), 0.0f, -cosf(currentYawRad), 0.0f);
+
+        // カメラ前方ベクトルの向きから目標ヨー角を計算
+        float targetYawRad = atan2f(forward.x, forward.z); // DirectXMathにもXMVectorGetX/Yはあるが、ここはfloatでOK
+        float targetYawDeg = XMConvertToDegrees(targetYawRad) + FACE_OFFSET_DEG;
+
+        // 差分計算
         float diff = targetYawDeg - transform_.rotate_.y;
         // -180~180 に折り返し
         while (diff > 180.0f) diff -= 360.0f;
         while (diff < -180.0f) diff += 360.0f;
+
         float step = TURN_SPEED_DEG * dt_;
-        if (std::fabs(diff) <= step) {
+        if (fabsf(diff) <= step) {
             transform_.rotate_.y = targetYawDeg;
         }
         else {
@@ -243,13 +276,26 @@ void Player::Update()
     }
 
     // カメラ相対の移動ベクトルで移動
-    float mvx = fwd * fx + str * rx;
-    float mvz = fwd * fz + str * rz;
-    float ml = std::sqrt(mvx * mvx + mvz * mvz);
-    if (ml > 1e-5f) { mvx /= ml; mvz /= ml; }
+    XMVECTOR vMove = XMVectorZero();
+    if (fwd != 0)
+    {
+        vMove = XMVectorAdd(vMove, XMVectorScale(vForward, static_cast<float>(fwd)));
+    }
+    if (str != 0)
+    {
+        vMove = XMVectorAdd(vMove, XMVectorScale(vRight, static_cast<float>(str)));
+    }
 
-    transform_.position_.x += mvx * PLAYER_SPEED * dt_;
-    transform_.position_.z += mvz * PLAYER_SPEED * dt_;
+    // 正規化
+    if (XMVector3LengthSq(vMove).m128_f32[0] > 1e-5f)
+    {
+        vMove = XMVector3Normalize(vMove);
+    }
+    XMFLOAT3 moveVec;
+    XMStoreFloat3(&moveVec, vMove);
+
+    transform_.position_.x += moveVec.x * PLAYER_SPEED * dt_;
+    transform_.position_.z += moveVec.z * PLAYER_SPEED * dt_;
 
     // 入力状態を保存（エッジ検出用）
     wasMoving_ = isMovingNow;
@@ -290,25 +336,36 @@ void Player::Update()
     // モデルのワールド行列更新
     Model::SetTransform(nowModel_, transform_);
 
-    // プレイヤーのヨー角（度→ラジアン）
-    float yawRad = transform_.rotate_.y * XM_PI / 180.0f;
+    // 攻撃用の方向ベクトル計算(近接・魔法攻撃どちらも対応)
+    float yawRad = XMConvertToRadians(transform_.rotate_.y);
+    // 正面方向ベクトル（XZ平面、Yは0でOK）
+    magicDir_ = {
+        -sinf(yawRad), // X
+        0.0f,          // Y
+        -cosf(yawRad)  // Z
+    };
 
-    // 前方ベクトル（walk アニメと同じ前方が +Z なら (sin,0,cos) で一致）
-    float attackfrontX = -std::sinf(yawRad);
-    float attackfrontZ = -std::cosf(yawRad);
+    // 右クリックで魔法発射
+	if (Input::IsMouseButtonDown(1) && onGround_)
+	{
+		// 魔法弾生成
+		XMFLOAT3 spawnPos = transform_.position_;
+		XMFLOAT3 nowmagicDir_ = magicDir_;
+        auto* sphere = Instantiate<MagicSphere>(this);
+        sphere->SetPosition(spawnPos);
+        sphere->SetMoveVec(nowmagicDir_);
+	}
 
     // ローカル基準オフセット（元に使っていた値）
     float forwardDist = transform_.scale_.z * 50.0f;
     float height = transform_.scale_.y * 100.0f;
 
     // 回転を反映した中心オフセット
-    XMFLOAT3 rotatedCenter(
-        attackfrontX * forwardDist,       // X
-        height,                 // Y（高さは回転させない）
-        attackfrontZ * forwardDist        // Z
-    );
-
-    attackCollider_->SetCenter(rotatedCenter);
+	rotateCenter_ = XMFLOAT3(
+		magicDir_.x * forwardDist,
+		height,
+		magicDir_.z * forwardDist
+	);
 
     // カメラ更新
     plvision_.Update(transform_.position_);
@@ -319,9 +376,12 @@ void Player::Draw()
     // 現在のモデルを描画
 	Model::Draw(nowModel_);
     pCollider_->Draw(transform_.position_, transform_.rotate_);
-	attackCollider_->Draw(transform_.position_, transform_.rotate_);
-}
 
+    if (attackCollider_)
+    {
+        attackCollider_->Draw(transform_.position_, transform_.rotate_);
+    }
+}
 
 void Player::Release()
 {

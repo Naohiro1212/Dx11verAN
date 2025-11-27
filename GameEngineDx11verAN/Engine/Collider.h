@@ -21,6 +21,13 @@ enum ColliderType
 //-----------------------------------------------------------
 class Collider
 {
+public:
+	// コライダー属性
+	enum Role { Body, Attack };
+	void SetRole(Role r) { role_ = r; }
+	Role GetRole() const { return role_; }
+
+private:
 	//それぞれのクラスのprivateメンバにアクセスできるようにする
 	friend class BoxCollider;
 	friend class SphereCollider;
@@ -34,6 +41,7 @@ protected:
 	int				hDebugModel_;	//デバッグ表示用のモデルのID
 
 public:
+
 	//コンストラクタ
 	Collider();
 
@@ -71,16 +79,11 @@ public:
 	//セッター
 	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }
 
-	// コライダー属性
-	enum Role { Body, Attack };
-	void SetRole(Role r) { role_ = r; }
-	Role GetRole() const { return role_; }
-
-	// 追加: ローカル中心の更新（攻撃判定を前方へ追従させるため）
+	//ローカル中心の更新（攻撃判定を前方へ追従させるため）
 	void SetCenter(const DirectX::XMFLOAT3& c) { center_ = c; }
 	const DirectX::XMFLOAT3& GetCenter() const { return center_; }
 
-	// 追加: サイズ更新が必要なら
+	//サイズ更新が必要なら
 	void SetSize(const DirectX::XMFLOAT3& s) { size_ = s; }
 	const DirectX::XMFLOAT3& GetSize() const { return size_; }
 

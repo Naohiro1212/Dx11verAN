@@ -68,4 +68,9 @@ private:
 	// 当たり判定
 	BoxCollider* pCollider_;
 	BoxCollider* attackCollider_;
+	// 攻撃用コライダーの回転を反映した中心オフセット
+	XMFLOAT3 rotateCenter_;
+
+	// 魔法攻撃用方向ベクトル
+	XMFLOAT3 magicDir_;
 };
