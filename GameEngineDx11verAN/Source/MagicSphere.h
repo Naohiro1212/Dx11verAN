@@ -1,6 +1,8 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class SphereCollider;
+
 class MagicSphere : public GameObject
 {
 public:
@@ -17,10 +19,11 @@ public:
 	//ŠJ•ú
 	void Release() override;
 
-	void SetMoveVec(XMFLOAT3 moveVec) { moveVec_ = moveVec; }
+	void OnCollision(GameObject* pTarget) override;
 
 private:
 	int magicModel_;
 	float AttackTimer_;
-	XMFLOAT3 moveVec_;
+
+	SphereCollider* pCollider_;
 };

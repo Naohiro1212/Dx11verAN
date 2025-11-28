@@ -315,15 +315,15 @@ void GameObject::CollisionDraw()
 }
 
 //RootJob‚ðŽæ“¾
-GameObject * GameObject::GetRootJob()
+GameObject* GameObject::GetRootJob()
 {
-	if (GetParent() == nullptr)
+	GameObject* cur = this;
+	while (cur->pParent_ != nullptr)
 	{
-		return this;
+		cur = cur->pParent_;
 	}
-	else return GetParent()->GetRootJob();
+	return cur;
 }
-
 
 
 

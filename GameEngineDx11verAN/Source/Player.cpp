@@ -11,6 +11,7 @@
 #include <algorithm>
 #include "../Engine/BoxCollider.h"
 #include "../Source/MagicSphere.h"
+
 using namespace DirectX;
 
 namespace
@@ -87,7 +88,7 @@ void Player::Initialize()
 	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
 
-    pCollider_ = new BoxCollider(XMFLOAT3(0.0f,0.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 300.0f, transform_.scale_.z * 40.0f));
+    pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 }
@@ -350,10 +351,13 @@ void Player::Update()
 	{
 		// 魔法弾生成
 		XMFLOAT3 spawnPos = transform_.position_;
-		XMFLOAT3 nowmagicDir_ = magicDir_;
-        auto* sphere = Instantiate<MagicSphere>(this);
-        sphere->SetPosition(spawnPos);
-        sphere->SetMoveVec(nowmagicDir_);
+		MagicSphere* sphere = Instantiate<MagicSphere>(GetRootJob());
+		sphere->SetPosition(
+			spawnPos.x + magicDir_.x * transform_.scale_.z * 60.0f,
+			spawnPos.y + transform_.scale_.y * 100.0f,
+			spawnPos.z + magicDir_.z * transform_.scale_.z * 60.0f
+		);
+		sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
 	}
 
     // ローカル基準オフセット（元に使っていた値）

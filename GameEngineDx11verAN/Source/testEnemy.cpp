@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "../Engine/BoxCollider.h"
 
-testEnemy::testEnemy(GameObject* parent) :GameObject(parent), modelHandle_(-1), pCollider_(nullptr)
+testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr)
 {
 }
 
@@ -19,7 +19,7 @@ void testEnemy::Initialize()
 	// 仮にプレイヤーのアイドルモデルを使う
 	modelHandle_ = Model::Load("Models/idle.fbx");
 
-	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,0.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 300.0f, transform_.scale_.z * 40.0f));
+	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
 	AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 }
@@ -50,12 +50,13 @@ void testEnemy::OnCollision(GameObject* pTarget)
     const auto myRole = myCol->GetRole();
     const auto targetRole = targetCol->GetRole();
 
-    const bool anyAttack = (myRole == Collider::Role::Attack || targetRole == Collider::Role::Attack);
+    const bool anyAttack = (myRole == Collider::Role::Body && targetRole == Collider::Role::Attack);
 
-    if (anyAttack)
+    const bool isPlayer = (pTarget->GetObjectName() == "Player" || pTarget->GetObjectName() == "MagicSphere");
+
+    if (anyAttack && isPlayer)
     {
         KillMe();
     }
-
     // Body×Body の場合、敵側ではダメージ適用しない（重複防止）
 }
