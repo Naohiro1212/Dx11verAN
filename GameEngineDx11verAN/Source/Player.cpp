@@ -351,7 +351,7 @@ void Player::Update()
 	{
 		// ñÇñ@íeê∂ê¨
 		XMFLOAT3 spawnPos = transform_.position_;
-		MagicSphere* sphere = Instantiate<MagicSphere>(GetRootJob());
+		MagicSphere* sphere = Instantiate<MagicSphere>(GetParent());
 		sphere->SetPosition(
 			spawnPos.x + magicDir_.x * transform_.scale_.z * 60.0f,
 			spawnPos.y + transform_.scale_.y * 100.0f,

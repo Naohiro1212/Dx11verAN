@@ -50,19 +50,34 @@ bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 	XMFLOAT3 circlePos = Transform::Float3Add(sphere->pGameObject_->GetWorldPosition(), sphere->center_);
 	XMFLOAT3 boxPos = Transform::Float3Add(box->pGameObject_->GetWorldPosition(), box->center_);
 
+	// Box の半径（ハーフサイズ）
+	const float hx = box->size_.x * 0.5f;
+	const float hy = box->size_.y * 0.5f;
+	const float hz = box->size_.z * 0.5f;
 
+	// Sphere 半径（size_.x が半径である前提。もし直径なら 0.5 を掛けてください）
+	const float r = sphere->size_.x;
 
-	if (circlePos.x > boxPos.x - box->size_.x - sphere->size_.x &&
-		circlePos.x < boxPos.x + box->size_.x + sphere->size_.x &&
-		circlePos.y > boxPos.y - box->size_.y - sphere->size_.x &&
-		circlePos.y < boxPos.y + box->size_.y + sphere->size_.x &&
-		circlePos.z > boxPos.z - box->size_.z - sphere->size_.x &&
-		circlePos.z < boxPos.z + box->size_.z + sphere->size_.x )
-	{
-		return true;
-	}
+	// ボックスの各軸の最小・最大
+	const float minX = boxPos.x - hx;
+	const float maxX = boxPos.x + hx;
+	const float minY = boxPos.y - hy;
+	const float maxY = boxPos.y + hy;
+	const float minZ = boxPos.z - hz;
+	const float maxZ = boxPos.z + hz;
 
-	return false;
+	// 球中心をボックス範囲にクランプして最近接点を求める
+	const float closestX = (std::max)(minX, (std::min)(circlePos.x, maxX));
+	const float closestY = (std::max)(minY, (std::min)(circlePos.y, maxY));
+	const float closestZ = (std::max)(minZ, (std::min)(circlePos.z, maxZ));
+
+	// 最近接点と球中心の距離の二乗
+	const float dx = circlePos.x - closestX;
+	const float dy = circlePos.y - closestY;
+	const float dz = circlePos.z - closestZ;
+
+	const float dist2 = dx * dx + dy * dy + dz * dz;
+	return dist2 <= r * r;
 }
 
 //球体同士の衝突判定

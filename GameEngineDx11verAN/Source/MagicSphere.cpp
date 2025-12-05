@@ -2,6 +2,7 @@
 #include "../Engine/Model.h"
 #include "../Engine/GameTime.h"
 #include "../Engine/SphereCollider.h"
+#include "../Engine/BoxCollider.h"
 
 namespace
 {
@@ -27,9 +28,9 @@ void MagicSphere::Initialize()
 	transform_.rotate_ = { 0.0f, 0.0f, 0.0f };
 	transform_.scale_ = { 1.0f, 1.0f, 1.0f };
 
-	pCollider_ = new SphereCollider(XMFLOAT3(0.0f, 0.0f, 0.0f),3.0f);
-	AddCollider(pCollider_);
+	pCollider_ = new SphereCollider(XMFLOAT3(0.0f, 0.0f, 0.0f), 2.0f);
 	pCollider_->SetRole(Collider::Role::Attack);
+	AddCollider(pCollider_);
 }
 
 void MagicSphere::Update()
