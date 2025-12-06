@@ -113,7 +113,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -136,7 +136,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -213,6 +213,7 @@
     <ClInclude Include="Source\Plane.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\PlayerCamera.h" />
+    <ClInclude Include="Source\PlayerConfig.h" />
     <ClInclude Include="Source\testEnemy.h" />
     <ClInclude Include="Source\TestScene.h" />
   </ItemGroup>

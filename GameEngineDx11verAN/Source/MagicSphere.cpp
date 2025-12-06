@@ -7,6 +7,9 @@ namespace
 {
 	const float MAGIC_SPEED = 30.0f;
 	const float ATTACK_DURATION = 5.0f;
+	const float MAGIC_SCALE = 1.0f;
+
+	const float COLLILDER_RADIUS = 3.0f;
 }
 
 MagicSphere::MagicSphere(GameObject* parent) : GameObject(parent, "MagicSphere"), magicModel_(-1), AttackTimer_(0.0f)
@@ -25,9 +28,9 @@ void MagicSphere::Initialize()
 
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0f, 0.0f, 0.0f };
-	transform_.scale_ = { 1.0f, 1.0f, 1.0f };
+	transform_.scale_ = { MAGIC_SCALE, MAGIC_SCALE, MAGIC_SCALE };
 
-	pCollider_ = new SphereCollider(XMFLOAT3(0.0f, 0.0f, 0.0f),3.0f);
+	pCollider_ = new SphereCollider(XMFLOAT3(0.0f, 0.0f, 0.0f),COLLILDER_RADIUS);
 	AddCollider(pCollider_);
 	pCollider_->SetRole(Collider::Role::Attack);
 }

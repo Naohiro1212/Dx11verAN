@@ -19,9 +19,14 @@ namespace
 	const float PLAYER_SPEED = 30.0f; // プレイヤーの移動速度
 	const float PLAYER_ROTATE_SPEED = 30.0f; // プレイヤーの回転速度
 
-	const float CAMERA_INIT_YAW_DEG = 180.0f;
-	const float CAMERA_INIT_PITCH_DEG = 20.0f;
-	const float CAMERA_INIT_DISTANCE = 20.0f;
+    // カメラのマウス移動初期値
+	const float VISION_INIT_YAW_DEG = 180.0f;
+	const float VISION_INIT_PITCH_DEG = 20.0f;
+	const float VISION_INIT_DISTANCE = 20.0f;
+
+    // カメラの初期値
+    const float CAMERA_INIT_POS_Y = 10.0f;
+	const float CAMERA_INIT_POS_Z = -20.0f;
 
     const float GRAVITY = 18.0f;
     const float JUMP_HEIGHT = 12.0f;
@@ -40,6 +45,38 @@ namespace
     // 実時間 = (フレーム数 / FPS) / 再生スピード
     const float SLASH_DURATION_SEC = (SLASH_ANIM_END - SLASH_ANIM_START + 1) / BASE_ANIM_FPS / SLASH_PLAY_SPEED;
 
+    // アニメーションそれぞれの速度
+    const float ANIM_BASE_SPEED = 0.5f;
+    const int ANIM_BASE_START = 1;
+    const int ANIM_IDLE_END = 76;
+    const int ANIM_STRAFE_END = 21;
+    const int ANIM_WALK_END = 32;
+    const int ANIM_BACK_END = 17;
+
+    // プレイヤーのスケール
+	const float PLAYER_SCALE = 0.1f;
+
+    // ボディコライダーのオフセット
+	const XMFLOAT3 COLLIDER_BASE_POS = XMFLOAT3(0.0f, 10.0f, 0.0f);
+	const XMFLOAT3 COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 40.0f, PLAYER_SCALE * 170.0f, PLAYER_SCALE * 40.0f);
+
+    // 攻撃コライダーのオフセット
+    const XMFLOAT3 ATTACK_COLLIDER_BASE_POS = XMFLOAT3(0.0f, PLAYER_SCALE * 100.0f, PLAYER_SCALE * 50.0f);
+    const XMFLOAT3 ATTACK_COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 60.0f, PLAYER_SCALE * 100.0f, PLAYER_SCALE * 100.0f);
+
+    // 円周率関連
+	const float HALF_TURN = 180.0f;
+	const float FULL_TURN = 360.0f;
+
+    // 重力加速度
+    const float GRAVITY_MULTIPLIER = 2.0f;
+
+    // 魔法弾の生成オフセット
+    const XMFLOAT3 MAGIC_SPHERE_SPAWN_OFFSET = XMFLOAT3(60.0f, 100.0f, 60.0f);
+
+    // 発射位置のオフセット
+    const float FORWARDDIST_OFFSET = 50.0f;
+    const float HEIGHT_OFFSET = 100.0f;
 }
 
 Player::Player(GameObject* parent)
@@ -70,11 +107,11 @@ void Player::Initialize()
     assert(idleModel_ != -1);
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
-    transform_.scale_ = { 0.1f, 0.1f, 0.1f };
+	transform_.scale_ = { PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE };
 	Camera::SetTarget(transform_.position_);
     wasMoving_ = false;
 	// プレイヤーの後方上位位置にカメラを設定
-	Camera::SetPosition(transform_.position_.x, transform_.position_.y + 10.0f, transform_.position_.z - 20.0f);
+	Camera::SetPosition(transform_.position_.x, transform_.position_.y + CAMERA_INIT_POS_Y, transform_.position_.z - CAMERA_INIT_POS_Z);
 
     // ジャンプの初速度
     JumpV0_ = sqrtf(2.0f * GRAVITY * JUMP_HEIGHT);
@@ -85,10 +122,10 @@ void Player::Initialize()
     onGround_ = true;
 
     nowModel_ = idleModel_;
-	plvision_.Initialize(CAMERA_INIT_YAW_DEG, CAMERA_INIT_PITCH_DEG, CAMERA_INIT_DISTANCE);
-    Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
+	plvision_.Initialize(VISION_INIT_YAW_DEG, VISION_INIT_PITCH_DEG, VISION_INIT_DISTANCE);
+    Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_IDLE_END, ANIM_BASE_SPEED);
 
-    pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
+    pCollider_ = new BoxCollider(COLLIDER_BASE_POS, COLLIDER_SCALE);
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 }
@@ -113,7 +150,7 @@ void Player::Update()
                 attackCollider_ = nullptr;
             }
             nowModel_ = idleModel_;
-            Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_IDLE_END, ANIM_BASE_SPEED);
         }
         else
         {
@@ -129,12 +166,7 @@ void Player::Update()
     // 攻撃開始（開始時だけセット）
     if (Input::IsMouseButtonDown(0) && onGround_)
     {
-        attackCollider_ = new BoxCollider(
-            XMFLOAT3(0.0f, transform_.scale_.y * 100.0f, transform_.scale_.z * 50.0f),
-            XMFLOAT3(transform_.scale_.x * 60.0f,
-                     transform_.scale_.y * 100.0f, 
-                     transform_.scale_.z * 100.0f)
-        );
+        attackCollider_ = new BoxCollider(ATTACK_COLLIDER_BASE_POS, ATTACK_COLLIDER_SCALE);
 
         AddCollider(attackCollider_);
         attackCollider_->SetRole(Collider::Role::Attack);
@@ -230,19 +262,19 @@ void Player::Update()
     if (prevModel != targetModel) {
         nowModel_ = targetModel;
         if (nowModel_ == rightStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 21, 0.5f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_STRAFE_END, ANIM_BASE_SPEED);
         }
         else if (nowModel_ == leftStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 21, 0.5f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_STRAFE_END, ANIM_BASE_SPEED);
         }
         else if (nowModel_ == walkModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 32, 0.5f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_WALK_END, ANIM_BASE_SPEED);
         }
         else if (nowModel_ == backStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 17, 0.5f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_BACK_END, ANIM_BASE_SPEED);
         }
         else if (nowModel_ == idleModel_) {
-            Model::SetAnimFrame(nowModel_, 1, 76, 0.5f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_IDLE_END, ANIM_BASE_SPEED);
         }
     }
 
@@ -264,8 +296,8 @@ void Player::Update()
         // 差分計算
         float diff = targetYawDeg - transform_.rotate_.y;
         // -180~180 に折り返し
-        while (diff > 180.0f) diff -= 360.0f;
-        while (diff < -180.0f) diff += 360.0f;
+        while (diff > HALF_TURN) diff -= FULL_TURN;
+        while (diff < -HALF_TURN) diff += FULL_TURN;
 
         float step = TURN_SPEED_DEG * dt_;
         if (fabsf(diff) <= step) {
@@ -313,7 +345,7 @@ void Player::Update()
 	// 落下中は速度を加算
     if (velocityY_ < 0.0f)
     {
-        gravity_ *= 2.0f;
+        gravity_ *= GRAVITY_MULTIPLIER;
     }
 
     // 重力加速度による速度変化
@@ -353,16 +385,16 @@ void Player::Update()
 		XMFLOAT3 spawnPos = transform_.position_;
 		MagicSphere* sphere = Instantiate<MagicSphere>(GetParent());
 		sphere->SetPosition(
-			spawnPos.x + magicDir_.x * transform_.scale_.z * 60.0f,
-			spawnPos.y + transform_.scale_.y * 100.0f,
-			spawnPos.z + magicDir_.z * transform_.scale_.z * 60.0f
+			spawnPos.x + magicDir_.x * transform_.scale_.z * MAGIC_SPHERE_SPAWN_OFFSET.x,
+			spawnPos.y + transform_.scale_.y * MAGIC_SPHERE_SPAWN_OFFSET.y,
+			spawnPos.z + magicDir_.z * transform_.scale_.z * MAGIC_SPHERE_SPAWN_OFFSET.z
 		);
 		sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
 	}
 
     // ローカル基準オフセット（元に使っていた値）
-    float forwardDist = transform_.scale_.z * 50.0f;
-    float height = transform_.scale_.y * 100.0f;
+    float forwardDist = transform_.scale_.z * FORWARDDIST_OFFSET;
+    float height = transform_.scale_.y * HEIGHT_OFFSET;
 
     // 回転を反映した中心オフセット
 	rotateCenter_ = XMFLOAT3(

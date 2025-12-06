@@ -104,13 +104,13 @@
     <ClCompile Include="Source\PlayerCamera.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Plane.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
     <ClCompile Include="Source\testEnemy.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\MagicSphere.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Plane.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -206,6 +206,9 @@
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\testEnemy.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlayerConfig.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>

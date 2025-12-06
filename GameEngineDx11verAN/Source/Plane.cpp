@@ -2,6 +2,12 @@
 #include "../Engine/Model.h"
 #include <assert.h>
 
+namespace
+{
+	const float PLANE_ROTATE_X = 90.0f;
+	const float PLANE_SCALE = 100.0f;
+}
+
 Plane::Plane(GameObject* parent) : GameObject(parent), planeHandle_(-1)
 {
 }
@@ -11,8 +17,8 @@ void Plane::Initialize()
 	planeHandle_ = Model::Load("Models/Stage_t.fbx");
 	assert(planeHandle_ >= 0);
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
-	transform_.rotate_ = { 90.0f, 0.0f, 0.0f };
-	transform_.scale_ = { 100.0f, 100.0f, 100.0f };
+	transform_.rotate_ = { PLANE_ROTATE_X, 0.0f, 0.0f };
+	transform_.scale_ = { PLANE_SCALE, PLANE_SCALE, PLANE_SCALE };
 	Model::SetTransform(planeHandle_, transform_);
 }
 
