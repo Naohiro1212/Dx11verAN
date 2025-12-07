@@ -21,6 +21,8 @@ public:
 	//ŠJ•ú
 	void Release() override;
 
+	int GetPlaneHandle() { return planeHandle_; }
+
 private:
 	int planeHandle_;
 };

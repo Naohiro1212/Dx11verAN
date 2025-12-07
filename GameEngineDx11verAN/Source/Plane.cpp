@@ -8,7 +8,7 @@ namespace
 	const float PLANE_SCALE = 100.0f;
 }
 
-Plane::Plane(GameObject* parent) : GameObject(parent), planeHandle_(-1)
+Plane::Plane(GameObject* parent) : GameObject(parent, "plane"), planeHandle_(-1)
 {
 }
 

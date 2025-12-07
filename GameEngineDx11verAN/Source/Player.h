@@ -1,6 +1,7 @@
 #pragma once
 #include "../Engine/GameObject.h"
 #include "PlayerCamera.h"
+#include "PlayerConfig.h"
 
 class BoxCollider;
 
@@ -73,4 +74,7 @@ private:
 
 	// 魔法攻撃用方向ベクトル
 	XMFLOAT3 magicDir_;
+
+	// プレイヤーのコンフィグ
+	PlayerConfig cnf_;
 };

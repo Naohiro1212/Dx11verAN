@@ -67,4 +67,7 @@ struct PlayerConfig
     const float FORWARDDIST_OFFSET = 50.0f;
     const float HEIGHT_OFFSET = 100.0f;
 
+    // レイキャスト用の変数
+    const float PROBE_UP_OFFSET = 200.0f;
+    const float GROUND_FPS = 0.01f;
 };
