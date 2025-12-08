@@ -98,4 +98,7 @@ private:
 	// 入力方向の処理
 	int fwd_;
 	int str_;
+
+	// デルタタイム
+	float dt_;
 };
