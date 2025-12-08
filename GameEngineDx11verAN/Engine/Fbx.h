@@ -17,6 +17,7 @@ struct RayCastData
 	float       dist;	//衝突点までの距離
 	BOOL        hit;	//レイが当たったか
 	XMFLOAT3 normal;	//法線
+	XMFLOAT3 hitPos;    //衝突点の位置
 
 	RayCastData() { dist = 99999.0f; }
 };

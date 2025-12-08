@@ -237,14 +237,23 @@ namespace Model
 		XMVECTOR dirNorm = XMVector3Normalize(localDirVec);
 		XMVECTOR localHitV = XMVectorAdd(localStartV, XMVectorScale(dirNorm, local.dist));
 
-		// localHit-> worldHit
+		// localHit -> worldHit
 		XMMATRIX matWorld = _datas[handle]->transform.GetWorldMatrix();
 		XMVECTOR worldHitV = XMVector3TransformCoord(localHitV, matWorld);
+		XMFLOAT3 worldHitPos; XMStoreFloat3(&worldHitPos, worldHitV);
+
+		// normal (local -> world, as a direction)
+		XMVECTOR localN = XMLoadFloat3(&local.normal);
+		XMVECTOR worldN = XMVector3TransformNormal(localN, matWorld);
+		worldN = XMVector3Normalize(worldN);
+		XMFLOAT3 worldNormal; XMStoreFloat3(&worldNormal, worldN);
 
 		// worldDist = length(worldHit - worldStart)
 		XMVECTOR worldStartV = XMLoadFloat3(&worldStart);
 		float worldDist = XMVectorGetX(XMVector3Length(XMVectorSubtract(worldHitV, worldStartV)));
 
 		data->dist = worldDist;
+		data->normal = worldNormal;
+		data->hitPos = worldHitPos; // RayCastData ‚É XMFLOAT3 hitPos ‚ð’Ç‰Á‚µ‚Ä‚¨‚­
 	}
 }

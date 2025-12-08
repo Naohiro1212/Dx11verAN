@@ -69,5 +69,5 @@ struct PlayerConfig
 
     // レイキャスト用の変数
     const float PROBE_UP_OFFSET = 2.0f;
-    const float GROUND_FPS = 0.03f;
+    const float GROUND_EPS = 0.05f;
 };

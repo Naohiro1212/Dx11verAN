@@ -5,7 +5,7 @@
 namespace
 {
 	const float PLANE_ROTATE_X = 0.0f;
-	const XMFLOAT3 PLANE_SCALE = { 100.0f, 5.0f, 100.0f };
+	const XMFLOAT3 PLANE_SCALE = { 100.0f, 3.0f, 100.0f };
 }
 
 Plane::Plane(GameObject* parent) : GameObject(parent, "plane"), planeHandle_(-1)

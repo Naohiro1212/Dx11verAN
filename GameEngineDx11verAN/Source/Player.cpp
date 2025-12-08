@@ -304,40 +304,43 @@ void Player::Update()
     hitData.dir = { 0.0f, -1.0f, 0.0f };
     Model::RayCastWorld(hPlaneModel, &hitData);
 
-    const float EPS = 1e-4f;
+    const float EPS = 1e-3f;
+    const float ENTER_EPS = cnf_.GROUND_EPS;          // 例: 0.02f
+    const float EXIT_EPS = cnf_.GROUND_EPS * 2.0f;   // 例: 0.04f
+
     bool willGroundThisFrame = false;
-    float hitY = -INFINITY;
+    float groundY = -INFINITY;
 
-    if (hitData.hit)
-    {
-        // レイ開始点からヒット点までの高さ
-        hitY = hitData.start.y - hitData.dist;
+    if (hitData.hit) {
+        groundY = hitData.hitPos.y; // ← RayCastWorld が hitPos を返す前提。無ければ start.y - dist でもOK
+        float maxTravel = (std::max)(0.0f, hitData.start.y - nextY);
 
-        // レイ開始点から nextY までの距離（プレーヤーが今フレームで移動する下方向の距離）
-        float maxTravel = hitData.start.y - nextY;
-        if (maxTravel < 0.0f) maxTravel = 0.0f;
+        // 既に接地しているなら緩めの閾値、未接地なら厳しめ
+        float threshold = onGround_ ? EXIT_EPS : ENTER_EPS;
 
-        // ヒット距離が maxTravel 以下なら、今フレーム中に床に到達する／突き当たる
-        if (hitData.dist <= maxTravel + EPS && nextY <= hitY + cnf_.GROUND_FPS)
-        {
+        if (hitData.dist <= maxTravel + EPS && nextY <= groundY + threshold) {
             willGroundThisFrame = true;
         }
     }
 
-    if (willGroundThisFrame)
-    {
-        // 着地処理：床の Y に位置固定し、速度はクリア
-        transform_.position_.y = hitY;
+    if (willGroundThisFrame) {
+        transform_.position_.y = groundY; // スナップ固定
         velocityY_ = 0.0f;
         onGround_ = true;
         jumpCount_ = 0;
     }
-    else
-    {
-        // 着地しないなら次の位置・速度に更新
+    else {
         transform_.position_.y = nextY;
         velocityY_ = nextVelY;
-        onGround_ = false;
+
+        // 離地は「上限＋EXIT_EPS」を超えた場合のみ false にする（微小誤差で揺れない）
+        if (groundY != -INFINITY) 
+        {
+            onGround_ = (transform_.position_.y <= groundY + EXIT_EPS);
+        }
+        else {
+            onGround_ = false;
+        }
     }
 
     // モデルのワールド行列更新
