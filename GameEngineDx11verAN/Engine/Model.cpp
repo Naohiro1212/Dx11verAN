@@ -200,4 +200,51 @@ namespace Model
 
 			_datas[handle]->pFbx->RayCast(data); 
 	}
+
+	// 物理演算用レイキャスト（レイを飛ばして当たり判定）
+	void RayCastWorld(int handle, RayCastData* data)
+	{
+		// ワールド始点・方向を保存
+		XMFLOAT3 worldStart = data->start;
+		XMFLOAT3 worldDir = data->dir;
+		XMFLOAT3 worldTarget = Transform::Float3Add(worldStart, worldDir);
+
+		// モデルのワールド→ローカル変換（コピー用）
+		XMMATRIX matInv = XMMatrixInverse(nullptr, _datas[handle]->transform.GetWorldMatrix());
+		XMVECTOR vecStartLocal = XMVector3TransformCoord(XMLoadFloat3(&worldStart), matInv);
+		XMVECTOR vecTargetLocal = XMVector3TransformCoord(XMLoadFloat3(&worldTarget), matInv);
+
+		// ローカル用のコピーを作って既存のRaycastを呼ぶ
+		RayCastData local = *data;
+		XMStoreFloat3(&local.start, vecStartLocal);
+		XMVECTOR localDirV = vecTargetLocal - vecStartLocal;
+		XMFLOAT3 localDir;
+		XMStoreFloat3(&localDir, localDirV);
+		local.dir = localDir;
+		_datas[handle]->pFbx->RayCast(&local);
+
+		// 結果をワールド座標に変換して渡す
+		data->hit = local.hit;
+		if (!local.hit)
+		{
+			data->dist = local.dist;
+			return;
+		}
+
+		// localHit = local.start + normalize(local.dir) * local.dist
+		XMVECTOR localStartV = XMLoadFloat3(&local.start);
+		XMVECTOR localDirVec = XMLoadFloat3(&local.dir);
+		XMVECTOR dirNorm = XMVector3Normalize(localDirVec);
+		XMVECTOR localHitV = XMVectorAdd(localStartV, XMVectorScale(dirNorm, local.dist));
+
+		// localHit-> worldHit
+		XMMATRIX matWorld = _datas[handle]->transform.GetWorldMatrix();
+		XMVECTOR worldHitV = XMVector3TransformCoord(localHitV, matWorld);
+
+		// worldDist = length(worldHit - worldStart)
+		XMVECTOR worldStartV = XMLoadFloat3(&worldStart);
+		float worldDist = XMVectorGetX(XMVector3Length(XMVectorSubtract(worldHitV, worldStartV)));
+
+		data->dist = worldDist;
+	}
 }

@@ -16,10 +16,11 @@
 using namespace DirectX;
 
 Player::Player(GameObject* parent)
-    :GameObject(parent, "Player"), walkModel_(-1), runModel_(-1), leftStrafeModel_(-1), rightStrafeModel_(-1)
-    , backStrafeModel_(-1), idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true)
-	, nowModel_(-1), attackTimer_(0.0f), isAttacking_(false), prevMouseLeftDown_(false),pCollider_(nullptr)
-	, magicDir_(0.0f, 0.0f, 0.0f), cnf_()
+    :GameObject(parent, "Player"), walkModel_(-1), runModel_(-1), 
+    leftStrafeModel_(-1), rightStrafeModel_(-1), backStrafeModel_(-1), 
+    idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true), 
+    nowModel_(-1), attackTimer_(0.0f), isAttacking_(false),
+    prevMouseLeftDown_(false),pCollider_(nullptr), magicDir_(0.0f, 0.0f, 0.0f), cnf_()
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -277,71 +278,66 @@ void Player::Update()
         ++jumpCount_;
     }
 
-    float gravity_ = cnf_.GRAVITY;
-	// 落下中は速度を加算
-    if (velocityY_ < 0.0f)
-    {
-        gravity_ *= cnf_.GRAVITY_MULTIPLIER;
+    float g = cnf_.GRAVITY;
+    if (velocityY_ < 0.0f) {
+        g *= cnf_.GRAVITY_MULTIPLIER;
     }
 
-    // 重力加速度による速度変化
-    if(onGround_ && velocityY_ <= 0.0f)
-    {
-        // 地面に接地中で下向き速度ならゼロクリア
+    // 地面に接地していて下向きの速度なら、まず速度をゼロクリアして自己貫通を防ぐ
+    if (onGround_ && velocityY_ <= 0.0f) {
         velocityY_ = 0.0f;
-	}
-    transform_.position_.y += velocityY_ * dt_ + (-gravity_) * 0.5f * dt_ * dt_;
-    velocityY_ += (-gravity_) * dt_;
+    }
 
+    float nextVelY = velocityY_ + (-g) * dt_;
+    float nextY = transform_.position_.y + velocityY_ * dt_ + (-g) * 0.5f * dt_ * dt_;
+
+    // 2) レイを現在位置（または probe 上方）から下向きに飛ばして
+    //    今フレームの移動範囲内に床があるかを判定する
     Plane* pPlane = (Plane*)FindObject("plane");
-	assert(pPlane != nullptr);
-	int hPlaneModel = pPlane->GetPlaneHandle();
+    assert(pPlane != nullptr);
+    int hPlaneModel = pPlane->GetPlaneHandle();
 
     RayCastData hitData;
+    // レイの開始は現在の transform_.position_ の上に取る
     hitData.start = transform_.position_;
-	hitData.start.y += cnf_.PROBE_UP_OFFSET; // レイの開始位置を上にオフセット
-	hitData.dir = { 0.0f, -1.0f, 0.0f };
-	Model::RayCast(hPlaneModel, &hitData);
+    hitData.start.y += cnf_.PROBE_UP_OFFSET;
+    hitData.dir = { 0.0f, -1.0f, 0.0f };
+    Model::RayCastWorld(hPlaneModel, &hitData);
 
-    onGround_ = hitData.hit;
-    float groundY = onGround_ ? (hitData.start.y - hitData.dist) : -INFINITY;
+    const float EPS = 1e-4f;
+    bool willGroundThisFrame = false;
+    float hitY = -INFINITY;
 
-    // 設置判定
-    if (onGround_ && transform_.position_.y <= groundY + cnf_.GROUND_FPS)
+    if (hitData.hit)
     {
-        transform_.position_.y = groundY;
-        if (velocityY_ < 0.0f)
+        // レイ開始点からヒット点までの高さ
+        hitY = hitData.start.y - hitData.dist;
+
+        // レイ開始点から nextY までの距離（プレーヤーが今フレームで移動する下方向の距離）
+        float maxTravel = hitData.start.y - nextY;
+        if (maxTravel < 0.0f) maxTravel = 0.0f;
+
+        // ヒット距離が maxTravel 以下なら、今フレーム中に床に到達する／突き当たる
+        if (hitData.dist <= maxTravel + EPS && nextY <= hitY + cnf_.GROUND_FPS)
         {
-            velocityY_ = 0.0f;
+            willGroundThisFrame = true;
         }
+    }
+
+    if (willGroundThisFrame)
+    {
+        // 着地処理：床の Y に位置固定し、速度はクリア
+        transform_.position_.y = hitY;
+        velocityY_ = 0.0f;
         onGround_ = true;
         jumpCount_ = 0;
     }
     else
     {
+        // 着地しないなら次の位置・速度に更新
+        transform_.position_.y = nextY;
+        velocityY_ = nextVelY;
         onGround_ = false;
-	}
-
-    // 空中の時だけ重力
-    if (!onGround_)
-    {
-        float g = cnf_.GRAVITY;
-        if (velocityY_ < 0.0f)
-        {
-            g *= cnf_.GRAVITY_MULTIPLIER;
-			transform_.position_.y += velocityY_ * dt_ + (-g) * 0.5f * dt_ * dt_;
-			velocityY_ += (-g) * dt_;
-            if(onGround_ && transform_.position_.y <= groundY + cnf_.GROUND_FPS)
-            {
-                transform_.position_.y = groundY;
-                if (velocityY_ < 0.0f)
-                {
-                    velocityY_ = 0.0f;
-                }
-                onGround_ = true;
-                jumpCount_ = 0;
-			}
-        }
     }
 
     // モデルのワールド行列更新
