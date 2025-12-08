@@ -144,82 +144,14 @@ void Player::Update()
     vRight = XMVector3Normalize(vRight);
     XMStoreFloat3(&right, vRight);
 
-    // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレーフ）
-    fwd_ = 0;
-    str_ = 0;
-    if (!isAttacking_)
-    {
-        if (Input::IsKey(DIK_W)) {
-            fwd_ += 1;
-        }
-        if (Input::IsKey(DIK_S)) {
-            fwd_ -= 1;
-        }
-        if (Input::IsKey(DIK_D)) {
-            str_ += 1;
-        }
-        if (Input::IsKey(DIK_A)) {
-            str_ -= 1;
-        }
-    }
-
-    bool isMovingNow = false;
-    if (fwd_ != 0 || str_ != 0) {
-        isMovingNow = true;
-    }
+    // 移動入力取得
+    MoveInput();
 
     // 入力によるモデル切り替え
     // 切り替えたタイミングでアニメーションを最初から再生
-    int prevModel = nowModel_;
-    int targetModel = nowModel_;
+	ChangeModel();
 
-    if (fwd > 0) {
-        if (str > 0) {
-            targetModel = rightStrafeModel_;
-        }
-        else if (str < 0) {
-            targetModel = leftStrafeModel_;
-        }
-        else {
-            targetModel = walkModel_;
-        }
-    }
-    else if (fwd < 0) {
-        targetModel = backStrafeModel_;
-    }
-    else {
-        if (str > 0) {
-            targetModel = rightStrafeModel_;
-        }
-        else if (str < 0) {
-            targetModel = leftStrafeModel_;
-        }
-        else {
-            targetModel = idleModel_;
-        }
-    }
-
-    // 移動のアニメーション
-    if (prevModel != targetModel) {
-        nowModel_ = targetModel;
-        if (nowModel_ == rightStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
-        }
-        else if (nowModel_ == leftStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
-        }
-        else if (nowModel_ == walkModel_) {
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_WALK_END, cnf_.ANIM_BASE_SPEED);
-        }
-        else if (nowModel_ == backStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_BACK_END, cnf_.ANIM_BASE_SPEED);
-        }
-        else if (nowModel_ == idleModel_) {
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
-        }
-    }
-
-    if (isMovingNow)
+    if (isMovingNow_)
     {
         // カメラ前方ベクトル（XZ）をDirectXMathで取得済みとする
         XMVECTOR vForward = XMLoadFloat3(&forward);
@@ -251,13 +183,13 @@ void Player::Update()
 
     // カメラ相対の移動ベクトルで移動
     XMVECTOR vMove = XMVectorZero();
-    if (fwd != 0)
+    if (fwd_ != 0)
     {
-        vMove = XMVectorAdd(vMove, XMVectorScale(vForward, static_cast<float>(fwd)));
+        vMove = XMVectorAdd(vMove, XMVectorScale(vForward, static_cast<float>(fwd_)));
     }
-    if (str != 0)
+    if (str_ != 0)
     {
-        vMove = XMVectorAdd(vMove, XMVectorScale(vRight, static_cast<float>(str)));
+        vMove = XMVectorAdd(vMove, XMVectorScale(vRight, static_cast<float>(str_)));
     }
 
     // 正規化
@@ -287,7 +219,7 @@ void Player::Update()
     }
 
     // 入力状態を保存（エッジ検出用）
-    wasMoving_ = isMovingNow;
+    wasMoving_ = isMovingNow_;
 
     // ジャンプや重力処理
     if (Input::IsKeyDown(DIK_SPACE) && (onGround_ || jumpCount_ < cnf_.JUMP_MAX_COUNT))
@@ -297,15 +229,7 @@ void Player::Update()
         ++jumpCount_;
     }
 
-    float g = cnf_.GRAVITY;
-    if (velocityY_ < 0.0f) {
-        g *= cnf_.GRAVITY_MULTIPLIER;
-    }
-
-    // 地面に接地していて下向きの速度なら、まず速度をゼロクリアして自己貫通を防ぐ
-    if (onGround_ && velocityY_ <= 0.0f) {
-        velocityY_ = 0.0f;
-    }
+    UpdateGravity();
 
     float nextVelY = velocityY_ + (-g) * dt_;
     float nextY = transform_.position_.y + velocityY_ * dt_ + (-g) * 0.5f * dt_ * dt_;
@@ -429,9 +353,96 @@ void Player::OnCollision(GameObject* pTarget)
     // 例: pTarget->KillMe(); や ヒットエフェクト、ダメージ適用など
 }
 
+void Player::MoveInput()
+{
+    // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレーフ）
+    fwd_ = 0;
+    str_ = 0;
+    if (!isAttacking_)
+    {
+        if (Input::IsKey(DIK_W)) {
+            fwd_ += 1;
+        }
+        if (Input::IsKey(DIK_S)) {
+            fwd_ -= 1;
+        }
+        if (Input::IsKey(DIK_D)) {
+            str_ += 1;
+        }
+        if (Input::IsKey(DIK_A)) {
+            str_ -= 1;
+        }
+    }
+
+    isMovingNow_ = false;
+    if (fwd_ != 0 || str_ != 0) {
+        isMovingNow_ = true;
+    }
+}
+
 void Player::ChangeModel()
 {
+    int prevModel = nowModel_;
+    int targetModel = nowModel_;
 
+    if (fwd_ > 0) {
+        if (str_ > 0) {
+            targetModel = rightStrafeModel_;
+        }
+        else if (str_ < 0) {
+            targetModel = leftStrafeModel_;
+        }
+        else {
+            targetModel = walkModel_;
+        }
+    }
+    else if (fwd_ < 0) {
+        targetModel = backStrafeModel_;
+    }
+    else {
+        if (str_ > 0) {
+            targetModel = rightStrafeModel_;
+        }
+        else if (str_ < 0) {
+            targetModel = leftStrafeModel_;
+        }
+        else {
+            targetModel = idleModel_;
+        }
+    }
+
+    // 移動のアニメーション
+    if (prevModel != targetModel) {
+        nowModel_ = targetModel;
+        if (nowModel_ == rightStrafeModel_) {
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
+        }
+        else if (nowModel_ == leftStrafeModel_) {
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
+        }
+        else if (nowModel_ == walkModel_) {
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_WALK_END, cnf_.ANIM_BASE_SPEED);
+        }
+        else if (nowModel_ == backStrafeModel_) {
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_BACK_END, cnf_.ANIM_BASE_SPEED);
+        }
+        else if (nowModel_ == idleModel_) {
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
+        }
+    }
+}
+
+void Player::UpdateGravity()
+{
+    float g = cnf_.GRAVITY;
+    if (velocityY_ < 0.0f) {
+        g *= cnf_.GRAVITY_MULTIPLIER;
+    }
+
+    // 地面に接地していて下向きの速度なら、まず速度をゼロクリアして自己貫通を防ぐ
+    if (onGround_ && velocityY_ <= 0.0f) {
+        velocityY_ = 0.0f;
+    }
 }
 
 XMFLOAT3 Player::SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n)

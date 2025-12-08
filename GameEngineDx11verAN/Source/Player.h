@@ -31,11 +31,14 @@ public:
 
 private:
 	//// 関数群
-	// 入力方向の取得
-	void GetInputDirection();
+	// 前後左右、入力方向の取得
+	void MoveInput();
 
 	// モデルチェンジ処理
 	void ChangeModel();
+
+	// 重力処理
+	void UpdateGravity();
 
 	//// 変数群
 	// モデルハンドル
@@ -74,6 +77,7 @@ private:
 	bool onGround_;
 	bool isAttacking_;
 	bool prevMouseLeftDown_;
+	bool isMovingNow_;
 	float lastSlashFrame_;
 
 	// 当たり判定
