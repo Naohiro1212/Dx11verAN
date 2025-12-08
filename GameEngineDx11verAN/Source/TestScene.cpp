@@ -13,8 +13,8 @@ TestScene::TestScene(GameObject * parent)
 void TestScene::Initialize()
 {	
 	//pWp = Instantiate<Weapon>(this);
-	Instantiate<Player>(this);
 	Instantiate<Plane>(this);
+	Instantiate<Player>(this);
 	Instantiate<testEnemy>(this);
 }
 

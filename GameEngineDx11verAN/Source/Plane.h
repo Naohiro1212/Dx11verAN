@@ -1,6 +1,8 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class BoxCollider;
+
 class Plane :
 	public GameObject
 {
@@ -22,8 +24,13 @@ public:
 	void Release() override;
 
 	int GetPlaneHandle() { return planeHandle_; }
+	BoxCollider* GetWallCollider() { return wallCollider_; }
 
 private:
 	int planeHandle_;
+	BoxCollider* wallCollider_;
+
+	XMFLOAT3 wallPos_;
+	XMFLOAT3 wallSize_;
 };
 

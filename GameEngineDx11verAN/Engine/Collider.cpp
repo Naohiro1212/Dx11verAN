@@ -114,3 +114,43 @@ void Collider::Draw(XMFLOAT3 position, XMFLOAT3 rotate)
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);
 }
+
+PenetrationResult Collider::ComputeBoxVsBoxPenetration(BoxCollider* boxA, BoxCollider* boxB)
+{
+	PenetrationResult result = { false, {0,0,0},{0,0,0} };
+
+	XMFLOAT3 posA = Transform::Float3Add(boxA->pGameObject_->GetWorldPosition(), boxA->center_);
+	XMFLOAT3 posB = Transform::Float3Add(boxB->pGameObject_->GetWorldPosition(), boxB->center_);
+	XMFLOAT3 halfA = { boxA->size_.x * 0.5f, 0.0f, boxA->size_.z * 0.5f };
+	XMFLOAT3 halfB = { boxB->size_.x * 0.5f, 0.0f, boxB->size_.z * 0.5f };
+
+	bool overlap = 
+		(posA.x + halfA.x > posB.x - halfB.x) &&
+		(posA.x - halfA.x < posB.x + halfB.x) &&
+		(posA.z + halfA.z > posB.z - halfB.z) &&
+		(posA.z - halfA.z < posB.z + halfB.z);
+	if (!overlap) return result;
+
+	float pushPosX = (posB.x + halfB.x) - (posA.x - halfA.x);
+	float pushNegX = (posA.x + halfA.x) - (posB.x - halfB.x);
+	float pushPosZ = (posB.z + halfB.z) - (posA.z - halfA.z);
+	float pushNegZ = (posA.z + halfA.z) - (posB.z - halfB.z);
+
+	float pushX = (pushPosX < pushNegX) ? pushPosX : -pushNegX;
+	float pushZ = (pushPosZ < pushNegZ) ? pushPosZ : -pushNegZ;
+
+	float ax = fabsf(pushX);
+	float az = fabsf(pushZ);
+	result.overlapped = true;
+	if (ax <= az)
+	{
+		result.push = { pushX, 0.0f, 0.0f };
+		result.normal = { pushX > 0 ? -1.0f : 1.0f, 0.0f, 0.0f };
+	}
+	else
+	{
+		result.push = { 0.0f, 0.0f, pushZ };
+		result.normal = { 0.0f, 0.0f, pushZ > 0 ? -1.0f : 1.0f };
+	}
+	return result;
+}

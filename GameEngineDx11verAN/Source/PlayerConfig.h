@@ -70,4 +70,7 @@ struct PlayerConfig
     // レイキャスト用の変数
     const float PROBE_UP_OFFSET = 2.0f;
     const float GROUND_EPS = 0.05f;
+
+    // 壁当たり判定関連
+    const float WALL_EPS = 1e-3f;
 };

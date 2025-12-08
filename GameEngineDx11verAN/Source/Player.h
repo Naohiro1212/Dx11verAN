@@ -27,7 +27,17 @@ public:
 
 	void OnCollision(GameObject* pTarget) override;
 
+	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
+
 private:
+	//// 関数群
+	// 入力方向の取得
+	void GetInputDirection();
+
+	// モデルチェンジ処理
+	void ChangeModel();
+
+	//// 変数群
 	// モデルハンドル
 	int walkModel_;
 	int runModel_;
@@ -77,4 +87,11 @@ private:
 
 	// プレイヤーのコンフィグ
 	PlayerConfig cnf_;
+
+	// 当たり判定用壁コライダー
+	BoxCollider* wallCollider_;
+
+	// 入力方向の処理
+	int fwd_;
+	int str_;
 };

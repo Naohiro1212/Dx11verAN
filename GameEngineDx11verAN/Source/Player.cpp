@@ -65,6 +65,11 @@ void Player::Initialize()
     pCollider_ = new BoxCollider(cnf_.COLLIDER_BASE_POS, cnf_.COLLIDER_SCALE);
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
+
+    // Plane経由で仮壁コライダー取得
+    Plane* pPlane = (Plane*)FindObject("plane");
+	assert(pPlane);
+	wallCollider_ = pPlane->GetWallCollider();
 }
 
 void Player::Update()
@@ -93,7 +98,6 @@ void Player::Update()
         {
             lastSlashFrame_ = cur;
         }
-
 
         Model::SetTransform(nowModel_, transform_);
         plvision_.Update(transform_.position_);
@@ -141,26 +145,26 @@ void Player::Update()
     XMStoreFloat3(&right, vRight);
 
     // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレーフ）
-    int fwd = 0;
-    int str = 0;
+    fwd_ = 0;
+    str_ = 0;
     if (!isAttacking_)
     {
         if (Input::IsKey(DIK_W)) {
-            fwd += 1;
+            fwd_ += 1;
         }
         if (Input::IsKey(DIK_S)) {
-            fwd -= 1;
+            fwd_ -= 1;
         }
         if (Input::IsKey(DIK_D)) {
-            str += 1;
+            str_ += 1;
         }
         if (Input::IsKey(DIK_A)) {
-            str -= 1;
+            str_ -= 1;
         }
     }
 
     bool isMovingNow = false;
-    if (fwd != 0 || str != 0) {
+    if (fwd_ != 0 || str_ != 0) {
         isMovingNow = true;
     }
 
@@ -263,9 +267,24 @@ void Player::Update()
     }
     XMFLOAT3 moveVec;
     XMStoreFloat3(&moveVec, vMove);
-
     transform_.position_.x += moveVec.x * cnf_.PLAYER_SPEED * dt_;
     transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
+
+    // 仮壁1枚だけ処理
+    if (wallCollider_)
+    {
+		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
+        if (res.overlapped)
+        {
+            transform_.position_.x += res.push.x + (res.push.x > 0 ? cnf_.WALL_EPS : (res.push.x < 0 ? -cnf_.WALL_EPS : 0.0f));
+            transform_.position_.z += res.push.z + (res.push.z > 0 ? cnf_.WALL_EPS : (res.push.z < 0 ? -cnf_.WALL_EPS : 0.0f));
+            if (fabsf(res.normal.y) < 0.4f)
+            {
+                moveVec = SlideAlongWall(moveVec, res.normal);
+            }
+        }
+
+    }
 
     // 入力状態を保存（エッジ検出用）
     wasMoving_ = isMovingNow;
@@ -408,4 +427,26 @@ void Player::OnCollision(GameObject* pTarget)
 
     // ここに攻撃ヒット時の処理を書く
     // 例: pTarget->KillMe(); や ヒットエフェクト、ダメージ適用など
+}
+
+void Player::ChangeModel()
+{
+
+}
+
+XMFLOAT3 Player::SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n)
+{
+    XMVECTOR vf = XMLoadFloat3(&f);
+    XMVECTOR vn = XMLoadFloat3(&n);
+
+    // Y成分をゼロにして水平法線へ
+	vn = XMVectorSet(XMVectorGetX(vn), 0.0f, XMVectorGetZ(vn), 0.0f); 
+	vn = XMVector3Normalize(vn);
+
+    float d = XMVectorGetX(XMVector3Dot(vf, vn));
+    XMVECTOR vw = XMVectorSubtract(vf, XMVectorScale(vn, d));
+
+    XMFLOAT3 w;
+    XMStoreFloat3(&w, vw);
+    return w;
 }

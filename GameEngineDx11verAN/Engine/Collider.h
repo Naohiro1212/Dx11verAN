@@ -16,6 +16,14 @@ enum ColliderType
 	COLLIDER_CIRCLE		//球体
 };
 
+//壁ずりベクトル用の構造体
+struct PenetrationResult
+{
+	bool overlapped;
+	XMFLOAT3 push; // 押し出しベクトル
+	XMFLOAT3 normal; // 壁面の法線
+};
+
 //-----------------------------------------------------------
 //あたり判定を管理するクラス
 //-----------------------------------------------------------
@@ -23,7 +31,10 @@ class Collider
 {
 public:
 	// コライダー属性
-	enum Role { Body, Attack };
+	// Body: 体（通常の当たり判定）
+	// Attack: 攻撃判定（ダメージを与える当たり判定）
+	// Static: 静的オブジェクト（床や壁など動かないもの）
+	enum Role { Body, Attack, Static };
 	void SetRole(Role r) { role_ = r; }
 	Role GetRole() const { return role_; }
 
@@ -87,6 +98,6 @@ public:
 	void SetSize(const DirectX::XMFLOAT3& s) { size_ = s; }
 	const DirectX::XMFLOAT3& GetSize() const { return size_; }
 
-
+	static PenetrationResult ComputeBoxVsBoxPenetration(BoxCollider* boxA, BoxCollider* boxB);
 };
 
