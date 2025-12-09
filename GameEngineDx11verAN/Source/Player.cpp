@@ -44,6 +44,7 @@ void Player::Initialize()
     assert(rightStrafeModel_ != -1);
     assert(backStrafeModel_ != -1);
     assert(idleModel_ != -1);
+    assert(slashModel_ != -1);
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
 	transform_.scale_ = { cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE };
@@ -192,6 +193,7 @@ void Player::Update()
 void Player::Draw()
 {
     // 現在のモデルを描画
+	Model::SetTransform(nowModel_, transform_);
 	Model::Draw(nowModel_);
     pCollider_->Draw(transform_.position_, transform_.rotate_);
 
@@ -207,12 +209,19 @@ void Player::Release()
 
 void Player::OnCollision(GameObject* pTarget)
 {
-    // 直近の衝突元が攻撃コライダー以外なら無視
+    if (!pTarget) return;
     Collider* src = GetLastHitCollider();
-    if (!src || src != attackCollider_) return;
 
     // ここに攻撃ヒット時の処理を書く
     // 例: pTarget->KillMe(); や ヒットエフェクト、ダメージ適用など
+
+    // 宝石取得時
+	if (pTarget->GetObjectName() == "Jewel" && !pTarget->IsDead())
+	{
+        transform_.scale_.x += 0.02f;
+		transform_.scale_.y += 0.02f;
+		transform_.scale_.z += 0.02f;
+	}
 }
 
 void Player::MoveInput()
@@ -244,6 +253,8 @@ void Player::MoveInput()
 
 void Player::ChangeModel()
 {
+    if (isAttacking_) return;
+
     int prevModel = nowModel_;
     int targetModel = nowModel_;
 

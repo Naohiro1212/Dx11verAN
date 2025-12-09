@@ -30,6 +30,9 @@ public:
     void OnCollision(GameObject* pTarget) override;
 
 private:
+    // 死んだ際にアイテムドロップ
+    void DropJewel(int numJewels);
+
     int modelHandle_;
 	BoxCollider* pCollider_;
 };

@@ -275,17 +275,34 @@ void GameObject::Collision(GameObject* pTarget)
 				const auto roleA = a->GetRole();
 				const auto roleB = b->GetRole();
 
-				const bool anyAttack = (roleA == Collider::Role::Attack || roleB == Collider::Role::Attack);
+				const bool anyAttack =
+					(roleA == Collider::Role::Attack || roleB == Collider::Role::Attack);
+
+				const bool attackVsBody =
+					(roleA == Collider::Role::Attack && roleB == Collider::Role::Body) ||
+					(roleB == Collider::Role::Attack && roleA == Collider::Role::Body);
+
+				const bool isBodyStatic =
+					(roleA == Collider::Role::Body && roleB == Collider::Role::Static) ||
+					(roleA == Collider::Role::Static && roleB == Collider::Role::Body);
 
 				if (anyAttack)
 				{
-					// Attack×Body も Attack×Attack も同じ通知
+					// 攻撃は Body 相手のみ通知（Attack×Static は除外）
+					if (!attackVsBody) continue;
+
+					this->OnCollision(pTarget);
+					pTarget->OnCollision(this);
+				}
+				else if (isBodyStatic)
+				{
+					// 拾得は両側通知（Player と Jewel の両方にイベントを飛ばす）
 					this->OnCollision(pTarget);
 					pTarget->OnCollision(this);
 				}
 				else
 				{
-					// Body×Body は接触ダメージ用途で必要なら通知
+					// 必要なら Body×Body などもここで扱う
 					// this->OnCollision(pTarget);
 					// pTarget->OnCollision(this);
 				}
@@ -299,7 +316,6 @@ void GameObject::Collision(GameObject* pTarget)
 		Collision(*it);
 	}
 }
-
 
 //テスト用の衝突判定枠を表示
 void GameObject::CollisionDraw()

@@ -2,6 +2,7 @@
 #include "../Engine/Model.h"
 #include <assert.h>
 #include "../Engine/BoxCollider.h"
+#include "../Source/Jewel.h"
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr)
 {
@@ -56,7 +57,26 @@ void testEnemy::OnCollision(GameObject* pTarget)
 
     if (anyAttack && isPlayer)
     {
+        DropJewel(5);
         KillMe();
     }
     // Body~Body ‚Ìê‡A“G‘¤‚Å‚Íƒ_ƒ[ƒW“K—p‚µ‚È‚¢id•¡–hŽ~j
+}
+
+// “G‚ªŽ€‚ñ‚¾‚Æ‚«‚É•óÎ‚ðƒhƒƒbƒv‚·‚éˆ—
+// Œ»Ý‰~ó‚Éƒhƒƒbƒv‚·‚éŽÀ‘•
+void testEnemy::DropJewel(int numJewels)
+{
+    XMFLOAT3 center = this->transform_.position_; // “G‚ÌˆÊ’u
+    float radius = 5.0f; // ‰~‚Ì”¼Œa
+    for (int i = 0; i < numJewels; ++i)
+    {
+        float angle = XM_2PI * i / numJewels;
+        float x = center.x + radius * cosf(angle);
+        float z = center.z + radius * sinf(angle);
+        XMFLOAT3 dropPos(x, center.y, z);
+
+        Jewel* jewel = Instantiate<Jewel>(GetParent());
+        jewel->SetPosition(dropPos);
+    }
 }

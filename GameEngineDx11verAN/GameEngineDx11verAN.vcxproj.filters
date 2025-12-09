@@ -113,6 +113,9 @@
     <ClCompile Include="Source\Plane.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Jewel.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -209,6 +212,9 @@
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\PlayerConfig.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Jewel.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
