@@ -78,80 +78,22 @@ void Player::Update()
 {
     dt_ = GameTime::DeltaTime();
 
+    // 攻撃
     // 攻撃モーション中は他の動作を行えない
-    if (isAttacking_)
+    MeleeAttack();
+
+    if (!isAttacking_)
     {
-        // 1周目の途中でループ（startに戻る）したら終了
-        int cur = Model::GetAnimFrame(slashModel_);
-        if (cur < lastSlashFrame_) // startへ巻き戻った＝ループ発生
-        {
-            isAttacking_ = false;
+        // カメラ基準の前方・右ベクトル計算
+        CalcCameraDirectionXZ();
 
-            // 攻撃用コライダー破棄
-            if(attackCollider_)
-            {
-                RemoveCollider(attackCollider_);
-                attackCollider_ = nullptr;
-            }
-            nowModel_ = idleModel_;
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
-        }
-        else
-        {
-            lastSlashFrame_ = cur;
-        }
+        // 移動入力取得
+        MoveInput();
 
-        Model::SetTransform(nowModel_, transform_);
-        plvision_.Update(transform_.position_);
-        return;
+        // 入力によるモデル切り替え
+        // 切り替えたタイミングでアニメーションを最初から再生
+        ChangeModel();
     }
-
-    // 攻撃開始（開始時だけセット）
-    if (Input::IsMouseButtonDown(0) && onGround_)
-    {
-        attackCollider_ = new BoxCollider(cnf_.ATTACK_COLLIDER_BASE_POS, cnf_.ATTACK_COLLIDER_SCALE);
-
-        AddCollider(attackCollider_);
-        attackCollider_->SetRole(Collider::Role::Attack);
-        attackCollider_->SetCenter(rotateCenter_);
-
-        isAttacking_ = true;
-        nowModel_ = slashModel_;
-        Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
-        lastSlashFrame_ = cnf_.SLASH_ANIM_START; // 巻き戻り検知の基準
-        Model::SetTransform(nowModel_, transform_);
-        plvision_.Update(transform_.position_);
-        return;
-    }
-
-    // カメラ前方（XZ）を正規化
-    XMFLOAT3 focus = plvision_.GetFocus();
-    XMFLOAT3 camPos = plvision_.GetCameraPosition();
-    XMFLOAT3 forward = {
-        focus.x - camPos.x,
-        0.0f,
-        focus.z - camPos.z
-    };
-    XMVECTOR vForward = XMLoadFloat3(&forward);
-    vForward = XMVector3Normalize(vForward);
-    XMStoreFloat3(&forward, vForward);
-
-    // 右ベクトル（XZ）
-    XMFLOAT3 right = {
-        forward.z,
-        0.0f,
-        -forward.x
-    };
-    XMVECTOR vRight = XMLoadFloat3(&right);
-    vRight = XMVector3Normalize(vRight);
-    XMStoreFloat3(&right, vRight);
-
-    // 移動入力取得
-    MoveInput();
-
-    // 入力によるモデル切り替え
-    // 切り替えたタイミングでアニメーションを最初から再生
-	ChangeModel();
 
     if (isMovingNow_)
     {
@@ -217,20 +159,15 @@ void Player::Update()
                 moveVec = SlideAlongWall(moveVec, res.normal);
             }
         }
-
     }
 
     // 入力状態を保存（エッジ検出用）
     wasMoving_ = isMovingNow_;
 
-    // ジャンプや重力処理
-    if (Input::IsKeyDown(DIK_SPACE) && (onGround_ || jumpCount_ < cnf_.JUMP_MAX_COUNT))
-    {
-        velocityY_ = JumpV0_;   // 上向き初速
-        onGround_ = false;
-        ++jumpCount_;
-    }
+    // ジャンプ
+    Jump();
 
+    // 重力更新
     UpdateGravity();
 
     // モデルのワールド行列更新
@@ -245,30 +182,8 @@ void Player::Update()
         -cosf(yawRad)  // Z
     };
 
-    // 右クリックで魔法発射
-	if (Input::IsMouseButtonDown(1) && onGround_)
-	{
-		// 魔法弾生成
-		XMFLOAT3 spawnPos = transform_.position_;
-		MagicSphere* sphere = Instantiate<MagicSphere>(GetParent());
-		sphere->SetPosition(
-			spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
-			spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
-			spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
-		);
-		sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
-	}
-
-    // ローカル基準オフセット（元に使っていた値）
-    float forwardDist = transform_.scale_.z * cnf_.FORWARDDIST_OFFSET;
-    float height = transform_.scale_.y * cnf_.HEIGHT_OFFSET;
-
-    // 回転を反映した中心オフセット
-	rotateCenter_ = XMFLOAT3(
-		magicDir_.x * forwardDist,
-		height,
-		magicDir_.z * forwardDist
-	);
+    // 右クリックで魔法攻撃
+    ShootMagic();
 
     // カメラ更新
     plvision_.Update(transform_.position_);
@@ -444,6 +359,124 @@ void Player::UpdateGravity()
         else {
             onGround_ = false;
         }
+    }
+}
+
+void Player::ShootMagic()
+{
+    // 右クリックで魔法発射
+    if (Input::IsMouseButtonDown(1) && onGround_)
+    {
+        // 魔法弾生成
+        XMFLOAT3 spawnPos = transform_.position_;
+        MagicSphere* sphere = Instantiate<MagicSphere>(GetParent());
+        sphere->SetPosition(
+            spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
+            spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
+            spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
+        );
+        sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
+    }
+
+    // ローカル基準オフセット（元に使っていた値）
+    float forwardDist = transform_.scale_.z * cnf_.FORWARDDIST_OFFSET;
+    float height = transform_.scale_.y * cnf_.HEIGHT_OFFSET;
+
+    // 回転を反映した中心オフセット
+    rotateCenter_ = XMFLOAT3(
+        magicDir_.x * forwardDist,
+        height,
+        magicDir_.z * forwardDist
+    );
+}
+
+void Player::MeleeAttack()
+{
+    // 攻撃モーション中は他の動作を行えない
+    if (isAttacking_)
+    {
+        // 1周目の途中でループ（startに戻る）したら終了
+        int cur = Model::GetAnimFrame(slashModel_);
+        if (cur < lastSlashFrame_) // startへ巻き戻った＝ループ発生
+        {
+            isAttacking_ = false;
+
+            // 攻撃用コライダー破棄
+            if (attackCollider_)
+            {
+                RemoveCollider(attackCollider_);
+                attackCollider_ = nullptr;
+            }
+            nowModel_ = idleModel_;
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
+        }
+        else
+        {
+            lastSlashFrame_ = cur;
+        }
+
+        Model::SetTransform(nowModel_, transform_);
+        plvision_.Update(transform_.position_);
+        return;
+    }
+
+    // 攻撃開始（開始時だけセット）
+    if (Input::IsMouseButtonDown(0) && onGround_)
+    {
+        attackCollider_ = new BoxCollider(cnf_.ATTACK_COLLIDER_BASE_POS, cnf_.ATTACK_COLLIDER_SCALE);
+
+        AddCollider(attackCollider_);
+        attackCollider_->SetRole(Collider::Role::Attack);
+        attackCollider_->SetCenter(rotateCenter_);
+
+        // 移動リセット
+        fwd_ = 0;
+        str_ = 0;
+        isMovingNow_ = false;
+        isAttacking_ = true;
+
+        nowModel_ = slashModel_;
+        Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
+        lastSlashFrame_ = cnf_.SLASH_ANIM_START; // 巻き戻り検知の基準
+        Model::SetTransform(nowModel_, transform_);
+        plvision_.Update(transform_.position_);
+        return;
+    }
+}
+
+void Player::CalcCameraDirectionXZ()
+{
+    // カメラ前方（XZ）を正規化
+    XMFLOAT3 focus = plvision_.GetFocus();
+    XMFLOAT3 camPos = plvision_.GetCameraPosition();
+    forward = {
+        focus.x - camPos.x,
+        0.0f,
+        focus.z - camPos.z
+    };
+    vForward = XMLoadFloat3(&forward);
+    vForward = XMVector3Normalize(vForward);
+    XMStoreFloat3(&forward, vForward);
+
+    // 右ベクトル（XZ）
+    XMFLOAT3 right = {
+        forward.z,
+        0.0f,
+        -forward.x
+    };
+    vRight = XMLoadFloat3(&right);
+    vRight = XMVector3Normalize(vRight);
+    XMStoreFloat3(&right, vRight);
+}
+
+void Player::Jump()
+{
+    // ジャンプや重力処理
+    if (Input::IsKeyDown(DIK_SPACE) && (onGround_ || jumpCount_ < cnf_.JUMP_MAX_COUNT))
+    {
+        velocityY_ = JumpV0_;   // 上向き初速
+        onGround_ = false;
+        ++jumpCount_;
     }
 }
 

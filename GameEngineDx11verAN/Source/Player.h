@@ -40,6 +40,18 @@ private:
 	// 重力処理
 	void UpdateGravity();
 
+	// 魔法発射
+	void ShootMagic();
+
+	// 近接攻撃
+	void MeleeAttack();
+
+	// カメラ基準の前方・右ベクトルを計算
+	void CalcCameraDirectionXZ();
+
+	// ジャンプ
+	void Jump();
+
 	//// 変数群
 	// モデルハンドル
 	int walkModel_;
@@ -74,6 +86,7 @@ private:
 	// ジャンプ上限
 	size_t jumpCount_;
 
+	// フラグ群
 	bool onGround_;
 	bool isAttacking_;
 	bool prevMouseLeftDown_;
@@ -101,4 +114,16 @@ private:
 
 	// デルタタイム
 	float dt_;
+
+	// カメラ基準の前方ベクトル（XZ平面、Y成分は0）
+	XMFLOAT3 forward;
+
+	// カメラ基準の前方ベクトル（DirectXMath型、正規化済み）
+	XMVECTOR vForward;
+
+	// カメラ基準の右方向ベクトル（XZ平面、Y成分は0）
+	XMFLOAT3 right;
+
+	// カメラ基準の右方向ベクトル（DirectXMath型、正規化済み）
+	XMVECTOR vRight;
 };
