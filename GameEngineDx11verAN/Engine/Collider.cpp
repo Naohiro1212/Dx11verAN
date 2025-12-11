@@ -3,11 +3,14 @@
 #include "GameObject.h"
 #include "Model.h"
 #include "Transform.h"
+#include <assert.h>
 
 //コンストラクタ
 Collider::Collider():
 	pGameObject_(nullptr)
 {
+	hDebugModel_ = Model::Load("Box.fbx");
+	assert(hDebugModel_ != -1);
 }
 
 //デストラクタ
@@ -47,19 +50,34 @@ bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 	XMFLOAT3 circlePos = Transform::Float3Add(sphere->pGameObject_->GetWorldPosition(), sphere->center_);
 	XMFLOAT3 boxPos = Transform::Float3Add(box->pGameObject_->GetWorldPosition(), box->center_);
 
+	// Box の半径（ハーフサイズ）
+	const float hx = box->size_.x * 0.5f;
+	const float hy = box->size_.y * 0.5f;
+	const float hz = box->size_.z * 0.5f;
 
+	// Sphere 半径（size_.x が半径である前提。もし直径なら 0.5 を掛けてください）
+	const float r = sphere->size_.x;
 
-	if (circlePos.x > boxPos.x - box->size_.x - sphere->size_.x &&
-		circlePos.x < boxPos.x + box->size_.x + sphere->size_.x &&
-		circlePos.y > boxPos.y - box->size_.y - sphere->size_.x &&
-		circlePos.y < boxPos.y + box->size_.y + sphere->size_.x &&
-		circlePos.z > boxPos.z - box->size_.z - sphere->size_.x &&
-		circlePos.z < boxPos.z + box->size_.z + sphere->size_.x )
-	{
-		return true;
-	}
+	// ボックスの各軸の最小・最大
+	const float minX = boxPos.x - hx;
+	const float maxX = boxPos.x + hx;
+	const float minY = boxPos.y - hy;
+	const float maxY = boxPos.y + hy;
+	const float minZ = boxPos.z - hz;
+	const float maxZ = boxPos.z + hz;
 
-	return false;
+	// 球中心をボックス範囲にクランプして最近接点を求める
+	const float closestX = (std::max)(minX, (std::min)(circlePos.x, maxX));
+	const float closestY = (std::max)(minY, (std::min)(circlePos.y, maxY));
+	const float closestZ = (std::max)(minZ, (std::min)(circlePos.z, maxZ));
+
+	// 最近接点と球中心の距離の二乗
+	const float dx = circlePos.x - closestX;
+	const float dy = circlePos.y - closestY;
+	const float dz = circlePos.z - closestZ;
+
+	const float dist2 = dx * dx + dy * dy + dz * dz;
+	return dist2 <= r * r;
 }
 
 //球体同士の衝突判定
@@ -86,12 +104,53 @@ bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circ
 
 //テスト表示用の枠を描画
 //引数：position	オブジェクトの位置
-void Collider::Draw(XMFLOAT3 position)
+void Collider::Draw(XMFLOAT3 position, XMFLOAT3 rotate)
 {
 	Transform transform;
 	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
 	transform.scale_ = size_;
+	transform.rotate_ = rotate;
 	transform.Calclation();
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);
+}
+
+PenetrationResult Collider::ComputeBoxVsBoxPenetration(BoxCollider* boxA, BoxCollider* boxB)
+{
+	PenetrationResult result = { false, {0,0,0},{0,0,0} };
+
+	XMFLOAT3 posA = Transform::Float3Add(boxA->pGameObject_->GetWorldPosition(), boxA->center_);
+	XMFLOAT3 posB = Transform::Float3Add(boxB->pGameObject_->GetWorldPosition(), boxB->center_);
+	XMFLOAT3 halfA = { boxA->size_.x * 0.5f, 0.0f, boxA->size_.z * 0.5f };
+	XMFLOAT3 halfB = { boxB->size_.x * 0.5f, 0.0f, boxB->size_.z * 0.5f };
+
+	bool overlap = 
+		(posA.x + halfA.x > posB.x - halfB.x) &&
+		(posA.x - halfA.x < posB.x + halfB.x) &&
+		(posA.z + halfA.z > posB.z - halfB.z) &&
+		(posA.z - halfA.z < posB.z + halfB.z);
+	if (!overlap) return result;
+
+	float pushPosX = (posB.x + halfB.x) - (posA.x - halfA.x);
+	float pushNegX = (posA.x + halfA.x) - (posB.x - halfB.x);
+	float pushPosZ = (posB.z + halfB.z) - (posA.z - halfA.z);
+	float pushNegZ = (posA.z + halfA.z) - (posB.z - halfB.z);
+
+	float pushX = (pushPosX < pushNegX) ? pushPosX : -pushNegX;
+	float pushZ = (pushPosZ < pushNegZ) ? pushPosZ : -pushNegZ;
+
+	float ax = fabsf(pushX);
+	float az = fabsf(pushZ);
+	result.overlapped = true;
+	if (ax <= az)
+	{
+		result.push = { pushX, 0.0f, 0.0f };
+		result.normal = { pushX > 0 ? -1.0f : 1.0f, 0.0f, 0.0f };
+	}
+	else
+	{
+		result.push = { 0.0f, 0.0f, pushZ };
+		result.normal = { 0.0f, 0.0f, pushZ > 0 ? -1.0f : 1.0f };
+	}
+	return result;
 }

@@ -16,11 +16,29 @@ enum ColliderType
 	COLLIDER_CIRCLE		//球体
 };
 
+//壁ずりベクトル用の構造体
+struct PenetrationResult
+{
+	bool overlapped;
+	XMFLOAT3 push; // 押し出しベクトル
+	XMFLOAT3 normal; // 壁面の法線
+};
+
 //-----------------------------------------------------------
 //あたり判定を管理するクラス
 //-----------------------------------------------------------
 class Collider
 {
+public:
+	// コライダー属性
+	// Body: 体（通常の当たり判定）
+	// Attack: 攻撃判定（ダメージを与える当たり判定）
+	// Static: 静的オブジェクト（床や壁など動かないもの）
+	enum Role { Body, Attack, Static };
+	void SetRole(Role r) { role_ = r; }
+	Role GetRole() const { return role_; }
+
+private:
 	//それぞれのクラスのprivateメンバにアクセスできるようにする
 	friend class BoxCollider;
 	friend class SphereCollider;
@@ -30,9 +48,11 @@ protected:
 	ColliderType	type_;			//種類
 	XMFLOAT3		center_;		//中心位置（ゲームオブジェクトの原点から見た位置）
 	XMFLOAT3		size_;			//判定サイズ（幅、高さ、奥行き）
+	Role			role_;			//コライダーの属性（体 or 攻撃）
 	int				hDebugModel_;	//デバッグ表示用のモデルのID
 
 public:
+
 	//コンストラクタ
 	Collider();
 
@@ -63,11 +83,21 @@ public:
 	bool IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circleB);
 
 	//テスト表示用の枠を描画
-	//引数：position	オブジェクトの位置
-	void Draw(XMFLOAT3 position);
+	//引数：position	当たり判定の位置
+	//引数：rotate	当たり判定の回転
+	void Draw(XMFLOAT3 position, XMFLOAT3 rotate);
 
 	//セッター
 	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }
 
+	//ローカル中心の更新（攻撃判定を前方へ追従させるため）
+	void SetCenter(const DirectX::XMFLOAT3& c) { center_ = c; }
+	const DirectX::XMFLOAT3& GetCenter() const { return center_; }
+
+	//サイズ更新が必要なら
+	void SetSize(const DirectX::XMFLOAT3& s) { size_ = s; }
+	const DirectX::XMFLOAT3& GetSize() const { return size_; }
+
+	static PenetrationResult ComputeBoxVsBoxPenetration(BoxCollider* boxA, BoxCollider* boxB);
 };
 

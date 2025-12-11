@@ -128,6 +128,24 @@
     <ClCompile Include="Source\Player.cpp">
       <Filter>リソース ファイル\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\GameTime.cpp">
+      <Filter>Engine\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PlayerCamera.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\testEnemy.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MagicSphere.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Plane.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Jewel.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -204,6 +222,27 @@
     </ClInclude>
     <ClInclude Include="Engine\CommonType.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GameTime.h">
+      <Filter>Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlayerCamera.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Plane.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MagicSphere.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\testEnemy.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlayerConfig.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Jewel.h">
+      <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\RandomNum.h">
       <Filter>Engine</Filter>

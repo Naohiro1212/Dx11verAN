@@ -16,6 +16,7 @@ BoxCollider::BoxCollider(XMFLOAT3 basePos, XMFLOAT3 size)
 #ifdef _DEBUG
 	//テスト表示用判定枠
 	hDebugModel_ = Model::Load("DebugCollision/boxCollider.fbx");
+	assert(hDebugModel_ != -1);
 #endif
 }
 

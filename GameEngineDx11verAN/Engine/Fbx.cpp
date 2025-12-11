@@ -130,7 +130,6 @@ XMFLOAT3 Fbx::GetAnimBonePosition(std::string boneName)
 	return position;
 }
 
-
 void Fbx::Draw(Transform& transform, int frame)
 {
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
@@ -155,7 +154,6 @@ void Fbx::Draw(Transform& transform, int frame)
 		}
 	}
 }
-
 
 //レイキャスト（レイを飛ばして当たり判定）
 void Fbx::RayCast(RayCastData * data)

@@ -242,40 +242,80 @@ void GameObject::ClearCollider()
 	colliderList_.clear();
 }
 
-//衝突判定
-void GameObject::Collision(GameObject * pTarget)
+void GameObject::RemoveCollider(Collider* collider)
 {
-	//自分同士の当たり判定はしない
-	if (pTarget == nullptr || this == pTarget)
+	if (!collider) return;
+	for (auto it = colliderList_.begin(); it != colliderList_.end(); it++)
 	{
-		return;
-	}
-
-	//自分とpTargetのコリジョン情報を使って当たり判定
-	//1つのオブジェクトが複数のコリジョン情報を持ってる場合もあるので二重ループ
-	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
-	{
-		for (auto j = pTarget->colliderList_.begin(); j != pTarget->colliderList_.end(); j++)
+		if (*it == collider)
 		{
-			if ((*i)->IsHit(*j))
+			SAFE_DELETE(*it);
+			colliderList_.erase(it);
+			break;
+		}
+	}
+}
+
+void GameObject::Collision(GameObject* pTarget)
+{
+	if (pTarget == nullptr || this == pTarget) return;
+
+	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); ++i)
+	{
+		for (auto j = pTarget->colliderList_.begin(); j != pTarget->colliderList_.end(); ++j)
+		{
+			Collider* a = *i;
+			Collider* b = *j;
+
+			if (a->IsHit(b))
 			{
-				//当たった
-				this->OnCollision(pTarget);
+				this->lastHitCollider_ = a;
+				pTarget->lastHitCollider_ = b;
+
+				const auto roleA = a->GetRole();
+				const auto roleB = b->GetRole();
+
+				const bool anyAttack =
+					(roleA == Collider::Role::Attack || roleB == Collider::Role::Attack);
+
+				const bool attackVsBody =
+					(roleA == Collider::Role::Attack && roleB == Collider::Role::Body) ||
+					(roleB == Collider::Role::Attack && roleA == Collider::Role::Body);
+
+				const bool isBodyStatic =
+					(roleA == Collider::Role::Body && roleB == Collider::Role::Static) ||
+					(roleA == Collider::Role::Static && roleB == Collider::Role::Body);
+
+				if (anyAttack)
+				{
+					// 攻撃は Body 相手のみ通知（Attack×Static は除外）
+					if (!attackVsBody) continue;
+
+					this->OnCollision(pTarget);
+					pTarget->OnCollision(this);
+				}
+				else if (isBodyStatic)
+				{
+					// 拾得は両側通知（Player と Jewel の両方にイベントを飛ばす）
+					this->OnCollision(pTarget);
+					pTarget->OnCollision(this);
+				}
+				else
+				{
+					// 必要なら Body×Body などもここで扱う
+					// this->OnCollision(pTarget);
+					// pTarget->OnCollision(this);
+				}
 			}
 		}
 	}
 
-	//子供がいないなら終わり
-	if (pTarget->childList_.empty())
-		return;
-
-	//子供も当たり判定
-	for (auto i = pTarget->childList_.begin(); i != pTarget->childList_.end(); i++)
+	if (pTarget->childList_.empty()) return;
+	for (auto it = pTarget->childList_.begin(); it != pTarget->childList_.end(); ++it)
 	{
-		Collision(*i);
+		Collision(*it);
 	}
 }
-
 
 //テスト用の衝突判定枠を表示
 void GameObject::CollisionDraw()
@@ -284,22 +324,22 @@ void GameObject::CollisionDraw()
 
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
 	{
-		(*i)->Draw(GetWorldPosition());
+		(*i)->Draw(GetWorldPosition(), GetWorldRotate());
 	}
 
 	Direct3D::SetShader(Direct3D::SHADER_3D);
 }
 
 //RootJobを取得
-GameObject * GameObject::GetRootJob()
+GameObject* GameObject::GetRootJob()
 {
-	if (GetParent() == nullptr)
+	GameObject* cur = this;
+	while (cur->pParent_ != nullptr)
 	{
-		return this;
+		cur = cur->pParent_;
 	}
-	else return GetParent()->GetRootJob();
+	return cur;
 }
-
 
 
 

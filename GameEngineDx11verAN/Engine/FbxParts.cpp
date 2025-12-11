@@ -4,6 +4,7 @@
 #include "Direct3D.h"
 #include "Camera.h"
 #include "Debug.h"
+#include <DirectXMath.h>
 
 // –¢‰Šú‰»ƒƒ“ƒo‚ð–¾Ž¦‰Šú‰»‚·‚é
 FbxParts::FbxParts() :
@@ -723,18 +724,17 @@ bool FbxParts::GetBonePosition(std::string boneName, XMFLOAT3* position)
 
 bool FbxParts::GetBonePositionAtNow(std::string boneName, XMFLOAT3* position)
 {
-
-		decltype(bonePair)::iterator it = bonePair.find(boneName);
-		if (it != bonePair.end())  // Œ©‚Â‚©‚Á‚½	
-		{
-			XMFLOAT4X4  m;
-			XMStoreFloat4x4(&m, it->second->newPose);
-			position->x = m._41;
-			position->y = m._42;
-			position->z = m._43;
-
-			return true;
-		}
+//	decltype(bonePair)::iterator it = bonePair.find(boneName);
+	auto it = bonePair.find(boneName);
+	if (it != bonePair.end())  // Œ©‚Â‚©‚Á‚½	
+	{
+		XMFLOAT4X4  m;
+		XMStoreFloat4x4(&m, it->second->newPose);
+		position->x = m._41;
+		position->y = m._42;
+		position->z = m._43;
+		return true;
+	}
 
 	return false;
 }

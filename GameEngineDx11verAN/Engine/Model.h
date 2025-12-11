@@ -100,10 +100,13 @@ namespace Model
 	//戻値：ワールド行列
 	XMMATRIX GetMatrix(int handle);
 
-
-	//レイキャスト（レイを飛ばして当たり判定）　※未実装
+	//レイキャスト（レイを飛ばして当たり判定)
 	//引数：handle	判定したいモデルの番号
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(int handle, RayCastData *data);
 
+	// 既存のモデルに対してワールド座標系でレイキャストを行う
+	//引数：handle	判定したいモデルの番号
+	//引数：data	必要なものをまとめたデータ
+	void RayCastWorld(int handle, RayCastData* data);
 };

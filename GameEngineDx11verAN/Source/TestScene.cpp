@@ -3,6 +3,8 @@
 #include "../Source/DungeonManager.h"
 #include "../Engine/Camera.h"
 #include "../Engine/Input.h"
+#include "../Source/Plane.h"
+#include "../Source/testEnemy.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -13,14 +15,10 @@ TestScene::TestScene(GameObject * parent)
 //初期化
 void TestScene::Initialize()
 {	
-	// 真上から見下ろすカメラ
-	float centerX = 15.0f * 15.0f;
-	float centerZ = 15.0f * 15.0f;
-	float height = 16.0f * 30.0f;
-
-//	Instantiate <Player>(this);
-	Instantiate <DungeonManager>(this);
-	Camera::SetTarget(XMFLOAT3(15.0f * 15.0f, 0.0f, 15.0f * 15.0f));
+	//pWp = Instantiate<Weapon>(this);
+	Instantiate<Plane>(this);
+	Instantiate<Player>(this);
+	Instantiate<testEnemy>(this);
 }
 
 //更新
