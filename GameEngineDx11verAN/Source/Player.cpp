@@ -172,20 +172,6 @@ void Player::Update()
 		}
     }
 
-    /*if (wallCollider_)
-    {
-		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
-        if (res.overlapped)
-        {
-            transform_.position_.x += res.push.x + (res.push.x > 0 ? cnf_.WALL_EPS : (res.push.x < 0 ? -cnf_.WALL_EPS : 0.0f));
-            transform_.position_.z += res.push.z + (res.push.z > 0 ? cnf_.WALL_EPS : (res.push.z < 0 ? -cnf_.WALL_EPS : 0.0f));
-            if (fabsf(res.normal.y) < 0.4f)
-            {
-                moveVec = SlideAlongWall(moveVec, res.normal);
-            }
-        }
-    }*/
-
     // 入力状態を保存（エッジ検出用）
     wasMoving_ = isMovingNow_;
 

@@ -58,13 +58,15 @@ DungeonManager::~DungeonManager()
 void DungeonManager::Initialize()
 {
 	wallModel_ = Model::Load("Box.fbx");
-	player_ = Instantiate<Player>(GetParent());
 
 	dungeonGenerator_ = new DungeonGenerator();
 	enemyGenerator_ = new EnemyGenerator();
 	dungeonGenerator_->Initialize();
 	DungeonReset();
 	mapTransform_.scale_ = MAPCHIP_SCALE;
+
+	player_ = Instantiate<Player>(GetParent());
+	player_->SetPosition(playerStartPos_);
 
 	// ミニマップを最後に生成
 	// だいぶ時間がかかってしまいそうだったので後回し
@@ -133,7 +135,6 @@ void DungeonManager::DungeonReset()
 	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * MAPTILE_SIZE;
 	playerStartPos_.y = 0.0f;
 	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * MAPTILE_SIZE;
-	player_->SetPosition(playerStartPos_);
 
 	// 敵の位置取得・敵生成
 	enemyPositions_.clear();
@@ -156,6 +157,7 @@ void DungeonManager::DungeonReset()
 				mapTransform_.position_ = { 
 					static_cast<float>(i) * MAPTILE_SIZE, 0.0f, 
 					static_cast<float>(j) * MAPTILE_SIZE };
+				mapTransform_.scale_ = MAPCHIP_SCALE;
 				BoxCollider* wallCollider_ = new BoxCollider(
 					mapTransform_.position_,
 					mapTransform_.scale_);

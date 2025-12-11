@@ -29,7 +29,7 @@ public:
 	const std::vector<testEnemy*>& GetEnemies() const { return enemies_; }
 
 	// 壁当たり判定用のゲッター
-	const std::vector<BoxCollider*> GetWallColliders() const { return wallColliders_; }
+	const std::vector<BoxCollider*>& GetWallColliders() const { return wallColliders_; }
 
 private:
 	DungeonGenerator* dungeonGenerator_;
