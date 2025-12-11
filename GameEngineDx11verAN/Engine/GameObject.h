@@ -186,3 +186,15 @@ T* Instantiate(GameObject* pParent)
 	return pNewObject;
 }
 
+// オブジェクト生成位置も含められるテンプレート
+template <class T, class... Args>
+T* Instantiate(GameObject* pParent, Args&&... args)
+{
+	T* pNewObject = new T(pParent, std::forward<Args>(args)...);
+	if (pParent != nullptr)
+	{
+		pParent->PushBackChild(pNewObject);
+	}
+	pNewObject->Initialize();
+	return pNewObject;
+}

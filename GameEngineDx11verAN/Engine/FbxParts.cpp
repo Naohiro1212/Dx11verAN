@@ -5,19 +5,24 @@
 #include "Camera.h"
 #include "Debug.h"
 
-//コンストラクタ
+// 未初期化メンバを明示初期化する
 FbxParts::FbxParts() :
 	ppIndexBuffer_(nullptr), pMaterial_(nullptr),
 	pVertexBuffer_(nullptr), pConstantBuffer_(nullptr),
-	pVertexData_(nullptr), ppIndexData_(nullptr)
+	pVertexData_(nullptr), ppIndexData_(nullptr),
+	pSkinInfo_(nullptr), ppCluster_(nullptr),
+	numBone_(0), pBoneArray_(nullptr), pWeightArray_(nullptr),
+	vertexCount_(0), polygonCount_(0), materialCount_(0), polygonVertexCount_(0)
 {
 }
 
-//コンストラクタ
-FbxParts::FbxParts(Fbx *parent) :
+FbxParts::FbxParts(Fbx* parent) :
 	ppIndexBuffer_(nullptr), pMaterial_(nullptr),
 	pVertexBuffer_(nullptr), pConstantBuffer_(nullptr),
-	pVertexData_(nullptr), ppIndexData_(nullptr)
+	pVertexData_(nullptr), ppIndexData_(nullptr),
+	pSkinInfo_(nullptr), ppCluster_(nullptr),
+	numBone_(0), pBoneArray_(nullptr), pWeightArray_(nullptr),
+	vertexCount_(0), polygonCount_(0), materialCount_(0), polygonVertexCount_(0)
 {
 	parent_ = parent;
 }
@@ -45,7 +50,7 @@ FbxParts::~FbxParts()
 	for (DWORD i = 0; i < materialCount_; i++)
 	{
 		SAFE_RELEASE(ppIndexBuffer_[i]);
-		SAFE_DELETE(ppIndexData_[i]);
+		SAFE_DELETE_ARRAY(ppIndexData_[i]);
 		SAFE_DELETE(pMaterial_[i].pTexture);
 
 	}
@@ -339,14 +344,12 @@ void FbxParts::InitIndex(fbxsdk::FbxMesh* mesh)
 	ppIndexBuffer_ = new ID3D11Buffer * [materialCount_];
 	ppIndexData_ = new DWORD * [materialCount_];
 
-	int count = 0;
-
 	// マテリアルから「ポリゴン平面」の情報を抽出する
 	for (DWORD i = 0; i < materialCount_; i++)
 	{
-		count = 0;
+		int count = 0;
 		DWORD* pIndex = new DWORD[polygonCount_ * 3];
-		ZeroMemory(&pIndex[i], sizeof(pIndex[i]));
+		ZeroMemory(pIndex, sizeof(DWORD) * polygonCount_ * 3);
 
 		// ポリゴンを構成する三角形平面が、
 		// 「頂点バッファ」内のどの頂点を利用しているかを調べる

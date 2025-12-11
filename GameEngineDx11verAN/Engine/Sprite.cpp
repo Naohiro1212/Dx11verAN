@@ -38,6 +38,20 @@ HRESULT Sprite::Load(std::string fileName)
 	return S_OK;
 }
 
+HRESULT Sprite::LoadSolidColor(const DirectX::XMFLOAT4& color)
+{
+	pTexture_ = new Texture();
+	if (FAILED(pTexture_->CreateSolidColor(1, 1, color)))
+	{
+		SAFE_DELETE(pTexture_);
+		return E_FAIL;
+	}
+	InitVertex();
+	InitIndex();
+	InitConstantBuffer();
+	return S_OK;
+}
+
 //コンスタントバッファ準備
 void Sprite::InitConstantBuffer()
 {

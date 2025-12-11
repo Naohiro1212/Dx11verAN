@@ -1,13 +1,11 @@
+#define FBXSDK_SHARED
 #include "Fbx.h"
 #include "Direct3D.h"
 #include "FbxParts.h"
 
+#pragma comment(lib, "libfbxsdk.lib")
 
-#pragma comment(lib, "LibFbxSDK-MT.lib")
-#pragma comment(lib, "LibXml2-MT.lib")
-#pragma comment(lib, "zlib-MT.lib")
-
-Fbx::Fbx():_animSpeed(0)
+Fbx::Fbx() :pFbxManager_(nullptr), pFbxScene_(nullptr), _animSpeed(1.0f), _startFrame(0), _endFrame(0)
 {
 }
 
@@ -33,8 +31,11 @@ HRESULT Fbx::Load(std::string fileName)
 	
 	if (!fbxImporter->Initialize(FileName.Buffer(), -1, pFbxManager_->GetIOSettings()))
 	{
-		//失敗
-		return E_FAIL;
+		fbxImporter->Destroy();
+        // 後始末して失敗を返す
+        if (pFbxScene_)   { pFbxScene_->Destroy();   pFbxScene_ = nullptr; }
+        if (pFbxManager_) { pFbxManager_->Destroy(); pFbxManager_ = nullptr; }
+        return E_FAIL;
 	}
 
 	fbxImporter->Import(pFbxScene_);
@@ -42,29 +43,6 @@ HRESULT Fbx::Load(std::string fileName)
 	
 	
 	FbxGeometryConverter geometryConverter(pFbxManager_);
-	//geometryConverter.Triangulate(pFbxScene_, true);
-	//geometryConverter.RemoveBadPolygonsFromMeshes(pFbxScene_);
-
-#pragma region SplitMesh
-	//geometryConverter.SplitMeshesPerMaterial(pFbxScene_, true);
-
-	//meshCount = pFbxScene_->GetSrcObjectCount<FbxMesh>();
-	//matCount = pFbxScene_->GetSrcObjectCount<FbxSurfacePhong>();
-	//std::vector<FbxSurfacePhong*> matlist;
-	//for (int i = 0; i < matCount; i++)
-	//{
-	//		FbxSurfaceMaterial* pMaterial = pFbxScene_->GetSrcObject<FbxSurfaceMaterial>(i);
-	//		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pMaterial;
-	//		matlist.push_back(pPhong);
-	//}
-	//std::vector<FbxMesh*> meshlist;
-	//for (int i = 0; i < meshCount; i++)
-	//{
-	//	FbxMesh* pMesh = pFbxScene_->GetSrcObject<FbxMesh>(i);
-	//	pMesh->GetNode();
-	//	meshlist.push_back(pMesh);
-	//}
-#pragma endregion SplitMesh
 
 
 	// アニメーションのタイムモードの取得
@@ -79,21 +57,6 @@ HRESULT Fbx::Load(std::string fileName)
 	_splitpath_s(fileName.c_str(), nullptr, 0, dir, MAX_PATH, nullptr, 0, nullptr, 0);
 	SetCurrentDirectory(dir);
 
-	//ルートノードを取得して
-	//FbxNode* rootNode = pFbxScene_->GetRootNode();
-
-	////そいつの子供の数を調べて
-	//int childCount = rootNode->GetChildCount();
-
-	////1個ずつチェック
-	//for (int i = 0; childCount > i; i++)
-	//{
-	//	CheckNode(rootNode->GetChild(i), &parts_);
-	//}
-
-	//pFbxScene_->GetSrcObjectCount<FbxSurfacePhong>();
-	//std::vector<FbxMesh*> meshList;
-	//
 	int meshCount = pFbxScene_->GetSrcObjectCount<FbxMesh>();
 	for (int i = 0; i < meshCount; ++i)
 	{
@@ -107,11 +70,6 @@ HRESULT Fbx::Load(std::string fileName)
 		parts_.push_back(pParts);
 	
 	}
-	//	std::string name = mesh->GetName();
-	//	//m_fbxMeshNames.push_back(name);
-	//	//m_fbxMeshes.insert({ mesh, name });
-	//	meshList.push_back(mesh);
-	//}
 
 	//カレントディレクトリを元の位置に戻す
 	SetCurrentDirectory(defaultCurrentDir);
