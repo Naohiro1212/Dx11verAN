@@ -89,7 +89,6 @@ void Player::Update()
 {
     dt_ = GameTime::DeltaTime();
 
-    // 攻撃
     // 攻撃モーション中は他の動作を行えない
     MeleeAttack();
 
@@ -158,6 +157,7 @@ void Player::Update()
     transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
 
     // ダンジョンの壁との当たり判定
+    // ダンジョン再生成時に壁コライダーリストを更新する
     for (auto* wallCollider_ : wallColliders_)
     {
 		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);

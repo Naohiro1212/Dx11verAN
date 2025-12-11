@@ -15,7 +15,7 @@ Plane::Plane(GameObject* parent) : GameObject(parent, "plane"), planeHandle_(-1)
 
 void Plane::Initialize()
 {
-	planeHandle_ = Model::Load("Models/Stage_t.fbx");
+	planeHandle_ = Model::Load("floor.fbx");
 	assert(planeHandle_ >= 0);
 	transform_.position_ = { 0.0f, -10.0f, 0.0f };
 	transform_.rotate_ = { 0.0f, 0.0f, 0.0f };

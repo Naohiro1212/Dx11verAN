@@ -18,10 +18,11 @@ namespace
 	const size_t ROOMLENGTH_MIN_Y = 4; // 部屋のY座標の最小サイズ
 	const size_t ROOMLENGTH_RAND_X = 2; // 部屋のX座標のサイズ加算
 	const size_t ROOMLENGTH_RAND_Y = 2; // 部屋のY座標のサイズ加算
-	const size_t MAPX_RLk = 24; //マップ縦サイズ
-	const size_t MAPY_RLk = 24;   //マップ横サイズ
-	const XMFLOAT3 MAPCHIP_SCALE = { 23.5f, 15.0f, 15.0f }; // 描画の際のスケール
+	const size_t MAPX_RLk = 28; //マップ縦サイズ
+	const size_t MAPY_RLk = 28;   //マップ横サイズ
+	const XMFLOAT3 MAPCHIP_SCALE = { 0.3f, 0.3f, 0.3f }; // 描画の際のスケール
 	const float MAPTILE_SIZE = 30.0f;
+	const XMFLOAT3 COLLIDER_SIZE = { 40.0f, 30.0f, 33.0f };
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -36,7 +37,6 @@ DungeonManager::DungeonManager(GameObject* _parent)
 		ROOMLENGTH_RAND_X,
 		ROOMLENGTH_RAND_Y
 	};
-	objectName_ = "DungeonManager";
 }
 
 DungeonManager::~DungeonManager()
@@ -57,16 +57,14 @@ DungeonManager::~DungeonManager()
 
 void DungeonManager::Initialize()
 {
-	wallModel_ = Model::Load("Box.fbx");
+	wallModel_ = Model::Load("wall.fbx");
 
 	dungeonGenerator_ = new DungeonGenerator();
 	enemyGenerator_ = new EnemyGenerator();
+	player_ = Instantiate<Player>(GetParent());
 	dungeonGenerator_->Initialize();
 	DungeonReset();
 	mapTransform_.scale_ = MAPCHIP_SCALE;
-
-	player_ = Instantiate<Player>(GetParent());
-	player_->SetPosition(playerStartPos_);
 
 	// ミニマップを最後に生成
 	// だいぶ時間がかかってしまいそうだったので後回し
@@ -94,7 +92,6 @@ void DungeonManager::Draw()
 			case MAPCHIP_WALL:
 				Model::SetTransform(wallModel_, mapTransform_);
 				Model::Draw(wallModel_);
-//				wallColliders_[i][j].Draw(mapTransform_.position_, mapTransform_.rotate_);
 			}
 		}
 	}
@@ -112,9 +109,9 @@ void DungeonManager::DungeonReset()
 		if (collider)
 		{
 			RemoveCollider(collider);
-			SAFE_DELETE(collider);
 		}
 	}
+	wallColliders_.clear();
 
 	// 既存の敵を削除
 	for (auto* enemy : enemies_)
@@ -135,6 +132,12 @@ void DungeonManager::DungeonReset()
 	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * MAPTILE_SIZE;
 	playerStartPos_.y = 0.0f;
 	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * MAPTILE_SIZE;
+
+	// プレイヤーの位置適用
+	if (player_)
+	{
+		player_->SetPosition(playerStartPos_);
+	}
 
 	// 敵の位置取得・敵生成
 	enemyPositions_.clear();
@@ -159,14 +162,18 @@ void DungeonManager::DungeonReset()
 					static_cast<float>(j) * MAPTILE_SIZE };
 				mapTransform_.scale_ = MAPCHIP_SCALE;
 				BoxCollider* wallCollider_ = new BoxCollider(
-					mapTransform_.position_,
-					mapTransform_.scale_);
+					{ mapTransform_.position_.x, 
+					  mapTransform_.position_.y + (MAPCHIP_SCALE.y / 2.0f),
+					  mapTransform_.position_.z },
+					COLLIDER_SIZE);
 				AddCollider(wallCollider_);
 				wallCollider_->SetRole(Collider::Role::Static);
 				wallColliders_.push_back(wallCollider_);
 			}
 		}
 	}
+
+	player_->SetWallColliders(wallColliders_);
 }
 
 XMFLOAT3 DungeonManager::GetPlayerPosition() const

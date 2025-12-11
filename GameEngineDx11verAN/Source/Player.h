@@ -30,6 +30,8 @@ public:
 
 	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
+	void SetWallColliders(const std::vector<BoxCollider*>& colliders) { wallColliders_ = colliders; }
+
 private:
 	//// ŠÖ”ŒQ
 	// ‘OŒã¶‰EA“ü—Í•ûŒü‚Ìæ“¾

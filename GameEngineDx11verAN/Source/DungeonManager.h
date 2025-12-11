@@ -37,13 +37,17 @@ private:
 	EnemyGenerator* enemyGenerator_;
 
 	std::vector<std::vector<MapData_RL>> maprl;
+
 	// 敵の位置の配列
 	std::vector<XMFLOAT3> enemyPositions_;
 	std::vector<testEnemy*> enemies_;
+
 	// 壁のモデル
 	int wallModel_;
+
 	// マップ描画用の座標情報
 	Transform mapTransform_;
+
 	// プレイヤーの開始位置
 	Player* player_;
 	XMFLOAT3 playerStartPos_;
