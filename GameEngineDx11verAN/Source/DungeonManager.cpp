@@ -7,7 +7,8 @@
 #include <vector>
 #include "Player.h"
 #include "MiniMap.h"
-#include "EnemyBox.h"
+#include "testEnemy.h"
+#include "../Engine/BoxCollider.h"
 
 namespace
 {
@@ -17,8 +18,8 @@ namespace
 	const size_t ROOMLENGTH_MIN_Y = 4; // 部屋のY座標の最小サイズ
 	const size_t ROOMLENGTH_RAND_X = 2; // 部屋のX座標のサイズ加算
 	const size_t ROOMLENGTH_RAND_Y = 2; // 部屋のY座標のサイズ加算
-	const size_t MAPX_RLk = 32; //マップ縦サイズ
-	const size_t MAPY_RLk = 32;   //マップ横サイズ
+	const size_t MAPX_RLk = 24; //マップ縦サイズ
+	const size_t MAPY_RLk = 24;   //マップ横サイズ
 	const XMFLOAT3 MAPCHIP_SCALE = { 23.5f, 15.0f, 15.0f }; // 描画の際のスケール
 	const float MAPTILE_SIZE = 30.0f;
 }
@@ -57,7 +58,7 @@ DungeonManager::~DungeonManager()
 void DungeonManager::Initialize()
 {
 	wallModel_ = Model::Load("Box.fbx");
-	player_ = Instantiate<Player>(this);
+	player_ = Instantiate<Player>(GetParent());
 
 	dungeonGenerator_ = new DungeonGenerator();
 	enemyGenerator_ = new EnemyGenerator();
@@ -91,6 +92,7 @@ void DungeonManager::Draw()
 			case MAPCHIP_WALL:
 				Model::SetTransform(wallModel_, mapTransform_);
 				Model::Draw(wallModel_);
+//				wallColliders_[i][j].Draw(mapTransform_.position_, mapTransform_.rotate_);
 			}
 		}
 	}
@@ -102,6 +104,16 @@ void DungeonManager::Release()
 
 void DungeonManager::DungeonReset()
 {
+	// 既存のコライダーを削除
+	for (auto* collider : wallColliders_)
+	{
+		if (collider)
+		{
+			RemoveCollider(collider);
+			SAFE_DELETE(collider);
+		}
+	}
+
 	// 既存の敵を削除
 	for (auto* enemy : enemies_)
 	{
@@ -129,9 +141,29 @@ void DungeonManager::DungeonReset()
 
 	for (size_t i = 0; i < enemyPositions_.size(); ++i)
 	{
-		EnemyBox* enemy_ = Instantiate<EnemyBox>(this);
+		testEnemy* enemy_ = Instantiate<testEnemy>(GetParent());
 		enemy_->SetPosition(enemyPositions_[i]);
 		enemies_.push_back(enemy_);
+	}
+
+	// 壁のコライダー生成
+	for (size_t i = 0;i < MAPX_RLk; ++i)
+	{
+		for (size_t j = 0;j < MAPY_RLk; ++j)
+		{
+			if (maprl[i][j].mapData == MAPCHIP_WALL)
+			{
+				mapTransform_.position_ = { 
+					static_cast<float>(i) * MAPTILE_SIZE, 0.0f, 
+					static_cast<float>(j) * MAPTILE_SIZE };
+				BoxCollider* wallCollider_ = new BoxCollider(
+					mapTransform_.position_,
+					mapTransform_.scale_);
+				AddCollider(wallCollider_);
+				wallCollider_->SetRole(Collider::Role::Static);
+				wallColliders_.push_back(wallCollider_);
+			}
+		}
 	}
 }
 

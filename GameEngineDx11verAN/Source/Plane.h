@@ -23,12 +23,11 @@ public:
 	//開放
 	void Release() override;
 
-	int GetPlaneHandle() { return planeHandle_; }
-	BoxCollider* GetWallCollider() { return wallCollider_; }
+	// 当たり判定用のゲッター
+	const int GetPlaneHandle() const { return planeHandle_; }
 
 private:
 	int planeHandle_;
-	BoxCollider* wallCollider_;
 
 	XMFLOAT3 wallPos_;
 	XMFLOAT3 wallSize_;

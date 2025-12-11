@@ -12,6 +12,7 @@
 #include "../Engine/BoxCollider.h"
 #include "../Source/MagicSphere.h"
 #include "../Source/Plane.h"
+#include "../Source/DungeonManager.h"
 
 using namespace DirectX;
 
@@ -21,12 +22,14 @@ Player::Player(GameObject* parent)
     idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true), 
     nowModel_(-1), attackTimer_(0.0f), isAttacking_(false),
     prevMouseLeftDown_(false),pCollider_(nullptr), magicDir_(0.0f, 0.0f, 0.0f), cnf_(),
-	attackCollider_(nullptr), wallCollider_(nullptr), lastSlashFrame_(0.0f),
+	attackCollider_(nullptr), lastSlashFrame_(0.0f),
 	rotateCenter_(0.0f, 0.0f, 0.0f), dt_(0.0f)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
 	objectName_ = "Player";
+
+	wallColliders_.clear();
 }
 
 void Player::Initialize()
@@ -70,10 +73,16 @@ void Player::Initialize()
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 
-    // Plane経由で仮壁コライダー取得
-    Plane* pPlane = (Plane*)FindObject("plane");
-	assert(pPlane);
-	wallCollider_ = pPlane->GetWallCollider();
+    // DungeonManager経由で壁コライダー取得
+	GameObject* dungeonManager_ = FindObject("DungeonManager");
+	if (dungeonManager_)
+	{
+		DungeonManager* dm = dynamic_cast<DungeonManager*>(dungeonManager_);
+		if (dm)
+		{
+			wallColliders_ = dm->GetWallColliders();
+		}
+	}
 }
 
 void Player::Update()
@@ -148,8 +157,22 @@ void Player::Update()
     transform_.position_.x += moveVec.x * cnf_.PLAYER_SPEED * dt_;
     transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
 
-    // 仮壁1枚だけ処理
-    if (wallCollider_)
+    // ダンジョンの壁との当たり判定
+    for (auto* wallCollider_ : wallColliders_)
+    {
+		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
+		if (res.overlapped)
+		{
+			transform_.position_.x += res.push.x + (res.push.x > 0 ? cnf_.WALL_EPS : (res.push.x < 0 ? -cnf_.WALL_EPS : 0.0f));
+			transform_.position_.z += res.push.z + (res.push.z > 0 ? cnf_.WALL_EPS : (res.push.z < 0 ? -cnf_.WALL_EPS : 0.0f));
+			if (fabsf(res.normal.y) < 0.4f)
+			{
+				moveVec = SlideAlongWall(moveVec, res.normal);
+			}
+		}
+    }
+
+    /*if (wallCollider_)
     {
 		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
         if (res.overlapped)
@@ -161,7 +184,7 @@ void Player::Update()
                 moveVec = SlideAlongWall(moveVec, res.normal);
             }
         }
-    }
+    }*/
 
     // 入力状態を保存（エッジ検出用）
     wasMoving_ = isMovingNow_;

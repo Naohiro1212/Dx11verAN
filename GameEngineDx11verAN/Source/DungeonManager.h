@@ -6,8 +6,10 @@
 
 class Player;
 class EnemyBox;
+class testEnemy;
 class DungeonGenerator;
 class EnemyGenerator;
+class BoxCollider;
 
 class DungeonManager 
 	: public GameObject
@@ -24,7 +26,10 @@ public:
 	// ミニマップ用のゲッター
 	const std::vector<std::vector<MapData_RL>>& GetMap() const { return maprl; }
 	XMFLOAT3 GetPlayerPosition() const;
-	const std::vector<EnemyBox*>& GetEnemies() const { return enemies_; }
+	const std::vector<testEnemy*>& GetEnemies() const { return enemies_; }
+
+	// 壁当たり判定用のゲッター
+	const std::vector<BoxCollider*> GetWallColliders() const { return wallColliders_; }
 
 private:
 	DungeonGenerator* dungeonGenerator_;
@@ -34,7 +39,7 @@ private:
 	std::vector<std::vector<MapData_RL>> maprl;
 	// 敵の位置の配列
 	std::vector<XMFLOAT3> enemyPositions_;
-	std::vector<EnemyBox*> enemies_;
+	std::vector<testEnemy*> enemies_;
 	// 壁のモデル
 	int wallModel_;
 	// マップ描画用の座標情報
@@ -42,4 +47,8 @@ private:
 	// プレイヤーの開始位置
 	Player* player_;
 	XMFLOAT3 playerStartPos_;
+
+	// 壁のコライダー
+	std::vector<BoxCollider*> wallColliders_;
+
 };

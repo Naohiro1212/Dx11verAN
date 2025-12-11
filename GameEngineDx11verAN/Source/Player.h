@@ -2,6 +2,7 @@
 #include "../Engine/GameObject.h"
 #include "PlayerCamera.h"
 #include "PlayerConfig.h"
+#include <vector>
 
 class BoxCollider;
 
@@ -106,7 +107,7 @@ private:
 	PlayerConfig cnf_;
 
 	// 当たり判定用壁コライダー
-	BoxCollider* wallCollider_;
+	std::vector<BoxCollider*> wallColliders_;
 
 	// 入力方向の処理
 	int fwd_;
