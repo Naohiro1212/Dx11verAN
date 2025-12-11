@@ -9,7 +9,7 @@
 namespace
 {
 	const float PLAYER_SPEED = 0.01f; // プレイヤーの移動速度
-	const float PLAYER_ROTATE_SPEED = 0.2f; // プレイヤーの回転速度
+	const float PLAYER_ROTATE_SPEED = 2.0f; // プレイヤーの回転速度
 }
 
 Player::Player(GameObject* parent)
@@ -21,7 +21,7 @@ Player::Player(GameObject* parent)
 
 void Player::Initialize()
 {
-	hSilly = Model::Load("Cube.fbx");
+	hSilly = Model::Load("Box.fbx");
 	assert(hSilly >= 0);
 	transform_.position_ = { 0.0, 0.0, 0.0 };
 	transform_.rotate_ = { 0.0, 180.0, 0.0 };
