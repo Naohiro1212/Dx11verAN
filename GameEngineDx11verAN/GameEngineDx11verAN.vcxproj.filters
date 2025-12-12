@@ -131,9 +131,6 @@
     <ClCompile Include="Engine\GameTime.cpp">
       <Filter>Engine\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Source\PlayerCamera.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Source\testEnemy.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
@@ -145,6 +142,9 @@
     </ClCompile>
     <ClCompile Include="Source\Jewel.cpp">
       <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PlayerCamera.cpp">
+      <Filter>リソース ファイル\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,9 +226,6 @@
     <ClInclude Include="Engine\GameTime.h">
       <Filter>Engine\GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="Source\PlayerCamera.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Plane.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
@@ -236,9 +233,6 @@
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\testEnemy.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\PlayerConfig.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Jewel.h">
@@ -263,6 +257,12 @@
       <Filter>リソース ファイル\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Source\Player.h">
+      <Filter>リソース ファイル\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlayerConfig.h">
+      <Filter>リソース ファイル\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlayerCamera.h">
       <Filter>リソース ファイル\Player</Filter>
     </ClInclude>
   </ItemGroup>

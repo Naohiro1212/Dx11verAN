@@ -1,6 +1,6 @@
 #include "MiniMap.h"
 #include "DungeonManager.h"
-#include "EnemyBox.h"
+#include "../Source/testEnemy.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/Camera.h"
 #include "../Engine/Model.h"

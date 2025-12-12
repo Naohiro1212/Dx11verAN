@@ -33,7 +33,7 @@ void EnemyGenerator::GenerateEnemies(DungeonMap_Info* const _dng, std::vector<st
 		float centerZ = static_cast<float>(_dng->mapRoom[i][3] + _dng->mapRoom[i][1]) / 2.0f;
 
 		// 座標を敵のスポーン位置として登録
-		_spawn.push_back(XMFLOAT3(centerX * MAPTILE_SIZE, 0.0f, centerZ * MAPTILE_SIZE));
+		_spawn.push_back(XMFLOAT3(centerX * MAPTILE_SIZE, -6.0f, centerZ * MAPTILE_SIZE));
 	}
 }
 

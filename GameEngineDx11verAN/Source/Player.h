@@ -28,8 +28,6 @@ public:
 
 	void OnCollision(GameObject* pTarget) override;
 
-	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
-
 	void SetWallColliders(const std::vector<BoxCollider*>& colliders) { wallColliders_ = colliders; }
 
 private:
@@ -54,6 +52,9 @@ private:
 
 	// ジャンプ
 	void Jump();
+
+	// 壁ずり処理
+	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
 	//// 変数群
 	// モデルハンドル

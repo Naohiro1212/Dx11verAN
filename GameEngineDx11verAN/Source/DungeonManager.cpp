@@ -23,6 +23,7 @@ namespace
 	const XMFLOAT3 MAPCHIP_SCALE = { 0.3f, 0.3f, 0.3f }; // 描画の際のスケール
 	const float MAPTILE_SIZE = 30.0f;
 	const XMFLOAT3 COLLIDER_SIZE = { 40.0f, 30.0f, 33.0f };
+	const float WALL_DRAW_DISTANCE = 500.0f * 500.0f; // 壁の描画距離（距離の2乗で管理）
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -82,16 +83,30 @@ void DungeonManager::Update()
 
 void DungeonManager::Draw()
 {
+	// プレイヤーの現在位置を取得
+	XMFLOAT3 playerPos_ = player_->GetPosition();
+
 	for (size_t i = 0; i < MAPX_RLk; ++i)
 	{
 		for (size_t j = 0;j < MAPY_RLk; ++j)
 		{
-			mapTransform_.position_ = { static_cast<float>(i) * MAPTILE_SIZE, 0.0f, static_cast<float>(j) * MAPTILE_SIZE };
-			switch (maprl[i][j].mapData)
+			if (maprl[i][j].mapData == MAPCHIP_WALL)
 			{
-			case MAPCHIP_WALL:
-				Model::SetTransform(wallModel_, mapTransform_);
-				Model::Draw(wallModel_);
+				// 壁のワールド座標
+				XMFLOAT3 wallPos = { static_cast<float>(i) * MAPTILE_SIZE, -6.0f, static_cast<float>(j) * MAPTILE_SIZE };
+				
+				// 距離計算
+				float dx = wallPos.x - playerPos_.x;
+				float dz = wallPos.z - playerPos_.z;
+				float distSq = dx * dx + dz * dz;
+
+				// 一定距離以内の壁のみ描画
+				if (distSq <= WALL_DRAW_DISTANCE)
+				{
+					mapTransform_.position_ = wallPos;
+					Model::SetTransform(wallModel_, mapTransform_);
+					Model::Draw(wallModel_);
+				}
 			}
 		}
 	}
@@ -130,7 +145,7 @@ void DungeonManager::DungeonReset()
 
 	// 最初の部屋にプレイヤー開始位置を指定
 	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * MAPTILE_SIZE;
-	playerStartPos_.y = 0.0f;
+	playerStartPos_.y = -5.0f;
 	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * MAPTILE_SIZE;
 
 	// プレイヤーの位置適用

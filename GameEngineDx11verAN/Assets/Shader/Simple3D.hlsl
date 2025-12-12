@@ -77,7 +77,9 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	//拡散反射光（ディフューズ）
 	//法線と光のベクトルの内積が、そこの明るさになる
+    float minShade = 0.2f; // 最低限の明るさを設定
 	float4 shade = saturate(dot(inData.normal, -lightDir));
+    shade = max(shade, minShade);
 	shade.a = 1;	//暗いところが透明になるので、強制的にアルファは1
 
 	float4 diffuse;
@@ -96,16 +98,33 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	//環境光（アンビエント）
 	//これはMaya側で指定し、グローバル変数で受け取ったものをそのまま
-	float4 ambient = g_vecAmbient;
+    float ambientStrength = 0.3f;
+	float4 ambient = g_vecAmbient * ambientStrength;
 
-	//鏡面反射光（スペキュラー）
-	float4 speculer = float4(0, 0, 0, 0);	//とりあえずハイライトは無し
-	if (g_vecSpeculer.a != 0)	//スペキュラーの情報があれば
-	{
-		float4 R = reflect(lightDir, inData.normal);			//正反射ベクトル
-		speculer = pow(saturate(dot(R, inData.eye)), g_shuniness) * g_vecSpeculer;	//ハイライトを求める
-	}
+	//鏡面反射光（スペキュラー）金属寄り
+    float3 N = normalize(inData.normal.xyz);
+    float3 V = normalize(inData.eye.xyz);
+    float3 L = normalize((-g_vecLightDir).xyz);
+    float3 H = normalize(L + V);
+
+	// ベースのスペキュラーカラー（やや青みの白）
+    float3 specColor = g_vecSpeculer.rgb; // 例: (0.9, 0.95, 1.0)
+	// Blinn-Phong ローブ（鋭さは g_shuniness）
+    float spec = pow(saturate(dot(N, H)), g_shuniness);
+
+	// 簡易Fresnel（Schlick近似）
+    float F0 = 0.16; // 金属感ベース（0.04?0.2程度）材質で調整
+    float oneMinusVoN = 1.0 - saturate(dot(V, N));
+    float fresnel = F0 + (1.0 - F0) * pow(oneMinusVoN, 5.0);
+
+	// スペキュラー強度（距離減衰なしの場合）
+    float specIntensity = 1.2; // 全体強度ノブ（0.5?1.5で調整）
+
+    float3 speculerRGB = specColor * spec * fresnel * specIntensity;
+    float4 speculer = float4(speculerRGB, 1.0);
 
 	//最終的な色
-	return diffuse * shade + diffuse * ambient + speculer;
+    float diffuseScale = 0.8f; // ディフューズの影響度調整
+    float4 color = diffuse * shade * diffuseScale + diffuse * ambient + speculer;
+    return color;
 }

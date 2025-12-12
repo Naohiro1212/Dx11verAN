@@ -3,9 +3,11 @@
 #include <assert.h>
 #include "../Engine/BoxCollider.h"
 #include "../Source/Jewel.h"
+#include "../Source/DungeonManager.h"
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr)
 {
+    enemyWallColliders_.clear();
 }
 
 testEnemy::~testEnemy()
@@ -23,6 +25,17 @@ void testEnemy::Initialize()
 	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
 	AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
+
+    // DungeonManager経由で壁コライダー取得
+	GameObject* dungeonManager_ = FindObject("DungeonManager");
+	if (dungeonManager_)
+	{
+		DungeonManager* dm = dynamic_cast<DungeonManager*>(dungeonManager_);
+		if (dm)
+		{
+            enemyWallColliders_ = dm->GetWallColliders();
+		}
+	}
 }
 
 void testEnemy::Update()
@@ -79,4 +92,21 @@ void testEnemy::DropJewel(int numJewels)
         Jewel* jewel = Instantiate<Jewel>(GetParent());
         jewel->SetPosition(dropPos);
     }
+}
+
+XMFLOAT3 testEnemy::SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n)
+{
+    XMVECTOR vf = XMLoadFloat3(&f);
+    XMVECTOR vn = XMLoadFloat3(&n);
+
+    // Y成分をゼロにして水平法線へ
+    vn = XMVectorSet(XMVectorGetX(vn), 0.0f, XMVectorGetZ(vn), 0.0f);
+    vn = XMVector3Normalize(vn);
+
+    float d = XMVectorGetX(XMVector3Dot(vf, vn));
+    XMVECTOR vw = XMVectorSubtract(vf, XMVectorScale(vn, d));
+
+    XMFLOAT3 w;
+    XMStoreFloat3(&w, vw);
+    return w;
 }

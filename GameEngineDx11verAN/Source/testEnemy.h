@@ -33,6 +33,10 @@ private:
     // 死んだ際にアイテムドロップ
     void DropJewel(int numJewels);
 
+    // 壁ずり処理
+	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
+
     int modelHandle_;
 	BoxCollider* pCollider_;
+    std::vector<BoxCollider*> enemyWallColliders_;
 };

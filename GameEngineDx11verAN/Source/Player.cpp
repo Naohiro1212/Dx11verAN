@@ -153,6 +153,14 @@ void Player::Update()
     }
     XMFLOAT3 moveVec;
     XMStoreFloat3(&moveVec, vMove);
+
+	// 移動処理
+	// SHIFTキーでダッシュ（速度2倍）
+    if (Input::IsKey(DIK_LSHIFT))
+    {
+		moveVec.x *= 2.0f;
+		moveVec.z *= 2.0f;
+    }
     transform_.position_.x += moveVec.x * cnf_.PLAYER_SPEED * dt_;
     transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
 
