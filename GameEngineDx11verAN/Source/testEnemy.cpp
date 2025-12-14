@@ -4,8 +4,17 @@
 #include "../Engine/BoxCollider.h"
 #include "../Source/Jewel.h"
 #include "../Source/DungeonManager.h"
+#include "../Source/Player.h"
 
-testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr)
+namespace
+{
+    const float CHASE_SPEED = 0.5f;
+    const float VIEW_DISTANCE = 25.0f;
+	const float VIEW_HALF_ANGLE_DEG = 27.5f;
+    const float TURN_SPEED_DEG = 5.0f;
+}
+
+testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr), isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr)
 {
     enemyWallColliders_.clear();
 }
@@ -36,6 +45,8 @@ void testEnemy::Initialize()
             enemyWallColliders_ = dm->GetWallColliders();
 		}
 	}
+
+	player_ = dynamic_cast<Player*>(FindObject("Player"));
 }
 
 void testEnemy::Update()
@@ -74,6 +85,77 @@ void testEnemy::OnCollision(GameObject* pTarget)
         KillMe();
     }
     // Body×Body の場合、敵側ではダメージ適用しない（重複防止）
+}
+
+// 敵がプレイヤーをその場で視認して、追跡させる
+void testEnemy::LookAtPlayer()
+{
+    // プレイヤーの位置を取得
+    XMFLOAT3 playerPos = player_->GetPosition();
+    XMFLOAT3 enemyPos = transform_.position_;
+
+    // 敵からプレイヤーへのベクトルを計算
+    XMFLOAT3 dir_{
+    dir_.x = playerPos.x - enemyPos.x,
+    dir_.y = 0.0f, // 水平方向のみ
+    dir_.z = playerPos.z - enemyPos.z
+    };
+
+	// 距離判定
+	float distSq_ = dir_.x * dir_.x + dir_.z * dir_.z;
+	float viewDistSq_ = VIEW_DISTANCE * VIEW_DISTANCE;
+    
+    // 敵の前方ベクトルを計算
+	float yawRad_ = XMConvertToRadians(transform_.rotate_.y);
+    XMFLOAT3 forward_{
+        -sinf(yawRad_),
+        0.0f,
+        -cosf(yawRad_)
+    };
+
+    // 正規化
+    XMVECTOR vToPlayer = XMLoadFloat3(&dir_);
+    XMVECTOR vEnemyFwd = XMLoadFloat3(&forward_);
+    if (XMVector3LengthSq(vToPlayer).m128_f32[0] > 1e-6f)
+    {
+        vToPlayer = XMVector3Normalize(vToPlayer);
+    }
+    vEnemyFwd = XMVector3Normalize(vEnemyFwd);
+
+    // 角度差を計算
+	float dot = XMVectorGetX(XMVector3Dot(vToPlayer, vEnemyFwd));
+	dot = (std::max)(-1.0f, (std::min)(1.0f, dot)); // Clamp
+	float angleDiffDig_ = XMConvertToDegrees(acosf(dot));
+
+	isSpoted_ = (distSq_ <= viewDistSq_) && (angleDiffDig_ <= VIEW_HALF_ANGLE_DEG);
+}
+
+void testEnemy::MoveToPlayer()
+{
+    if(isSpoted_)
+    {
+        // プレイヤーの位置を取得
+        XMFLOAT3 playerPos = player_->GetPosition();
+        XMFLOAT3 enemyPos = transform_.position_;
+        // 敵からプレイヤーへのベクトルを計算
+        XMFLOAT3 dir_{
+        dir_.x = playerPos.x - enemyPos.x,
+        dir_.y = 0.0f, // 水平方向のみ
+        dir_.z = playerPos.z - enemyPos.z
+        };
+        // 正規化
+        XMVECTOR vDir = XMLoadFloat3(&dir_);
+        if (XMVector3LengthSq(vDir).m128_f32[0] > 1e-6f)
+        {
+            vDir = XMVector3Normalize(vDir);
+        }
+        // 速度計算
+        XMVECTOR vVelocity = XMVectorScale(vDir, CHASE_SPEED);
+        XMStoreFloat3(&velocity_, vVelocity);
+        // 移動処理
+        transform_.position_.x += velocity_.x;
+        transform_.position_.z += velocity_.z;
+	}
 }
 
 // 敵が死んだときに宝石をドロップする処理

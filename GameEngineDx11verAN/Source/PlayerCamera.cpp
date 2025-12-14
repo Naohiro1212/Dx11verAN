@@ -10,6 +10,7 @@ using namespace DirectX;
 namespace
 {
     const float CAMERA_DISTANCE = 15.0f;
+	const float MIN_CAMERA_HEIGHT = 1.8f;
 }
 
 void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance) 
@@ -64,6 +65,9 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos)
 	camPos_ = { focus_.x + offX,
 				 focus_.y + offY,
 				 focus_.z + offZ };
+
+    // ÉJÉÅÉâÇÕïKÇ∏ínè„
+	camPos_.y = (std::max)(camPos_.y, MIN_CAMERA_HEIGHT);
 
     Camera::SetTarget({ focus_.x, focus_.y, focus_.z });
 	Camera::SetPosition(camPos_.x, camPos_.y, camPos_.z);

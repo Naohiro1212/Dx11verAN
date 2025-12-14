@@ -3,6 +3,7 @@
 #include <vector>
 
 class BoxCollider;
+class Player;
 
 //仮の敵を管理するクラス
 class testEnemy : public GameObject
@@ -30,6 +31,12 @@ public:
     //当たり判定
     void OnCollision(GameObject* pTarget) override;
 
+    //Playerの位置を取得して、視認する
+    void LookAtPlayer();
+
+    //Playerに向かって移動する
+    void MoveToPlayer();
+
 private:
     // 死んだ際にアイテムドロップ
     void DropJewel(int numJewels);
@@ -37,7 +44,16 @@ private:
     // 壁ずり処理
 	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
+    // プレイヤーの位置を取得するためのポインタ
+    Player* player_;
+
     int modelHandle_;
 	BoxCollider* pCollider_;
     std::vector<BoxCollider*> enemyWallColliders_;
+
+    // 敵の移動速度
+    XMFLOAT3 velocity_;
+
+    // プレイヤーを見つけたかどうかのフラグ
+    bool isSpoted_;
 };
