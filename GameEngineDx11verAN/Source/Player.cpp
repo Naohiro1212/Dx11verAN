@@ -394,7 +394,7 @@ void Player::UpdateGravity()
 void Player::ShootMagic()
 {
     // 右クリックで魔法発射
-    if (Input::IsMouseButtonDown(1) && onGround_)
+    if (Input::IsMouseButtonDown(1))
     {
         // 魔法弾生成
         XMFLOAT3 spawnPos = transform_.position_;

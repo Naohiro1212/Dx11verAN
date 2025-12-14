@@ -56,6 +56,9 @@ private:
 	// •Ç‚¸‚èˆ—
 	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
+	// ŒÅ’è‚µ‚½‚¢‚‚³
+	bool gFreezeY_ = true;
+
 	//// •Ï”ŒQ
 	// ƒ‚ƒfƒ‹ƒnƒ“ƒhƒ‹
 	int walkModel_;

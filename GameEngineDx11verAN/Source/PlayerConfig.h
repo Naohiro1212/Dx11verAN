@@ -46,8 +46,8 @@ struct PlayerConfig
     const float PLAYER_SCALE = 0.1f;
 
     // ボディコライダーのオフセット
-    const XMFLOAT3 COLLIDER_BASE_POS = XMFLOAT3(0.0f, 12.0f, 0.0f);
-    const XMFLOAT3 COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 40.0f, PLAYER_SCALE * 110.0f, PLAYER_SCALE * 40.0f);
+    const XMFLOAT3 COLLIDER_BASE_POS = XMFLOAT3(0.0f, 9.0f, 0.0f);
+    const XMFLOAT3 COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 40.0f, PLAYER_SCALE * 120.0f, PLAYER_SCALE * 40.0f);
 
     // 攻撃コライダーのオフセット
 	const XMFLOAT3 ATTACK_COLLIDER_BASE_POS = XMFLOAT3(0.0f, PLAYER_SCALE * 100.0f, PLAYER_SCALE * 50.0f);
@@ -68,8 +68,8 @@ struct PlayerConfig
     const float HEIGHT_OFFSET = 100.0f;
 
     // レイキャスト用の変数
-    const float PROBE_UP_OFFSET = 3.0f;
-    const float GROUND_EPS = 0.04f;
+    const float PROBE_UP_OFFSET = 1.0f;
+    const float GROUND_EPS = 0.015f;
 
     // 壁当たり判定関連
     const float WALL_EPS = 1e-3f;
