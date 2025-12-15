@@ -55,4 +55,6 @@ private:
 	// 壁のコライダー
 	std::vector<BoxCollider*> wallColliders_;
 
+	// 一定距離以内の壁コライダーキャッシュ
+	std::vector<BoxCollider*> nearWallColliders_;
 };

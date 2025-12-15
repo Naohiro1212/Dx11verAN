@@ -15,8 +15,8 @@ TestScene::TestScene(GameObject * parent)
 //‰Šú‰»
 void TestScene::Initialize()
 {	
-	Instantiate<Plane>(this);
 	Instantiate<DungeonManager>(this);
+	Instantiate<Plane>(this);
 }
 
 //XV

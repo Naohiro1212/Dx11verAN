@@ -58,18 +58,25 @@ DungeonManager::~DungeonManager()
 
 void DungeonManager::Initialize()
 {
+	// 1) モデルロード
 	wallModel_ = Model::Load("wall.fbx");
 
+	// 2) ジェネレーター生成・初期化
 	dungeonGenerator_ = new DungeonGenerator();
 	enemyGenerator_ = new EnemyGenerator();
-	player_ = Instantiate<Player>(GetParent());
 	dungeonGenerator_->Initialize();
+
+	// 3) プレイヤー生成（Resetで参照するため先に）
+	player_ = Instantiate<Player>(GetParent());
+
+	// 4) ダンジョン生成・壁/敵/コライダー設定・プレイヤー位置適用
 	DungeonReset();
+
+	// 5) マップ描画用スケール（必要ならここで）
 	mapTransform_.scale_ = MAPCHIP_SCALE;
 
-	// ミニマップを最後に生成
-	// だいぶ時間がかかってしまいそうだったので後回し
-//	Instantiate<MiniMap>(this);
+	// 6) ミニマップなど（必要なら最後）
+	// Instantiate<MiniMap>(this);
 }
 
 void DungeonManager::Update()

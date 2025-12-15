@@ -5,13 +5,16 @@
 #include "../Source/Jewel.h"
 #include "../Source/DungeonManager.h"
 #include "../Source/Player.h"
+#include "../Engine/GameTime.h"
 
 namespace
 {
-    const float CHASE_SPEED = 0.5f;
-    const float VIEW_DISTANCE = 25.0f;
-	const float VIEW_HALF_ANGLE_DEG = 27.5f;
-    const float TURN_SPEED_DEG = 5.0f;
+    const float CHASE_SPEED = 0.25f;
+    const float VIEW_DISTANCE = 100.0f;
+	const float VIEW_HALF_ANGLE_DEG = 50.0f;
+    const float TURN_SPEED_DEG = 7.5f;
+
+    const float WALL_EPS = 1e-3f;
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr), isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr)
@@ -51,11 +54,39 @@ void testEnemy::Initialize()
 
 void testEnemy::Update()
 {
+    float dt_ = GameTime::DeltaTime();
+
+    // プレイヤーを視認・追跡
+    LookAtPlayer();
+    MoveToPlayer();
+
+	XMFLOAT3 moveVec = XMFLOAT3(velocity_.x, 0.0f, velocity_.z);
+
+	// 壁ずり処理
+	for (auto* wallCollider_ : enemyWallColliders_)
+	{
+		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
+		if (res.overlapped)
+		{
+            transform_.position_.x += res.push.x + (res.push.x > 0 ? WALL_EPS : (res.push.x < 0 ? -WALL_EPS : 0.0f));
+            transform_.position_.z += res.push.z + (res.push.z > 0 ? WALL_EPS : (res.push.z < 0 ? -WALL_EPS : 0.0f));
+            if (fabsf(res.normal.y) < 0.4f)
+            {
+                moveVec = SlideAlongWall(moveVec, res.normal);
+            }
+		}
+	}
+
+	// 移動処理
+	transform_.position_.x += moveVec.x * dt_;
+	transform_.position_.z += moveVec.z * dt_;
+
+	// モデルのワールド行列更新
+	Model::SetTransform(modelHandle_, transform_);
 }
 
 void testEnemy::Draw()
 {
-    Model::SetTransform(modelHandle_, transform_);
 	Model::Draw(modelHandle_);
 	pCollider_->Draw(transform_.position_, transform_.rotate_);
 }
@@ -95,10 +126,11 @@ void testEnemy::LookAtPlayer()
     XMFLOAT3 enemyPos = transform_.position_;
 
     // 敵からプレイヤーへのベクトルを計算
-    XMFLOAT3 dir_{
-    dir_.x = playerPos.x - enemyPos.x,
-    dir_.y = 0.0f, // 水平方向のみ
-    dir_.z = playerPos.z - enemyPos.z
+    XMFLOAT3 dir_
+    {
+        playerPos.x - enemyPos.x,
+        0.0f, // 水平方向のみ
+        playerPos.z - enemyPos.z
     };
 
 	// 距離判定
@@ -109,7 +141,7 @@ void testEnemy::LookAtPlayer()
 	float yawRad_ = XMConvertToRadians(transform_.rotate_.y);
     XMFLOAT3 forward_{
         -sinf(yawRad_),
-        0.0f,
+         0.0f,
         -cosf(yawRad_)
     };
 
@@ -132,30 +164,59 @@ void testEnemy::LookAtPlayer()
 
 void testEnemy::MoveToPlayer()
 {
-    if(isSpoted_)
-    {
-        // プレイヤーの位置を取得
-        XMFLOAT3 playerPos = player_->GetPosition();
-        XMFLOAT3 enemyPos = transform_.position_;
-        // 敵からプレイヤーへのベクトルを計算
-        XMFLOAT3 dir_{
-        dir_.x = playerPos.x - enemyPos.x,
-        dir_.y = 0.0f, // 水平方向のみ
-        dir_.z = playerPos.z - enemyPos.z
-        };
-        // 正規化
-        XMVECTOR vDir = XMLoadFloat3(&dir_);
-        if (XMVector3LengthSq(vDir).m128_f32[0] > 1e-6f)
-        {
-            vDir = XMVector3Normalize(vDir);
-        }
-        // 速度計算
-        XMVECTOR vVelocity = XMVectorScale(vDir, CHASE_SPEED);
-        XMStoreFloat3(&velocity_, vVelocity);
-        // 移動処理
-        transform_.position_.x += velocity_.x;
-        transform_.position_.z += velocity_.z;
-	}
+    if (!isSpoted_) return;
+
+    // プレイヤーと敵の位置
+    XMFLOAT3 playerPos = player_->GetPosition();
+    XMFLOAT3 enemyPos = transform_.position_;
+
+    // 水平方向の差分ベクトル（Yは0）
+    XMFLOAT3 dir{
+        playerPos.x - enemyPos.x,
+        0.0f,
+        playerPos.z - enemyPos.z
+    };
+
+    // 正規化（ゼロ長チェック）
+    XMVECTOR vDir = XMLoadFloat3(&dir);
+    float lenSq = XMVectorGetX(XMVector3LengthSq(vDir));
+    if (lenSq > 1e-6f) {
+        vDir = XMVector3Normalize(vDir);
+    }
+    else {
+        // 近すぎる場合は移動・回転しない
+        velocity_ = { 0,0,0 };
+        return;
+    }
+
+    // 速度
+    XMVECTOR vStep = XMVectorScale(vDir, CHASE_SPEED);
+    XMStoreFloat3(&velocity_, vStep);
+
+	// 目標向きのヨー角を計算
+    float targetYawDeg = XMConvertToDegrees(atan2f(dir.x, dir.z)) + 180.0f;
+
+    // 現在
+    float currentYawDeg = transform_.rotate_.y;
+
+    // 差分を [-180, 180] に正規化
+    float diff = targetYawDeg - currentYawDeg;
+    while (diff > 180.0f)  diff -= 360.0f;
+    while (diff < -180.0f) diff += 360.0f;
+
+    // 毎秒の最大回転角 → 毎フレームに変換
+    float maxTurnPerFrame = TURN_SPEED_DEG;
+
+    // 実際に回す角度をクランプ
+    float stepYaw = (diff > 0.0f)
+        ? (std::min)(diff, maxTurnPerFrame)
+        : (std::max)(diff, -maxTurnPerFrame);
+
+    transform_.rotate_.y += stepYaw;
+
+    // 移動
+    transform_.position_.x += velocity_.x;
+    transform_.position_.z += velocity_.z;
 }
 
 // 敵が死んだときに宝石をドロップする処理
