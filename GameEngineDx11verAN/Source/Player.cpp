@@ -72,17 +72,6 @@ void Player::Initialize()
     pCollider_ = new BoxCollider(cnf_.COLLIDER_BASE_POS, cnf_.COLLIDER_SCALE);
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
-
-    // DungeonManager経由で壁コライダー取得
-	GameObject* dungeonManager_ = FindObject("DungeonManager");
-	if (dungeonManager_)
-	{
-		DungeonManager* dm = dynamic_cast<DungeonManager*>(dungeonManager_);
-		if (dm)
-		{
-			wallColliders_ = dm->GetWallColliders();
-		}
-	}
 }
 
 void Player::Update()

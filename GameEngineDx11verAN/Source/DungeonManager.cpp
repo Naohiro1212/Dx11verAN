@@ -196,6 +196,11 @@ void DungeonManager::DungeonReset()
 	}
 
 	player_->SetWallColliders(wallColliders_);
+
+	for (auto* enemy : enemies_)
+	{
+		enemy->SetWallColliders(wallColliders_);
+	}
 }
 
 XMFLOAT3 DungeonManager::GetPlayerPosition() const

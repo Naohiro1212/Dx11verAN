@@ -69,6 +69,9 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos)
     // カメラは必ず地上
 	camPos_.y = (std::max)(camPos_.y, MIN_CAMERA_HEIGHT);
 
+    // 壁を考慮したカメラ位置補正
+
+
     Camera::SetTarget({ focus_.x, focus_.y, focus_.z });
 	Camera::SetPosition(camPos_.x, camPos_.y, camPos_.z);
 }

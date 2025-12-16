@@ -9,7 +9,7 @@
 
 namespace
 {
-    const float CHASE_SPEED = 0.25f;
+    const float CHASE_SPEED = 10.0f;
     const float VIEW_DISTANCE = 100.0f;
 	const float VIEW_HALF_ANGLE_DEG = 50.0f;
     const float TURN_SPEED_DEG = 7.5f;
@@ -28,7 +28,7 @@ testEnemy::~testEnemy()
 
 void testEnemy::Initialize()
 {
-	transform_.position_ = { 0.0f, 0.0f, 30.0f };
+	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.scale_ = { 0.1f, 0.1f, 0.1f };
 
 	// 仮にプレイヤーのアイドルモデルを使う
@@ -38,18 +38,10 @@ void testEnemy::Initialize()
 	AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 
-    // DungeonManager経由で壁コライダー取得
-	GameObject* dungeonManager_ = FindObject("DungeonManager");
-	if (dungeonManager_)
-	{
-		DungeonManager* dm = dynamic_cast<DungeonManager*>(dungeonManager_);
-		if (dm)
-		{
-            enemyWallColliders_ = dm->GetWallColliders();
-		}
-	}
-
 	player_ = dynamic_cast<Player*>(FindObject("Player"));
+
+    // velocity_ は MoveToPlayer で CHASE_SPEED を掛けた値になっている前提
+    moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 }
 
 void testEnemy::Update()
@@ -60,29 +52,27 @@ void testEnemy::Update()
     LookAtPlayer();
     MoveToPlayer();
 
-	XMFLOAT3 moveVec = XMFLOAT3(velocity_.x, 0.0f, velocity_.z);
+    moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
-	// 壁ずり処理
-	for (auto* wallCollider_ : enemyWallColliders_)
-	{
-		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
-		if (res.overlapped)
-		{
+    transform_.position_.x += moveVec_.x * dt_;
+    transform_.position_.z += moveVec_.z * dt_;
+
+    // 壁ずり・貫通解消
+    for (auto* wallCollider_ : enemyWallColliders_)
+    {
+        PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
+        if (res.overlapped)
+        {
             transform_.position_.x += res.push.x + (res.push.x > 0 ? WALL_EPS : (res.push.x < 0 ? -WALL_EPS : 0.0f));
             transform_.position_.z += res.push.z + (res.push.z > 0 ? WALL_EPS : (res.push.z < 0 ? -WALL_EPS : 0.0f));
-            if (fabsf(res.normal.y) < 0.4f)
-            {
-                moveVec = SlideAlongWall(moveVec, res.normal);
-            }
-		}
-	}
 
-	// 移動処理
-	transform_.position_.x += moveVec.x * dt_;
-	transform_.position_.z += moveVec.z * dt_;
+            // 次フレーム以降の移動方向を壁法線に沿ってスライドさせる
+            moveVec_ = SlideAlongWall(moveVec_, res.normal);
+        }
+    }
 
-	// モデルのワールド行列更新
-	Model::SetTransform(modelHandle_, transform_);
+    // モデルのワールド行列更新
+    Model::SetTransform(modelHandle_, transform_);
 }
 
 void testEnemy::Draw()
@@ -215,8 +205,8 @@ void testEnemy::MoveToPlayer()
     transform_.rotate_.y += stepYaw;
 
     // 移動
-    transform_.position_.x += velocity_.x;
-    transform_.position_.z += velocity_.z;
+    //transform_.position_.x += velocity_.x;
+    //transform_.position_.z += velocity_.z;
 }
 
 // 敵が死んだときに宝石をドロップする処理

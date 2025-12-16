@@ -37,6 +37,8 @@ public:
     //Playerに向かって移動する
     void MoveToPlayer();
 
+    void SetWallColliders(const std::vector<BoxCollider*>& colliders) { enemyWallColliders_ = colliders; }
+
 private:
     // 死んだ際にアイテムドロップ
     void DropJewel(int numJewels);
@@ -53,6 +55,8 @@ private:
 
     // 敵の移動速度
     XMFLOAT3 velocity_;
+
+    XMFLOAT3 moveVec_;
 
     // プレイヤーを見つけたかどうかのフラグ
     bool isSpoted_;
