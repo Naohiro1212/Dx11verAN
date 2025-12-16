@@ -5,7 +5,6 @@
 #include <vector>
 
 class Player;
-class EnemyBox;
 class testEnemy;
 class DungeonGenerator;
 class EnemyGenerator;

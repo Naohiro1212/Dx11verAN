@@ -42,6 +42,8 @@ void testEnemy::Initialize()
 
     // velocity_ は MoveToPlayer で CHASE_SPEED を掛けた値になっている前提
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
+
+    backTimer_ = 0.0f;
 }
 
 void testEnemy::Update()
@@ -52,10 +54,46 @@ void testEnemy::Update()
     LookAtPlayer();
     MoveToPlayer();
 
-    moveVec_ = { velocity_.x, 0.0f, velocity_.z };
+    // isSpotedが一定時間継続している場合、一定時間を超えると追跡をやめ元の位置に戻る
+    if (isSpoted_)
+    {
+        backTimer_ += dt_;
+        transform_.position_.x += moveVec_.x * dt_;
+        transform_.position_.z += moveVec_.z * dt_;
+    }
+	// 視認していない場合、元の位置に戻る
+    else
+    {
+		// 元の位置までのベクトル
+        XMFLOAT3 dirToInit{
+            initPos_.x - transform_.position_.x,
+            0.0f,
+            initPos_.z - transform_.position_.z
+        };
+		// 正規化（ゼロ長チェック）
+		XMVECTOR vDirToInit = XMLoadFloat3(&dirToInit);
+		float lenSq = XMVectorGetX(XMVector3LengthSq(vDirToInit));
+        if (lenSq > 1e-6f)
+        {
+            vDirToInit = XMVector3Normalize(vDirToInit);
+		}
+        else 
+        {
+            vDirToInit = XMVectorZero();
+        }
+		XMStoreFloat3(&dirToInit, vDirToInit);
+		// 移動
+		transform_.position_.x += dirToInit.x * CHASE_SPEED * dt_;
+		transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
+    }
 
-    transform_.position_.x += moveVec_.x * dt_;
-    transform_.position_.z += moveVec_.z * dt_;
+    if (backTimer_ > 2.0f)
+    {
+        isSpoted_ = false;
+		backTimer_ = 0.0f;
+    }
+
+    moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     // 壁ずり・貫通解消
     for (auto* wallCollider_ : enemyWallColliders_)
@@ -203,10 +241,6 @@ void testEnemy::MoveToPlayer()
         : (std::max)(diff, -maxTurnPerFrame);
 
     transform_.rotate_.y += stepYaw;
-
-    // 移動
-    //transform_.position_.x += velocity_.x;
-    //transform_.position_.z += velocity_.z;
 }
 
 // 敵が死んだときに宝石をドロップする処理

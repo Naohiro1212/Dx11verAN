@@ -39,6 +39,9 @@ public:
 
     void SetWallColliders(const std::vector<BoxCollider*>& colliders) { enemyWallColliders_ = colliders; }
 
+    // セッター
+	void SetPosition(const XMFLOAT3& pos) { transform_.position_ = pos; initPos_ = pos; }
+
 private:
     // 死んだ際にアイテムドロップ
     void DropJewel(int numJewels);
@@ -60,4 +63,8 @@ private:
 
     // プレイヤーを見つけたかどうかのフラグ
     bool isSpoted_;
+
+    // 最初に居た座標
+	XMFLOAT3 initPos_;
+    float backTimer_;
 };
