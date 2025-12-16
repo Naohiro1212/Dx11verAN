@@ -11,14 +11,14 @@
 
 namespace
 {
-	const size_t AREACOUNT_MIN = 6; // マップの区分け最小数
-	const size_t AREACOUNT_RAND = 2; // マップの区分け数加算
-	const size_t ROOMLENGTH_MIN_X = 4; // 部屋のX座標の最小サイズ
-	const size_t ROOMLENGTH_MIN_Y = 4; // 部屋のY座標の最小サイズ
-	const size_t ROOMLENGTH_RAND_X = 2; // 部屋のX座標のサイズ加算
-	const size_t ROOMLENGTH_RAND_Y = 2; // 部屋のY座標のサイズ加算
-	const size_t MAPX_RLk = 32; //マップ縦サイズ
-	const size_t MAPY_RLk = 32;   //マップ横サイズ
+	const size_t AREACOUNT_MIN = 4; // マップの区分け最小数
+	const size_t AREACOUNT_RAND = 1; // マップの区分け数加算
+	const size_t ROOMLENGTH_MIN_X = 3; // 部屋のX座標の最小サイズ
+	const size_t ROOMLENGTH_MIN_Y = 3; // 部屋のY座標の最小サイズ
+	const size_t ROOMLENGTH_RAND_X = 1; // 部屋のX座標のサイズ加算
+	const size_t ROOMLENGTH_RAND_Y = 1; // 部屋のY座標のサイズ加算
+	const size_t MAPX_RLk = 22; //マップ縦サイズ
+	const size_t MAPY_RLk = 22;   //マップ横サイズ
 	const XMFLOAT3 MAPCHIP_SCALE = { 23.5f, 15.0f, 15.0f }; // 描画の際のスケール
 	const float MAPTILE_SIZE = 30.0f;
 }

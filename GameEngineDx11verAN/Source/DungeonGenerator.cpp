@@ -175,43 +175,87 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 		_dng->mapRoom[i][2] = leftBorder + 1;   // X始点
 		_dng->mapRoom[i][3] = topBorder + 1;    // Y始点
 
-		// X方向の部屋サイズ決定
-		size_t randX = _dng->roomLengthRandX_;
-		if (randX < 1) randX = 1;
-		size_t maxAvailableWidth = 1;
-		if (rightBorder > _dng->mapRoom[i][2] + 1)
+		// X方向の部屋サイズ決定（乱数を先に足して、それを区画内に clamp する）
 		{
-			maxAvailableWidth = rightBorder - (_dng->mapRoom[i][2] + 1);
+			size_t minW = _dng->roomLengthMinX_;
+			size_t randW = _dng->roomLengthRandX_;
+			size_t desiredWidth = minW + (randW > 0 ? SafeRand(randW) : 0);
+
+			// 区画内で部屋が取れる最大幅（端の壁を考慮）
+			size_t maxAvailableWidth = 0;
+			if (rightBorder > _dng->mapRoom[i][2] + 1) {
+				// rightBorder と mapRoom[][2] の差分。既存コードの意図に合わせて -1 をしている。
+				maxAvailableWidth = rightBorder - (_dng->mapRoom[i][2] + 1);
+			}
+			// desiredWidth を区画内に収める（少なくとも 1 を確保）
+			size_t actualWidth = desiredWidth;
+			if (actualWidth > maxAvailableWidth) actualWidth = maxAvailableWidth;
+			if (actualWidth < 1) actualWidth = (maxAvailableWidth >= 1 ? 1 : maxAvailableWidth); // maxAvailableWidth==0 の場合は 0 のまま
+
+			// mapRoom の終点は区画の右端を超えないように clamp
+			if (actualWidth > 0) {
+				size_t tentativeXend = _dng->mapRoom[i][2] + actualWidth;
+				// 右端 (rightBorder) の直前までに収める（壁分の余裕が必要なら -1 等を調整）
+				if (tentativeXend >= rightBorder) tentativeXend = (rightBorder > 1 ? rightBorder - 1 : rightBorder);
+				_dng->mapRoom[i][0] = tentativeXend;
+			}
+			else {
+				// maxAvailableWidth == 0 の場合のフォールバック（可能な範囲内で最小サイズにする）
+				_dng->mapRoom[i][0] = (std::min)(_dng->mapRoom[i][2] + 1, rightBorder > 0 ? rightBorder - 1 : rightBorder);
+			}
 		}
 
-		// 希望幅（最小幅＋乱数）
-		size_t desiredWidth = _dng->roomLengthMinX_;
-		size_t actualWidth = (std::min)(maxAvailableWidth, std::max<size_t>(1, desiredWidth));
-		if (randX > 0) desiredWidth += SafeRand(randX);
-		_dng->mapRoom[i][0] = _dng->mapRoom[i][2] + actualWidth; // X終点
+		// Y方向の部屋サイズ決定（Xと同様に処理）
+		{
+			size_t minH = _dng->roomLengthMinY_;
+			size_t randH = _dng->roomLengthRandY_;
+			size_t desiredHeight = minH + (randH > 0 ? SafeRand(randH) : 0);
 
-		// Y方向の部屋サイズ決定
-		size_t randY = _dng->roomLengthRandY_;
-		size_t maxAvailableHeight = 1;
-		if (randY < 1) randY = 1;
-		if (bottomBorder > _dng->mapRoom[i][3] + 1)
-		{
-			maxAvailableHeight = bottomBorder - (_dng->mapRoom[i][3] + 1);
-		}
-		size_t desiredHeight = _dng->roomLengthMinY_;
-		size_t actualHeight = (std::min)(maxAvailableHeight, std::max<size_t>(1, desiredHeight));
-		if (randY > 0) desiredHeight += SafeRand(randY);
-		_dng->mapRoom[i][1] = _dng->mapRoom[i][3] + actualHeight;// Y終点
+			size_t maxAvailableHeight = 0;
+			if (bottomBorder > _dng->mapRoom[i][3] + 1) {
+				maxAvailableHeight = bottomBorder - (_dng->mapRoom[i][3] + 1);
+			}
+			size_t actualHeight = desiredHeight;
+			if (actualHeight > maxAvailableHeight) actualHeight = maxAvailableHeight;
+			if (actualHeight < 1) actualHeight = (maxAvailableHeight >= 1 ? 1 : maxAvailableHeight);
 
-		// 幅や高さが極端に小さい場合の保険
-		// +2は最低でも2マス分の広さを確保するため
-		if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2])
-		{
-			_dng->mapRoom[i][0] = _dng->mapRoom[i][2] + 2;
+			if (actualHeight > 0) {
+				size_t tentativeYend = _dng->mapRoom[i][3] + actualHeight;
+				if (tentativeYend >= bottomBorder) tentativeYend = (bottomBorder > 1 ? bottomBorder - 1 : bottomBorder);
+				_dng->mapRoom[i][1] = tentativeYend;
+			}
+			else {
+				_dng->mapRoom[i][1] = (std::min)(_dng->mapRoom[i][3] + 1, bottomBorder > 0 ? bottomBorder - 1 : bottomBorder);
+			}
 		}
-		if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3])
-		{
-			_dng->mapRoom[i][1] = _dng->mapRoom[i][3] + 2;
+
+		// 幅や高さが極端に小さい場合の保険（区画の内側に収めるよう clamp）
+		// +2 は最低でも2マス分の広さを確保するための既存意図を尊重しつつ、区画を越えないようにする
+		if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2]) {
+			size_t newXend = _dng->mapRoom[i][2] + 2;
+			if (newXend >= rightBorder) {
+				// 右端を越えるなら右端に詰める
+				_dng->mapRoom[i][0] = (rightBorder > 1 ? rightBorder - 1 : rightBorder);
+				// 必要なら始点を調整して幅を確保する（区画が極端に狭ければ開始位置を左に寄せる等のロジックを追加しても良い）
+				if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2] && rightBorder > 2) {
+					_dng->mapRoom[i][2] = rightBorder > 3 ? rightBorder - 3 : rightBorder - 2;
+				}
+			}
+			else {
+				_dng->mapRoom[i][0] = newXend;
+			}
+		}
+		if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3]) {
+			size_t newYend = _dng->mapRoom[i][3] + 2;
+			if (newYend >= bottomBorder) {
+				_dng->mapRoom[i][1] = (bottomBorder > 1 ? bottomBorder - 1 : bottomBorder);
+				if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3] && bottomBorder > 2) {
+					_dng->mapRoom[i][3] = bottomBorder > 3 ? bottomBorder - 3 : bottomBorder - 2;
+				}
+			}
+			else {
+				_dng->mapRoom[i][1] = newYend;
+			}
 		}
 
 		// 部屋の描画
