@@ -72,6 +72,9 @@ void Player::Initialize()
     pCollider_ = new BoxCollider(cnf_.COLLIDER_BASE_POS, cnf_.COLLIDER_SCALE);
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
+
+    // 経験値リセット
+    exp_ = 0.0f;
 }
 
 void Player::Update()

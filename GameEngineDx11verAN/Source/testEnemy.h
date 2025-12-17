@@ -1,6 +1,7 @@
 #pragma once
 #include "../Engine/GameObject.h"
 #include <vector>
+#include "../Engine/VFX.h"
 
 class BoxCollider;
 class Player;
@@ -40,7 +41,7 @@ public:
     void SetWallColliders(const std::vector<BoxCollider*>& colliders) { enemyWallColliders_ = colliders; }
 
     // セッター
-	void SetPosition(const XMFLOAT3& pos) { transform_.position_ = pos; initPos_ = pos; }
+    void SetPosition(const XMFLOAT3& pos);
 
 private:
     // 死んだ際にアイテムドロップ
@@ -67,4 +68,7 @@ private:
     // 最初に居た座標
 	XMFLOAT3 initPos_;
     float backTimer_;
+
+    // VFX(エフェクトデータ)
+    EmitterData deathEffectData_;
 };

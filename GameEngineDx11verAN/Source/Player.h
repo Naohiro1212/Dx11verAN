@@ -133,4 +133,7 @@ private:
 
 	// カメラ基準の右方向ベクトル（DirectXMath型、正規化済み）
 	XMVECTOR vRight;
+
+	// 経験値
+	float exp_;
 };

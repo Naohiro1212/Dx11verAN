@@ -15,6 +15,9 @@ namespace
     const float TURN_SPEED_DEG = 7.5f;
 
     const float WALL_EPS = 1e-3f;
+	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };
+
+	const float BACK_TIME_LIMIT = 2.0f;
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr), isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr)
@@ -29,7 +32,7 @@ testEnemy::~testEnemy()
 void testEnemy::Initialize()
 {
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
-	transform_.scale_ = { 0.1f, 0.1f, 0.1f };
+    transform_.scale_ = ENEMY_SCALE;
 
 	// 仮にプレイヤーのアイドルモデルを使う
 	modelHandle_ = Model::Load("Models/idle.fbx");
@@ -44,6 +47,22 @@ void testEnemy::Initialize()
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     backTimer_ = 0.0f;
+
+	// エフェクトデータ読み込み
+    {
+        deathEffectData_.textureFileName = "Effects/flashA_B.png";
+        assert(!deathEffectData_.textureFileName.empty());
+        deathEffectData_.number = 10;
+		deathEffectData_.lifeTime = 1000; // 1000フレーム
+		deathEffectData_.direction = XMFLOAT3(0.0f, 1.0f, 0.0f);
+        deathEffectData_.speed = 0.5f;
+        deathEffectData_.accel = 1.0f;
+		deathEffectData_.size = XMFLOAT2(5.0f, 5.0f);
+		deathEffectData_.scale = XMFLOAT2(0.95f, 0.95f);
+        deathEffectData_.color = XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f);
+		deathEffectData_.deltaColor = XMFLOAT4(0.0f, 0.0f, 0.0f, -0.01f);
+        deathEffectData_.spin.z = 0.1f;
+    }
 }
 
 void testEnemy::Update()
@@ -87,7 +106,7 @@ void testEnemy::Update()
 		transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
     }
 
-    if (backTimer_ > 2.0f)
+    if (backTimer_ > BACK_TIME_LIMIT)
     {
         isSpoted_ = false;
 		backTimer_ = 0.0f;
@@ -111,6 +130,7 @@ void testEnemy::Update()
 
     // モデルのワールド行列更新
     Model::SetTransform(modelHandle_, transform_);
+
 }
 
 void testEnemy::Draw()
@@ -241,6 +261,14 @@ void testEnemy::MoveToPlayer()
         : (std::max)(diff, -maxTurnPerFrame);
 
     transform_.rotate_.y += stepYaw;
+}
+
+void testEnemy::SetPosition(const XMFLOAT3& pos)
+{
+    transform_.position_ = pos;    
+    initPos_ = pos;
+    deathEffectData_.position = pos;
+    VFX::Start(deathEffectData_);
 }
 
 // 敵が死んだときに宝石をドロップする処理

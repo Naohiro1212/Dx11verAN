@@ -132,14 +132,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\debug</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -155,7 +155,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -164,7 +164,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\release</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -208,6 +208,7 @@
     <ClCompile Include="Source\PlayerCamera.cpp" />
     <ClCompile Include="Source\testEnemy.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
+    <ClCompile Include="Source\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Audio.h" />
@@ -249,6 +250,7 @@
     <ClInclude Include="Source\PlayerConfig.h" />
     <ClInclude Include="Source\testEnemy.h" />
     <ClInclude Include="Source\TestScene.h" />
+    <ClInclude Include="Source\TitleScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">

@@ -5,7 +5,6 @@
 #include "../Engine/Input.h"
 #include "../Source/Plane.h"
 #include "../Source/testEnemy.h"
-
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
 	: GameObject(parent, "TestScene")
@@ -15,6 +14,8 @@ TestScene::TestScene(GameObject * parent)
 //初期化
 void TestScene::Initialize()
 {	
+	// effekseer初期設定
+
 	Instantiate<DungeonManager>(this);
 	Instantiate<Plane>(this);
 }

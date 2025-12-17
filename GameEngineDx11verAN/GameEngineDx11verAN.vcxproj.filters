@@ -146,6 +146,9 @@
     <ClCompile Include="Source\PlayerCamera.cpp">
       <Filter>リソース ファイル\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Source\TitleScene.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -264,6 +267,9 @@
     </ClInclude>
     <ClInclude Include="Source\PlayerCamera.h">
       <Filter>リソース ファイル\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TitleScene.h">
+      <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
