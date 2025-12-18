@@ -46,12 +46,12 @@ struct PlayerConfig
     const float PLAYER_SCALE = 0.1f;
 
     // ボディコライダーのオフセット
-    const XMFLOAT3 COLLIDER_BASE_POS = XMFLOAT3(0.0f, 9.0f, 0.0f);
-    const XMFLOAT3 COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 40.0f, PLAYER_SCALE * 120.0f, PLAYER_SCALE * 40.0f);
+    const XMFLOAT3 COLLIDER_BASE_POS = XMFLOAT3(0.0f, 150.0f, 0.0f);
+    const XMFLOAT3 COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 40.0f, PLAYER_SCALE * 160.0f, PLAYER_SCALE * 40.0f);
 
     // 攻撃コライダーのオフセット
-	const XMFLOAT3 ATTACK_COLLIDER_BASE_POS = XMFLOAT3(0.0f, PLAYER_SCALE * 100.0f, PLAYER_SCALE * 50.0f);
-	const XMFLOAT3 ATTACK_COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 60.0f, PLAYER_SCALE * 100.0f, PLAYER_SCALE * 100.0f);
+	const XMFLOAT3 ATTACK_COLLIDER_BASE_POS = XMFLOAT3(0.0f, 20.0f, 5.0f);
+	const XMFLOAT3 ATTACK_COLLIDER_SCALE = XMFLOAT3(PLAYER_SCALE * 60.0f, PLAYER_SCALE * 60.0f, PLAYER_SCALE * 200.0f);
 
 	// 円周率関連
 	const float HALF_TURN = 180.0f;
@@ -66,6 +66,10 @@ struct PlayerConfig
     // 発射位置のオフセット
     const float FORWARDDIST_OFFSET = 50.0f;
     const float HEIGHT_OFFSET = 100.0f;
+
+    // 近接攻撃位置のオフセット
+	const float ATTACK_COLLIDER_FORWARD_OFFSET = 90.0f;
+    const float ATTACK_COLLIDER_HEIGHT_OFFSET = 100.0f;
 
     // レイキャスト用の変数
     const float PROBE_UP_OFFSET = 1.0f;

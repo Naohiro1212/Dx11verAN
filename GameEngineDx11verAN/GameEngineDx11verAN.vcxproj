@@ -103,6 +103,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -117,6 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,7 +134,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -155,7 +157,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

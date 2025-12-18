@@ -69,7 +69,9 @@ void Player::Initialize()
 	plvision_.Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
 
-    pCollider_ = new BoxCollider(cnf_.COLLIDER_BASE_POS, cnf_.COLLIDER_SCALE);
+    pCollider_ = new BoxCollider(
+        XMFLOAT3(0.0f,0.0f,0.0f),
+        cnf_.COLLIDER_SCALE);
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 
@@ -79,6 +81,7 @@ void Player::Initialize()
 
 void Player::Update()
 {
+    // デルタタイム取得
     dt_ = GameTime::DeltaTime();
 
     // 攻撃モーション中は他の動作を行えない
@@ -196,9 +199,18 @@ void Player::Update()
     // 右クリックで魔法攻撃
     ShootMagic();
 
+    // 経験値100に達したらレベルアップで少し体を大きくする
+    if (exp_ >= 100.0f)
+    {
+        exp_ = 0.0f;
+        transform_.scale_.x += 0.02f;
+		transform_.scale_.y += 0.02f;
+		transform_.scale_.z += 0.02f;
+    }
+
     // カメラ更新
     plvision_.Update(transform_.position_);
-}
+ }
 
 void Player::Draw()
 {
@@ -228,9 +240,7 @@ void Player::OnCollision(GameObject* pTarget)
     // 宝石取得時
 	if (pTarget->GetObjectName() == "Jewel" && !pTarget->IsDead())
 	{
-        transform_.scale_.x += 0.02f;
-		transform_.scale_.y += 0.02f;
-		transform_.scale_.z += 0.02f;
+		exp_ += 20; // 経験値加算
 	}
 }
 
@@ -315,72 +325,129 @@ void Player::ChangeModel()
     }
 }
 
+//void Player::UpdateGravity()
+//{
+//    float g = cnf_.GRAVITY;
+//    if (velocityY_ < 0.0f) {
+//        g *= cnf_.GRAVITY_MULTIPLIER;
+//    }
+//
+//    // 地面に接地していて下向きの速度なら、まず速度をゼロクリアして自己貫通を防ぐ
+//    if (onGround_ && velocityY_ <= 0.0f) {
+//        velocityY_ = 0.0f;
+//    }
+//
+//    float nextVelY = velocityY_ + (-g) * dt_;
+//    float nextY = transform_.position_.y + velocityY_ * dt_ + (-g) * 0.5f * dt_ * dt_;
+//
+//    // レイを現在位置（または probe 上方）から下向きに飛ばして
+//    // 今フレームの移動範囲内に床があるかを判定する
+//    Plane* pPlane = (Plane*)FindObject("plane");
+//    assert(pPlane != nullptr);
+//    int hPlaneModel = pPlane->GetPlaneHandle();
+//
+//    RayCastData hitData;
+//    // レイの開始は現在の transform_.position_ の上に取る
+//	hitData.start = transform_.position_;
+//    hitData.start.y = transform_.position_.y + cnf_.PROBE_UP_OFFSET;
+//	hitData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+//	Model::RayCast(hPlaneModel, hitData);
+//
+//    const float EPS = 1e-3f;
+//    const float ENTER_EPS = cnf_.GROUND_EPS;          // 例: 0.02f
+//    const float EXIT_EPS = cnf_.GROUND_EPS * 2.0f;   // 例: 0.04f
+//
+//    bool willGroundThisFrame = false;
+//    float groundY = -INFINITY;
+//
+//    if (hitData.hit) {
+//		groundY = hitData.start.y - hitData.dist;
+//        float maxTravel = (std::max)(0.0f, hitData.start.y - nextY);
+//
+//        // 既に接地しているなら緩めの閾値、未接地なら厳しめ
+//        float threshold = onGround_ ? EXIT_EPS : ENTER_EPS;
+//
+//        if (hitData.dist <= maxTravel + EPS && nextY <= groundY + threshold) {
+//            willGroundThisFrame = true;
+//        }
+//    }
+//
+//    if (willGroundThisFrame) {
+//        transform_.position_.y = groundY; // スナップ固定
+//        velocityY_ = 0.0f;
+//        onGround_ = true;
+//        jumpCount_ = 0;
+//    }
+//    else {
+//        transform_.position_.y = nextY;
+//        velocityY_ = nextVelY;
+//
+//        // 離地は「上限＋EXIT_EPS」を超えた場合のみ false にする（微小誤差で揺れない）
+//        if (groundY != -INFINITY)
+//        {
+//            onGround_ = (transform_.position_.y <= groundY + EXIT_EPS);
+//        }
+//        else {
+//            onGround_ = false;
+//        }
+//    }
+//}
+
 void Player::UpdateGravity()
 {
-    float g = cnf_.GRAVITY;
-    if (velocityY_ < 0.0f) {
-        g *= cnf_.GRAVITY_MULTIPLIER;
-    }
+    const float ENTER_EPS = cnf_.GROUND_EPS;         // 例: 0.02f
+    const float EXIT_EPS = cnf_.GROUND_EPS * 2.0f;  // 例: 0.04f
 
-    // 地面に接地していて下向きの速度なら、まず速度をゼロクリアして自己貫通を防ぐ
-    if (onGround_ && velocityY_ <= 0.0f) {
+    // 重力（上昇/下降で倍率を切り替え）
+    float g = cnf_.GRAVITY * (velocityY_ < 0.0f ? cnf_.GRAVITY_MULTIPLIER : 1.0f);
+
+    // 接地していて下向き速度ならまずゼロ化（貫通防止）
+    if (onGround_ && velocityY_ <= 0.0f)
+    {
         velocityY_ = 0.0f;
     }
 
-    float nextVelY = velocityY_ + (-g) * dt_;
-    float nextY = transform_.position_.y + velocityY_ * dt_ + (-g) * 0.5f * dt_ * dt_;
+    // 次フレームの速度・位置を予測
+    float nextVelY = velocityY_ - g * dt_;
+    float nextY = transform_.position_.y + velocityY_ * dt_ - 0.5f * g * dt_ * dt_;
 
-    // 2) レイを現在位置（または probe 上方）から下向きに飛ばして
-    //    今フレームの移動範囲内に床があるかを判定する
-    Plane* pPlane = (Plane*)FindObject("plane");
+    // レイを上方オフセット位置から下向きに飛ばして地面を探す
+    Plane* pPlane = static_cast<Plane*>(FindObject("plane"));
     assert(pPlane != nullptr);
-    int hPlaneModel = pPlane->GetPlaneHandle();
 
     RayCastData hitData;
-    // レイの開始は現在の transform_.position_ の上に取る
     hitData.start = transform_.position_;
     hitData.start.y += cnf_.PROBE_UP_OFFSET;
-    hitData.dir = { 0.0f, -1.0f, 0.0f };
-    Model::RayCastWorld(hPlaneModel, &hitData);
+    hitData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+    Model::RayCast(pPlane->GetPlaneHandle(), hitData);
 
-    const float EPS = 1e-3f;
-    const float ENTER_EPS = cnf_.GROUND_EPS;          // 例: 0.02f
-    const float EXIT_EPS = cnf_.GROUND_EPS * 2.0f;   // 例: 0.04f
-
-    bool willGroundThisFrame = false;
-    float groundY = -INFINITY;
-
-    if (hitData.hit) {
-        groundY = hitData.hitPos.y; // ← RayCastWorld が hitPos を返す前提。無ければ start.y - dist でもOK
+    if (hitData.hit)
+    {
+        float groundY = hitData.start.y - hitData.dist;
         float maxTravel = (std::max)(0.0f, hitData.start.y - nextY);
-
-        // 既に接地しているなら緩めの閾値、未接地なら厳しめ
         float threshold = onGround_ ? EXIT_EPS : ENTER_EPS;
 
-        if (hitData.dist <= maxTravel + EPS && nextY <= groundY + threshold) {
-            willGroundThisFrame = true;
-        }
-    }
-
-    if (willGroundThisFrame) {
-        transform_.position_.y = groundY; // スナップ固定
-        velocityY_ = 0.0f;
-        onGround_ = true;
-        jumpCount_ = 0;
-    }
-    else {
-        transform_.position_.y = nextY;
-        velocityY_ = nextVelY;
-
-        // 離地は「上限＋EXIT_EPS」を超えた場合のみ false にする（微小誤差で揺れない）
-        if (groundY != -INFINITY)
+        // 今フレーム内に床があり、nextY が閾値以内ならスナップして着地
+        if (hitData.dist <= maxTravel && nextY <= groundY + threshold)
         {
-            onGround_ = (transform_.position_.y <= groundY + EXIT_EPS);
+            transform_.position_.y = groundY;
+            velocityY_ = 0.0f;
+            onGround_ = true;
+            jumpCount_ = 0;
+            return;
         }
-        else {
-            onGround_ = false;
-        }
+
+        // スナップしない場合の onGround 判定（微小誤差は EXIT_EPS で緩和）
+        onGround_ = (nextY <= groundY + EXIT_EPS);
     }
+    else 
+    {
+        onGround_ = false;
+    }
+
+    // 空中移動を適用
+    transform_.position_.y = nextY;
+    velocityY_ = nextVelY;
 }
 
 void Player::ShootMagic()
@@ -444,11 +511,37 @@ void Player::MeleeAttack()
     // 攻撃開始（開始時だけセット）
     if (Input::IsMouseButtonDown(0) && onGround_)
     {
-        attackCollider_ = new BoxCollider(cnf_.ATTACK_COLLIDER_BASE_POS, cnf_.ATTACK_COLLIDER_SCALE);
+        // その場で向きベクトルを作る（magicDir_ に依存しない）
+        float yawRad = XMConvertToRadians(transform_.rotate_.y);
+        XMFLOAT3 forwardDir = { -sinf(yawRad), 0.0f, -cosf(yawRad) };
 
-        AddCollider(attackCollider_);
+        // ローカル基準オフセット（元と同じ式）
+        XMFLOAT3 localOffset = {
+            forwardDir.x * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET,
+            transform_.scale_.y * cnf_.HEIGHT_OFFSET,
+            forwardDir.z * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET
+        };
+
+		// 攻撃用コライダー生成
+        attackCollider_ = new BoxCollider(cnf_.ATTACK_COLLIDER_BASE_POS, cnf_.ATTACK_COLLIDER_SCALE);
+        attackCollider_->SetCenter(localOffset);
         attackCollider_->SetRole(Collider::Role::Attack);
-        attackCollider_->SetCenter(rotateCenter_);
+        AddCollider(attackCollider_);
+
+		Debug::Log(transform_.position_.x);
+		Debug::Log(transform_.position_.y);
+		Debug::Log(transform_.position_.z, true);
+		Debug::Log(rotateCenter_.x);
+		Debug::Log(rotateCenter_.y);
+		Debug::Log(rotateCenter_.z, true);
+        Debug::Log(transform_.rotate_.x);
+		Debug::Log(transform_.rotate_.y);
+		Debug::Log(transform_.rotate_.z, true);
+
+		XMFLOAT3 center_ = attackCollider_->GetCenter();
+		Debug::Log(center_.x);
+		Debug::Log(center_.y);
+        Debug::Log(center_.z, true);
 
         // 移動リセット
         fwd_ = 0;
@@ -463,7 +556,7 @@ void Player::MeleeAttack()
         plvision_.Update(transform_.position_);
         return;
     }
-}
+ }
 
 void Player::CalcCameraDirectionXZ()
 {

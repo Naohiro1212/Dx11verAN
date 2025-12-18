@@ -19,7 +19,6 @@ namespace Model
 	{
 			ModelData* pData = new ModelData;
 
-
 			//開いたファイル一覧から同じファイル名のものが無いか探す
 			bool isExist = false;
 			for (int i = 0; i < _datas.size(); i++)
@@ -187,18 +186,42 @@ namespace Model
 	}
 
 	//レイキャスト（レイを飛ばして当たり判定）
-	void RayCast(int handle, RayCastData *data)
+	void RayCast(int handle, RayCastData &rayData)
 	{
-			XMFLOAT3 target = Transform::Float3Add(data->start, data->dir);
-			XMMATRIX matInv = XMMatrixInverse(nullptr, _datas[handle]->transform.GetWorldMatrix());
-			XMVECTOR vecStart = XMVector3TransformCoord(XMLoadFloat3(&data->start), matInv);
-			XMVECTOR vecTarget = XMVector3TransformCoord(XMLoadFloat3(&target), matInv);
-			XMVECTOR vecDir = vecTarget - vecStart;
+		//?その時点での対象モデルのトランスフォームをカリキュレーション
+		_datas[handle]->transform.Calclation();
 
-			XMStoreFloat3(&data->start, vecStart);
-			XMStoreFloat3(&data->dir, vecDir);
+		//ワールド行列取得
+		XMMATRIX worldMatrix = _datas[handle]->transform.GetWorldMatrix();
 
-			_datas[handle]->pFbx->RayCast(data); 
+		//①ワールド行列の逆行列
+		XMMATRIX wInv = XMMatrixInverse(nullptr, worldMatrix);
+
+		//②レイの通過点を求める(ワールド空間でのレイの始点からdir方向に進む直線上の点を計算）
+		//方向ベクトルをちょい伸ばした先の点
+		XMVECTOR vDirVec{ rayData.start.x + rayData.dir.x,
+						  rayData.start.y + rayData.dir.y,
+						  rayData.start.z + rayData.dir.z, 0.0f };
+
+		//③rayData.startをモデル空間に変換（①をかける）
+		XMVECTOR vstart = XMLoadFloat3(&rayData.start);
+
+		//https://learn.microsoft.com/ja-jp/windows/win32/api/directxmath/
+		//ここから、3次元ベクトルの変換関数を探す w=1のときの変換
+		vstart = XMVector3Transform(vstart, wInv);
+		XMStoreFloat3(&rayData.start, vstart); //変換結果をrayData.startに格納
+
+		//④（始点から方向ベクトルをちょい伸ばした先）通過点（②）に①をかける(モデル空間に変換）
+		vDirVec = XMVector3Transform(vDirVec, wInv);
+
+		//⑤rayData.dirを③から④に向かうベクトルにする（位置と位置引き算＝ベクトル）
+		XMVECTOR dirAtLocal = XMVectorSubtract(vDirVec, vstart);
+		dirAtLocal = XMVector4Normalize(dirAtLocal); //正規化
+		XMStoreFloat3(&rayData.dir, dirAtLocal); //変換結果をrayData.dirに格納
+
+
+		//指定したモデル番号のFBXにレイキャスト！
+		_datas[handle]->pFbx->RayCast(&rayData);
 	}
 
 	// 物理演算用レイキャスト（レイを飛ばして当たり判定）
@@ -254,6 +277,6 @@ namespace Model
 
 		data->dist = worldDist;
 		data->normal = worldNormal;
-		data->hitPos = worldHitPos; // RayCastData に XMFLOAT3 hitPos を追加しておく
+	//	data->hitPos = worldHitPos; // RayCastData に XMFLOAT3 hitPos を追加しておく
 	}
 }
