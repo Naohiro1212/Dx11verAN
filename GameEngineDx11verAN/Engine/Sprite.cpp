@@ -113,8 +113,10 @@ void Sprite::InitIndex()
 	Direct3D::pDevice_->CreateBuffer(&bd, &InitData, &pIndexBuffer_);
 }
 
-
-
+// スプライトを描画する
+// transform: スプライトのワールド座標
+// rect     : スプライトのテクスチャ領域
+// alpha    : スプライトの透明度(0.0f～1.0f)
 void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 {
 	//いろいろ設定
@@ -126,7 +128,6 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);
 	Direct3D::SetDepthBafferWriteEnable(false);
 
-
 	// インデックスバッファーをセット
 	stride = sizeof(int);
 	offset = 0;
@@ -136,15 +137,31 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	D3D11_MAPPED_SUBRESOURCE pdata;
 	CONSTANT_BUFFER cb;
 
+	// スプライトの幅/高さ（ピクセル）
+	float w = static_cast<float>(rect.right - rect.left);
+	float h = static_cast<float>(rect.bottom - rect.top);
 
-	//表示するサイズに合わせる
-	XMMATRIX cut = XMMatrixScaling((float)rect.right, (float)rect.bottom ,1);
+	// 頂点は -1..1 の中心原点で作ってあるため、
+	// スケールは rect の"半分"を使う（幅=2 をピクセル幅へマップ）
+	XMMATRIX cut = XMMatrixScaling(w * 0.5f, h * 0.5f, 1.0f);
 
-	//画面に合わせる
-	XMMATRIX view = XMMatrixScaling(1.0f / Direct3D::screenWidth_, 1.0f / Direct3D::screenHeight_, 1.0f);
+	// transform.position_ は左上座標を想定しているので、
+	// 描画のために中心座標へ変換する（center = top-left + (w/2,h/2)）
+	float centerX = transform.position_.x + w * 0.5f;
+	float centerY = transform.position_.y + h * 0.5f;
+	XMMATRIX trans = XMMatrixTranslation(centerX, centerY, transform.position_.z);
 
-	//最終的な行列
-	XMMATRIX world = cut * transform.matScale_ * transform.matRotate_ * view * transform.matTranslate_;
+	// 画面への直交投影（左上を (0,0) としたいので top=0, bottom=screenHeight）
+	XMMATRIX proj = XMMatrixOrthographicOffCenterLH(
+		0.0f, (float)Direct3D::screenWidth_,
+		(float)Direct3D::screenHeight_, 0.0f,
+		0.0f, 1.0f);
+
+	// モデル行列（切り取りスケール → スケール/回転 → 平行移動(center)）
+	XMMATRIX model = cut * transform.matScale_ * transform.matRotate_ * trans;
+
+	// ワールド行列 = model * projection (DirectX は行列の掛け順に注意)
+	XMMATRIX world = model * proj;
 	cb.world = XMMatrixTranspose(world);
 
 	// テクスチャ座標変換行列を渡す
@@ -155,13 +172,11 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	XMMATRIX mTexel = mTexScale * mTexTrans;
 	cb.uvTrans = XMMatrixTranspose(mTexel);
 	
-
 	// テクスチャ合成色情報を渡す
 	cb.color = XMFLOAT4(1, 1, 1, alpha);
 
 	Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
 	memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));		// リソースへ値を送る
-
 
 	ID3D11SamplerState*			pSampler = pTexture_->GetSampler();
 	Direct3D::pContext_->PSSetSamplers(0, 1, &pSampler);
@@ -177,5 +192,10 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	Direct3D::SetShader(Direct3D::SHADER_3D);
 
 	Direct3D::SetDepthBafferWriteEnable(true);
+}
 
+// スプライトを描画する（transform_版）
+void Sprite::Draw(RECT rect, float alpha)
+{
+	Draw(transform_, rect, alpha);
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class Sprite;
+
 // タイトルシーンを管理するクラス
 class TitleScene : public GameObject
 {
@@ -16,4 +18,19 @@ public:
 	void Draw() override;
 	// 開放
 	void Release() override;
+
+private:
+	// タイトルロゴ
+	int titleLogo_;
+
+	// スプライトの描画用のポインター
+	Sprite* sprite;
+
+	// タイトルロゴの描画矩形
+	RECT rect;
+
+	// マウスがタイトルロゴの上にあるかどうか
+	bool onLogo;
+
+	Transform sTrans_;
 };

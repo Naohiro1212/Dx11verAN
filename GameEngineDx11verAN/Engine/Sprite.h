@@ -62,6 +62,8 @@ public:
 	Sprite();
 	~Sprite();
 
+	Transform transform_;
+
 	//ロード
 	//引数：fileName	画像ファイル名
 	//戻値：成功/失敗
@@ -75,6 +77,7 @@ public:
 	//引数：alpha	アルファ値（不透明度）
 	void Draw(Transform& transform, RECT rect, float alpha);
 
+	void Draw(RECT rect, float alpha);
 
 	//画像サイズの取得
 	//戻値：画像サイズ

@@ -17,7 +17,7 @@ void Plane::Initialize()
 {
 	planeHandle_ = Model::Load("floor.fbx");
 	assert(planeHandle_ >= 0);
-	transform_.position_ = { 0.0f, -10.0f, 0.0f };
+	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0f, 0.0f, 0.0f };
 	transform_.scale_ = PLANE_SCALE;
 	Model::SetTransform(planeHandle_, transform_);

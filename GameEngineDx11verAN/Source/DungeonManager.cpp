@@ -99,7 +99,7 @@ void DungeonManager::Draw()
 			if (maprl[i][j].mapData == MAPCHIP_WALL)
 			{
 				// 壁のワールド座標
-				XMFLOAT3 wallPos = { static_cast<float>(i) * MAPTILE_SIZE, -6.0f, static_cast<float>(j) * MAPTILE_SIZE };
+				XMFLOAT3 wallPos = { static_cast<float>(i) * MAPTILE_SIZE, 1.5f, static_cast<float>(j) * MAPTILE_SIZE };
 
 				// 距離計算
 				float dx = wallPos.x - playerPos_.x;
@@ -151,7 +151,7 @@ void DungeonManager::DungeonReset()
 
 	// 最初の部屋にプレイヤー開始位置を指定
 	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * MAPTILE_SIZE;
-	playerStartPos_.y = -5.0f;
+	playerStartPos_.y = 10.0f;
 	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * MAPTILE_SIZE;
 
 	// プレイヤーの位置適用
