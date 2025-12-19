@@ -1,7 +1,8 @@
 #include "TitleScene.h"
 #include "../Engine/Input.h"
 #include "../Engine/SceneManager.h"
-#include "../Engine/Sprite.h"
+#include "../Engine/Image.h"
+#include "../Engine/Text.h"
 #include "../Engine/Debug.h"
 
 TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), onLogo(false)
@@ -10,39 +11,44 @@ TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), o
 
 void TitleScene::Initialize()
 {
-	sprite = new Sprite();
+	// Image初期化
+	Image::Initialize();
 
 	// タイトルロゴの読み込み
-	titleLogo_ = sprite->Load("colormap.png");
+	titleLogo_ = Image::Load("colormap.png");
 	assert(titleLogo_ >= 0);
 
-	// 画像サイズを取得して矩形にセット
-	XMFLOAT3 texSize = sprite->GetTextureSize();
-	rect.left = 0;
-	rect.top = 0;
-	rect.right = static_cast<LONG>(texSize.x);
-	rect.bottom = static_cast<LONG>(texSize.y);
+	Image::ResetRect(titleLogo_);
+	Image::SetRect(titleLogo_, 400, 400, 110, 110);
+	
+	lTrans_.position_ = { 100.0f, 100.0f, 0.0f };
+	Image::SetTransform(titleLogo_, lTrans_);
 
-	sTrans_.position_ = { 100.0f, 100.0f, 0.0f };
+	pText_ = new Text();
+	pText_->Initialize();
 }
 
 void TitleScene::Update()
 {
 	XMFLOAT3 mousePos = Input::GetMousePosition();
-	Debug::Log(mousePos.x);
-	Debug::Log(mousePos.y, true);
 
+	// タイトルロゴの位置とサイズを取得
+	rect = Image::GetRect(titleLogo_);
 	float w = static_cast<float>(rect.right - rect.left);
 	float h = static_cast<float>(rect.bottom - rect.top);
-	float cx = sTrans_.position_.x;
-	float cy = sTrans_.position_.y;
-	Debug::Log(w);
-	Debug::Log(h, true);
+	float logoX = lTrans_.position_.x;
+	float logoY = lTrans_.position_.y;
 
-
-	// マウスがタイトルロゴの上にあるかどうか判定
-	onLogo = (mousePos.x >= cx) && (mousePos.x <= cy + w) &&
-		(mousePos.y >= cx) && (mousePos.y <= cy + h);
+	// マウスがタイトルロゴの上にあるかどうかを判定
+	if (mousePos.x >= logoX && mousePos.x <= logoX + w &&
+		mousePos.y >= logoY && mousePos.y <= logoY + h)
+	{
+		onLogo = true;
+	}
+	else
+	{
+		onLogo = false;
+	}
 
 	if (onLogo)
 	{
@@ -64,11 +70,13 @@ void TitleScene::Draw()
 	// スプライト描画
 	if (onLogo)
 	{
-		sprite->Draw(sTrans_,rect, 0.5f); // 半透明で描画
+		Image::SetAlpha(titleLogo_, 200); // 半透明にする
+		Image::Draw(titleLogo_);
 	}
 	else
 	{
-		sprite->Draw(sTrans_,rect, 1.0f);
+		Image::SetAlpha(titleLogo_, 255); // 通常の不透明度にする
+		Image::Draw(titleLogo_);
 	}
 }
 

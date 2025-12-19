@@ -70,8 +70,6 @@ namespace Image
 		return handle;
 	}
 
-
-
 	//描画
 	void Draw(int handle)
 	{
@@ -82,8 +80,6 @@ namespace Image
 		_datas[handle]->transform.Calclation();
 		_datas[handle]->pSprite->Draw(_datas[handle]->transform, _datas[handle]->rect, _datas[handle]->alpha);
 	}
-
-
 
 	//任意の画像を開放
 	void Release(int handle)
@@ -114,8 +110,6 @@ namespace Image
 		SAFE_DELETE(_datas[handle]);
 	}
 
-
-
 	//全ての画像を解放
 	void AllRelease()
 	{
@@ -125,7 +119,6 @@ namespace Image
 		}
 		_datas.clear();
 	}
-
 
 	//切り抜き範囲の設定
 	void SetRect(int handle, int x, int y, int width, int height)
@@ -137,10 +130,14 @@ namespace Image
 
 		_datas[handle]->rect.left = x;
 		_datas[handle]->rect.top = y;
-		_datas[handle]->rect.right = width;
-		_datas[handle]->rect.bottom = height;
+		_datas[handle]->rect.right = x + width;   // ← 幅を右端座標に変換
+		_datas[handle]->rect.bottom = y + height;  // ← 高さを下端座標に変換
 	}
 
+	RECT GetRect(int handle)
+	{
+		return _datas[handle]->rect;
+	}
 
 	//切り抜き範囲をリセット（画像全体を表示する）
 	void ResetRect(int handle)
@@ -169,7 +166,6 @@ namespace Image
 		_datas[handle]->alpha = (float)alpha / 255.0f;
 	}
 
-
 	//ワールド行列を設定
 	void SetTransform(int handle, Transform& transform)
 	{
@@ -177,10 +173,8 @@ namespace Image
 		{
 			return;
 		}
-
 		_datas[handle]->transform = transform;
 	}
-
 
 	//ワールド行列の取得
 	XMMATRIX GetMatrix(int handle)

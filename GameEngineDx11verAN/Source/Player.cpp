@@ -528,20 +528,7 @@ void Player::MeleeAttack()
         attackCollider_->SetRole(Collider::Role::Attack);
         AddCollider(attackCollider_);
 
-		Debug::Log(transform_.position_.x);
-		Debug::Log(transform_.position_.y);
-		Debug::Log(transform_.position_.z, true);
-		Debug::Log(rotateCenter_.x);
-		Debug::Log(rotateCenter_.y);
-		Debug::Log(rotateCenter_.z, true);
-        Debug::Log(transform_.rotate_.x);
-		Debug::Log(transform_.rotate_.y);
-		Debug::Log(transform_.rotate_.z, true);
-
 		XMFLOAT3 center_ = attackCollider_->GetCenter();
-		Debug::Log(center_.x);
-		Debug::Log(center_.y);
-        Debug::Log(center_.z, true);
 
         // ˆÚ“®ƒŠƒZƒbƒg
         fwd_ = 0;

@@ -1,6 +1,7 @@
 #include "Sprite.h"
 #include "Direct3D.h"
 #include "Global.h"
+#include "../Engine/Debug.h"
 
 //コンストラクタ
 Sprite::Sprite():
@@ -164,14 +165,36 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	XMMATRIX world = model * proj;
 	cb.world = XMMatrixTranspose(world);
 
+	// テクスチャUV行列（安全版）
+	float texW = (float)pTexture_->GetSize().x;
+	float texH = (float)pTexture_->GetSize().y;
+
+	float uOffset = (float)rect.left / texW;
+	float vOffset = (float)rect.top / texH;
+	float uScale = (float)(rect.right - rect.left) / texW; // width / texW
+	float vScale = (float)(rect.bottom - rect.top) / texH; // height / texH
+
+	Debug::Log("texW:");
+	Debug::Log(texW, true);
+	Debug::Log("texH:");
+	Debug::Log(texH, true);
+	Debug::Log("uOffset:");
+	Debug::Log(uOffset, true);
+	Debug::Log("vOffset:");
+	Debug::Log(vOffset, true);
+	Debug::Log("uScale:");
+	Debug::Log(uScale, true);
+	Debug::Log("vScale:");
+	Debug::Log(vScale, true);
+
 	// テクスチャ座標変換行列を渡す
-	XMMATRIX mTexTrans = XMMatrixTranslation((float)rect.left / (float)pTexture_->GetSize().x,
-		(float)rect.top / (float)pTexture_->GetSize().y, 0.0f);
-	XMMATRIX mTexScale = XMMatrixScaling((float)rect.right / (float)pTexture_->GetSize().x,
-		(float)rect.bottom / (float)pTexture_->GetSize().y, 1.0f);
-	XMMATRIX mTexel = mTexScale * mTexTrans;
+	XMMATRIX mTexTrans = XMMatrixTranslation(uOffset, vOffset, 0.0f);
+	XMMATRIX mTexScale = XMMatrixScaling(uScale, vScale, 1.0f);
+	// 合成順はシェーダーの uv の乗算順に依存するため、違和感があれば逆順も試す
+	XMMATRIX mTexel = mTexTrans * mTexScale;
+
 	cb.uvTrans = XMMatrixTranspose(mTexel);
-	
+
 	// テクスチャ合成色情報を渡す
 	cb.color = XMFLOAT4(1, 1, 1, alpha);
 
@@ -192,10 +215,4 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	Direct3D::SetShader(Direct3D::SHADER_3D);
 
 	Direct3D::SetDepthBafferWriteEnable(true);
-}
-
-// スプライトを描画する（transform_版）
-void Sprite::Draw(RECT rect, float alpha)
-{
-	Draw(transform_, rect, alpha);
 }

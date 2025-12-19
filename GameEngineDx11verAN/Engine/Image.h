@@ -27,6 +27,10 @@ namespace Image
 		//アルファ
 		float		alpha;
 
+		//スケール
+		float       W;
+		float       drawH;
+
 		//行列
 		Transform transform;
 
@@ -69,6 +73,8 @@ namespace Image
 	//引数：width	切り抜きたい範囲の幅
 	//引数：height	切り抜きたい範囲の高さ
 	void SetRect(int handle, int x, int y, int width, int height);
+
+	RECT GetRect(int handle);
 
 	//切り抜き範囲をリセット（画像全体を表示する）
 	//引数：handle	設定したい画像の番号

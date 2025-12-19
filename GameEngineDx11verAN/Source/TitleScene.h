@@ -1,6 +1,7 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class Text;
 class Sprite;
 
 // タイトルシーンを管理するクラス
@@ -23,14 +24,14 @@ private:
 	// タイトルロゴ
 	int titleLogo_;
 
-	// スプライトの描画用のポインター
-	Sprite* sprite;
-
-	// タイトルロゴの描画矩形
 	RECT rect;
 
 	// マウスがタイトルロゴの上にあるかどうか
 	bool onLogo;
 
-	Transform sTrans_;
+	// タイトルロゴの位置情報
+	Transform lTrans_;
+
+	// テキスト
+	Text* pText_;
 };

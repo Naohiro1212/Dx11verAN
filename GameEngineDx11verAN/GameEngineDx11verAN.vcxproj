@@ -194,6 +194,7 @@
     <ClCompile Include="Engine\SceneManager.cpp" />
     <ClCompile Include="Engine\SphereCollider.cpp" />
     <ClCompile Include="Engine\Sprite.cpp" />
+    <ClCompile Include="Engine\Text.cpp" />
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="Engine\SceneManager.h" />
     <ClInclude Include="Engine\SphereCollider.h" />
     <ClInclude Include="Engine\Sprite.h" />
+    <ClInclude Include="Engine\Text.h" />
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\VFX.h" />

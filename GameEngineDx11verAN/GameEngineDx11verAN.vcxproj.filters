@@ -149,6 +149,9 @@
     <ClCompile Include="Source\TitleScene.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Text.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -270,6 +273,9 @@
     </ClInclude>
     <ClInclude Include="Source\TitleScene.h">
       <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Text.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

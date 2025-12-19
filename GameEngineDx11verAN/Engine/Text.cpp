@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "Direct3D.h"
 #include "Text.h"
+#include "../Engine/Debug.h"
 
 Text::Text() : hPict_(-1), width_(16), height_(32), fileName_("char.png"), rowLength_(16)
 {
@@ -32,48 +33,51 @@ HRESULT Text::Initialize(const char* fileName, const unsigned int charWidth, con
 	return Initialize();
 }
 
-
-//描画（文字列）
+// 描画（文字列）
 void Text::Draw(int x, int y, const char* str)
 {
-	//表示位置（左上）を計算
-	//Spriteクラスは中心が(0,0)、右上が(1,1)という座標だが、ここの引数は左上を(0,0)、ドット単位で指定している
-	float px, py;
+    // 表示開始位置（ピクセル、左上原点）
+    float px = (float)x;
+    float py = (float)y;
 
-	//引数は左上原点だが、スプライトは画面中央が原点なので、画面サイズの半分ずらす
-	px = (float)(x - Direct3D::screenWidth_ / 2);
-	py = (float)(-y + Direct3D::screenHeight_ / 2);	//Y軸は+-反転
+    const char baseChar = '!'; // フォント画像に合わせて変更
+    const int maxChars = rowLength_ * 16; // 十分大きめの上限（適宜調整）
 
-	//スプライトはPositionを1ずらすと画面サイズの半分ずれるので、ピクセル単位に変換
-	px /= (float)(Direct3D::screenWidth_ / 2.0f);
-	py /= (float)(Direct3D::screenHeight_ / 2.0f);
+    for (int i = 0; str[i] != '\0'; ++i)
+    {
+        unsigned char ch = static_cast<unsigned char>(str[i]);
+        int id = (int)ch - (int)baseChar;
 
+        // 範囲外の文字は描画せず幅分だけ進める（スペース等の扱い）
+        if (id < 0 || id >= maxChars)
+        {
+            px += (float)width_;
+            continue;
+        }
 
-	//１文字ずつ表示する
-	for (int i = 0; str[i] != '\0'; i++)	//文字列の末尾まで来たら終わり
-	{
-		//表示したい文字が、画像の何番目に書いてあるかを求める
-		int id = str[i] - '!';		//表示したい文字のコードから「!」のコードを引くことで、!＝0、"=1、#＝2･･･という番号にする
+        int cellX = id % rowLength_; // 左から何番目
+        int cellY = id / rowLength_; // 上から何番目
 
-		//表示したい文字が、画像のどこにあるかを求める
-		int x = id % rowLength_;	//左から何番目
-		int y = id / rowLength_;	//上から何番目
+        // 表示する位置（ピクセル座標をそのまま渡す）
+        Transform transform;
+        transform.matScale_ = XMMatrixIdentity();
+		transform.matRotate_ = XMMatrixIdentity();
+        transform.position_.x = px;
+        transform.position_.y = py;
+		transform.position_.z = 0.0f;
+        Image::SetTransform(hPict_, transform);
 
-		//表示する位置
-		Transform transform;
-		transform.position_.x = px;
-		transform.position_.y = py;
-		Image::SetTransform(hPict_, transform);
+        // Image::SetRect の実装は (handle, x, y, width, height) を期待するので合わせる
+        Image::SetRect(hPict_, width_ * cellX, height_ * cellY, width_, height_);
 
-		//表示する範囲
-		Image::SetRect(hPict_, width_ * x, height_ * y, width_, height_);
-		
-		//表示
-		Image::Draw(hPict_);
+        RECT r = Image::GetRect(hPict_);
 
-		//次の位置にずらす
-		px += width_ / (float)(Direct3D::screenWidth_ / 2.0f);
-	}
+        // 表示
+        Image::Draw(hPict_);
+
+        // 次の位置（ピクセル単位）
+        //px += (float)width_;
+    }
 }
 
 //描画（整数値）

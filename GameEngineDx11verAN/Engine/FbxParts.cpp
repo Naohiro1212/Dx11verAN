@@ -207,7 +207,8 @@ void FbxParts::InitMaterial(fbxsdk::FbxNode* pNode)
 		prop = pPhong->FindProperty(FbxSurfaceMaterial::sAmbient);
 		if (prop.IsValid())
 		{
-			//Debug::Log("Ambient OK", true);
+			//
+			// ("Ambient OK", true);
 			ambient = pPhong->Ambient;
 		}
 		prop = pPhong->FindProperty(FbxSurfaceMaterial::sDiffuse);
