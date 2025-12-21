@@ -374,7 +374,7 @@ void FbxParts::InitIndex(fbxsdk::FbxMesh* mesh)
 		D3D11_BUFFER_DESC   bd;
 		bd.Usage = D3D11_USAGE_DEFAULT;
 		bd.ByteWidth = sizeof(int) * count;
-		bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
+		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
 

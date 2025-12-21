@@ -4,8 +4,10 @@
 #include "../Engine/Image.h"
 #include "../Engine/Text.h"
 #include "../Engine/Debug.h"
+#include "../Engine/Button.h"
+#include "../Engine/Image.h"
 
-TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), onLogo(false)
+TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), pText_(nullptr)
 {
 }
 
@@ -14,16 +16,19 @@ void TitleScene::Initialize()
 	// Image初期化
 	Image::Initialize();
 
-	// タイトルロゴの読み込み
-	titleLogo_ = Image::Load("colormap.png");
-	assert(titleLogo_ >= 0);
+	// ボタン初期化
+	pButton_ = Instantiate<Button>(this);
+	pButton_->SetCenter(true);
+	pButton_->SetButtonImage(Image::Load("colormap.png"));
+	pButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + 200.0f);
 
-	Image::ResetRect(titleLogo_);
-	Image::SetRect(titleLogo_, 400, 400, 110, 110);
-	
-	lTrans_.position_ = { 100.0f, 100.0f, 0.0f };
-	Image::SetTransform(titleLogo_, lTrans_);
+	// 背景画像読み込み
+	titleImage_ = Image::Load("Title.jpg");
+	assert(titleImage_ >= 0);
+	Image::ResetRect(titleImage_);
+	bgTransform_.position_ = { 0.0f, 0.0f, 0.0f };
 
+	// テキスト初期化
 	pText_ = new Text();
 	pText_->Initialize();
 }
@@ -32,52 +37,42 @@ void TitleScene::Update()
 {
 	XMFLOAT3 mousePos = Input::GetMousePosition();
 
-	// タイトルロゴの位置とサイズを取得
-	rect = Image::GetRect(titleLogo_);
-	float w = static_cast<float>(rect.right - rect.left);
-	float h = static_cast<float>(rect.bottom - rect.top);
-	float logoX = lTrans_.position_.x;
-	float logoY = lTrans_.position_.y;
+	pButton_->Update();
+	bool onButton = pButton_->GetOnButton();
 
-	// マウスがタイトルロゴの上にあるかどうかを判定
-	if (mousePos.x >= logoX && mousePos.x <= logoX + w &&
-		mousePos.y >= logoY && mousePos.y <= logoY + h)
+	if (onButton)
 	{
-		onLogo = true;
-	}
-	else
-	{
-		onLogo = false;
-	}
-
-	if (onLogo)
-	{
-		// マウスがタイトルロゴの上にあるときの処理
 		if (Input::IsMouseButtonDown(0))
 		{
-			// Enterキーが押されたらシーンを切り替える
-			auto sceneManager = dynamic_cast<SceneManager*>(GetParent());
-			if (sceneManager)
-			{
-				sceneManager->ChangeScene(SCENE_ID_TEST);
-			}
+			SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
+			pSceneManager->ChangeScene(SCENE_ID_TEST);
 		}
 	}
 }
 
 void TitleScene::Draw()
 {
-	// スプライト描画
-	if (onLogo)
-	{
-		Image::SetAlpha(titleLogo_, 200); // 半透明にする
-		Image::Draw(titleLogo_);
-	}
-	else
-	{
-		Image::SetAlpha(titleLogo_, 255); // 通常の不透明度にする
-		Image::Draw(titleLogo_);
-	}
+	// 画面を覆うスケール計算（cover）
+	RECT rect = Image::GetRect(titleImage_);
+	float w = (float)(rect.right - rect.left);
+	float h = (float)(rect.bottom - rect.top);
+	float scaleX = Direct3D::screenWidth_ / w;
+	float scaleY = Direct3D::screenHeight_ / h;
+	float scale = max(scaleX, scaleY);
+	Image::SetSizePixels(titleImage_, w * scale, h * scale);
+
+	// 中心に配置（center = true）
+	Image::SetPositionPixels(titleImage_, Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f, true);
+
+	// 描画
+	Image::Draw(titleImage_);
+
+	// ボタン描画
+	pButton_->Draw();
+
+	pText_->Draw(Direct3D::screenWidth_ * 0.5f - 
+		
+		150.0f, Direct3D::screenHeight_ * 0.5f - 100.0f, "Press to Left Click!");
 }
 
 void TitleScene::Release()

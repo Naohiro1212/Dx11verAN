@@ -1,7 +1,6 @@
 #include "BillBoard.h"
 #include "Camera.h"
 #include "Global.h"
-#include "CommonType.h"
 
 BillBoard::BillBoard():
 	pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr)
@@ -90,6 +89,7 @@ HRESULT BillBoard::Load(std::string fileName)
 void BillBoard::Draw(XMMATRIX matWorld, XMFLOAT4 color)
 {
 	//コンスタントバッファに渡す情報
+	CONSTANT_BUFFER cb;
 	cb.matWVP = XMMatrixTranspose(matWorld * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 	cb.color = color;
 

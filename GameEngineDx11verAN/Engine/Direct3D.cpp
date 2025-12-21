@@ -284,7 +284,7 @@ namespace Direct3D
 
 			//ラスタライザ作成
 			D3D11_RASTERIZER_DESC rdc = {};
-			rdc.CullMode = D3D11_CULL_NONE;
+			rdc.CullMode = D3D11_CULL_BACK;
 			rdc.FillMode = D3D11_FILL_SOLID;
 			rdc.FrontCounterClockwise = TRUE;
 			pDevice_->CreateRasterizerState(&rdc, &shaderBundle[SHADER_2D].pRasterizerState);
@@ -389,9 +389,8 @@ namespace Direct3D
 		if (NULL == pRenderTargetView_) return;
 		if (NULL == pSwapChain_) return;
 
-		//remonchiffon R:255 G:250 B:205
-		//背景の色
-		float clearColor[4] = { 255.0/255.0f, 250/255.0f, 205/255.0f, 1.0f };//R,G,B,A
+		// 背景の色
+		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
 
 		//画面をクリア
 		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);
@@ -511,6 +510,84 @@ namespace Direct3D
 		{
 			pContext_->OMSetRenderTargets(1, &pRenderTargetView_, nullptr);
 		}
+	}
+
+	HRESULT Resize(int width, int height)
+	{
+		// スワップチェインがなければ失敗
+		if (pSwapChain_ == nullptr || pDevice_ == nullptr || pContext_ == nullptr)
+		{
+			return E_FAIL;
+		}
+
+		// 既存のレンダーターゲット / 深度ビューを解放
+		SAFE_RELEASE(pRenderTargetView_);
+		SAFE_RELEASE(pDepthStencilView);
+		SAFE_RELEASE(pDepthStencil);
+
+		// バッファ数・フォーマットは既定のまま幅/高さのみ変更
+		HRESULT hr = pSwapChain_->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+		if (FAILED(hr))
+		{
+			return hr;
+		}
+
+		// バックバッファからレンダーターゲットビューを再作成
+		ID3D11Texture2D* pBackBuffer = nullptr;
+		hr = pSwapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+		if (FAILED(hr))
+		{
+			return hr;
+		}
+		hr = pDevice_->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView_);
+		pBackBuffer->Release();
+		if (FAILED(hr))
+		{
+			return hr;
+		}
+
+		// 深度ステンシルバッファ再作成
+		D3D11_TEXTURE2D_DESC descDepth = {};
+		descDepth.Width = width;
+		descDepth.Height = height;
+		descDepth.MipLevels = 1;
+		descDepth.ArraySize = 1;
+		descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+		descDepth.SampleDesc.Count = 1;
+		descDepth.SampleDesc.Quality = 0;
+		descDepth.Usage = D3D11_USAGE_DEFAULT;
+		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		descDepth.CPUAccessFlags = 0;
+		descDepth.MiscFlags = 0;
+		hr = pDevice_->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
+		if (FAILED(hr))
+		{
+			return hr;
+		}
+		hr = pDevice_->CreateDepthStencilView(pDepthStencil, NULL, &pDepthStencilView);
+		if (FAILED(hr))
+		{
+			return hr;
+		}
+
+		// レンダーターゲットと深度ビューをセット
+		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
+
+		// ビューポート更新
+		D3D11_VIEWPORT vp;
+		vp.Width = (float)width;
+		vp.Height = (float)height;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		vp.TopLeftX = 0.0f;
+		vp.TopLeftY = 0.0f;
+		pContext_->RSSetViewports(1, &vp);
+
+		// グローバル幅高さ更新
+		screenWidth_ = width;
+		screenHeight_ = height;
+
+		return S_OK;
 	}
 
 }

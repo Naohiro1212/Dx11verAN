@@ -237,6 +237,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		Input::SetMousePosition(LOWORD(lParam), HIWORD(lParam));
 		return 0;
+
+	case WM_SIZE:
+		// ウィンドウサイズ変更時の処理
+		if (wParam != SIZE_MINIMIZED)
+		{
+			int newWidth = LOWORD(lParam);
+			int newHeight = HIWORD(lParam);
+			Direct3D::Resize(newWidth, newHeight);
+		}
+		return 0;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }

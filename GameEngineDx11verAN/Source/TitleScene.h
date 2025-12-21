@@ -1,6 +1,7 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class Button;
 class Text;
 class Sprite;
 
@@ -21,17 +22,13 @@ public:
 	void Release() override;
 
 private:
-	// タイトルロゴ
-	int titleLogo_;
-
-	RECT rect;
-
-	// マウスがタイトルロゴの上にあるかどうか
-	bool onLogo;
-
-	// タイトルロゴの位置情報
-	Transform lTrans_;
-
 	// テキスト
 	Text* pText_;
+
+	// 仮ボタン
+	Button* pButton_;
+
+	// 背景
+	int titleImage_;
+	Transform bgTransform_;
 };

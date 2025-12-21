@@ -134,14 +134,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\debug</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -157,7 +157,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui\backends;C:\Users\240017\source\repos\Dx11VerAN2\Dx11verAN\GameEngineDx11verAN\imgui;C:\Users\nao12\source\repos\Naohiro1212\Dx11verAN\GameEngineDx11verAN\Engine\include;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -166,7 +166,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\nao12\Downloads\EffekseerForCpp1.7.2.0\build_msvc2022_x64;C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\lib\x64\release</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -177,6 +177,7 @@
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
     <ClCompile Include="Engine\BoxCollider.cpp" />
+    <ClCompile Include="Engine\Button.cpp" />
     <ClCompile Include="Engine\Camera.cpp" />
     <ClCompile Include="Engine\Collider.cpp" />
     <ClCompile Include="Engine\CsvReader.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />
     <ClInclude Include="Engine\BoxCollider.h" />
+    <ClInclude Include="Engine\Button.h" />
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\Collider.h" />
     <ClInclude Include="Engine\CommonType.h" />

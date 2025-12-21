@@ -29,8 +29,6 @@ public:
 	//戻値：成功/失敗
 	HRESULT Load(std::string fileName);
 
-	HRESULT CreateSolidColor(UINT _width, UINT _height, const DirectX::XMFLOAT4& _color);
-
 	//各アクセス関数
 	ID3D11SamplerState* GetSampler() { return pSampleLinear_; }	//サンプラーの取得
 	ID3D11ShaderResourceView* GetSRV() { return pTextureSRV_; }	//シェーダーリソースビューの取得

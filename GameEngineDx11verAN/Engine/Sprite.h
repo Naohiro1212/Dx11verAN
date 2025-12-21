@@ -21,7 +21,7 @@ protected:
 	struct VERTEX
 	{
 		XMFLOAT3 position;
-		XMFLOAT3 uv;
+		XMFLOAT2 uv;
 	};
 
 

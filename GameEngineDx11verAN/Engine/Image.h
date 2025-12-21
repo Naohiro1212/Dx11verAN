@@ -27,10 +27,6 @@ namespace Image
 		//アルファ
 		float		alpha;
 
-		//スケール
-		float       W;
-		float       drawH;
-
 		//行列
 		Transform transform;
 
@@ -94,4 +90,10 @@ namespace Image
 	//引数：handle	知りたい画像の番号
 	//戻値：ワールド行列
 	XMMATRIX GetMatrix(int handle);
+
+	// ピクセル座標で位置を設定（x,y はトップ左座標を想定、center = true の場合は x,y を中心座標として扱う）
+	void SetPositionPixels(int handle, float x, float y, bool center);
+
+	// ピクセル単位で表示サイズを指定（幅・高さ）内部で scale を設定
+	void SetSizePixels(int handle, float width, float height);
 }

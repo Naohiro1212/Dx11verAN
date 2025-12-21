@@ -3,7 +3,7 @@
 
 
 Transform::Transform()
-	: pParent_(nullptr),isSetDirect(false)
+	: pParent_(nullptr)
 {
 	position_ = XMFLOAT3(0, 0, 0);
 	rotate_ = XMFLOAT3(0, 0, 0);
@@ -36,9 +36,7 @@ void Transform::Calclation()
 
 XMMATRIX Transform::GetWorldMatrix() 
 {
-	if (!isSetDirect) {
-		Calclation();
-	}
+	Calclation();
 	if (pParent_)
 	{
 		return  matScale_ * matRotate_ * matTranslate_ * pParent_->GetWorldMatrix();

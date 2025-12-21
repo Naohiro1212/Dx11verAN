@@ -130,8 +130,8 @@ namespace Image
 
 		_datas[handle]->rect.left = x;
 		_datas[handle]->rect.top = y;
-		_datas[handle]->rect.right = x + width;   // ← 幅を右端座標に変換
-		_datas[handle]->rect.bottom = y + height;  // ← 高さを下端座標に変換
+		_datas[handle]->rect.right = width;   // ← 幅を右端座標に変換
+		_datas[handle]->rect.bottom = height;  // ← 高さを下端座標に変換
 	}
 
 	RECT GetRect(int handle)
@@ -184,6 +184,36 @@ namespace Image
 			return XMMatrixIdentity();
 		}
 		return _datas[handle]->transform.GetWorldMatrix();
+	}
+
+	void SetPositionPixels(int handle, float x, float y, bool center)
+	{
+		if (handle < 0 || handle >= _datas.size() || _datas[handle] == nullptr) return;
+
+		// 現在のサブ矩形サイズ（ピクセル）
+		float texW = (float)(_datas[handle]->rect.right - _datas[handle]->rect.left);
+		float texH = (float)(_datas[handle]->rect.bottom - _datas[handle]->rect.top);
+
+		// center==false のとき x,y を左上とみなして中心座標に変換
+		float centerX = center ? x : (x + texW * 0.5f);
+		float centerY = center ? y : (y + texH * 0.5f);
+
+		// ピクセル座標 -> 正規化座標（既存の Draw と同じ変換）
+		_datas[handle]->transform.position_.x = (centerX - Direct3D::screenWidth_ * 0.5f) / (Direct3D::screenWidth_ * 0.5f);
+		_datas[handle]->transform.position_.y = (Direct3D::screenHeight_ * 0.5f - centerY) / (Direct3D::screenHeight_ * 0.5f);
+	}
+
+	void SetSizePixels(int handle, float width, float height)
+	{
+		if (handle < 0 || handle >= _datas.size() || _datas[handle] == nullptr) return;
+
+		// ソース表示領域（rect）幅・高さを基準に scale を計算
+		float srcW = (float)(_datas[handle]->rect.right - _datas[handle]->rect.left);
+		float srcH = (float)(_datas[handle]->rect.bottom - _datas[handle]->rect.top);
+		if (srcW == 0.0f || srcH == 0.0f) return;
+
+		_datas[handle]->transform.scale_.x = width / srcW;
+		_datas[handle]->transform.scale_.y = height / srcH;
 	}
 }
 
