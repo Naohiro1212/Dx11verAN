@@ -223,8 +223,6 @@ void GameObject::KillObjectSub(GameObject * obj)
 	obj->Release();
 }
 
-
-
 //コライダー（衝突判定）を追加する
 void GameObject::AddCollider(Collider* collider)
 {
@@ -253,6 +251,24 @@ void GameObject::RemoveCollider(Collider* collider)
 			colliderList_.erase(it);
 			break;
 		}
+	}
+}
+
+void GameObject::StopAllUpdate()
+{
+	// すべてのゲームオブジェクトの更新を停止
+	for (auto it = childList_.begin(); it != childList_.end(); ++it)
+	{
+		(*it)->Leave();
+	}
+}
+
+void GameObject::ResumeAllUpdate()
+{
+	// すべてのゲームオブジェクトの更新を再開
+	for (auto it = childList_.begin(); it != childList_.end(); ++it)
+	{
+		(*it)->Enter();
 	}
 }
 
@@ -345,6 +361,11 @@ GameObject* GameObject::GetRootJob()
 
 void GameObject::UpdateSub()
 {
+	if (IsEntered() == false)
+	{
+		return;
+	}
+
 	Update();
 	Transform();
 

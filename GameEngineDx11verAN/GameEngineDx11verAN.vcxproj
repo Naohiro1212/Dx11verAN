@@ -210,6 +210,7 @@
     <ClCompile Include="Source\MiniMap.h" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\PlayerCamera.cpp" />
+    <ClCompile Include="Source\Portal.cpp" />
     <ClCompile Include="Source\testEnemy.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
     <ClCompile Include="Source\TitleScene.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\PlayerCamera.h" />
     <ClInclude Include="Source\PlayerConfig.h" />
+    <ClInclude Include="Source\Portal.h" />
     <ClInclude Include="Source\testEnemy.h" />
     <ClInclude Include="Source\TestScene.h" />
     <ClInclude Include="Source\TitleScene.h" />

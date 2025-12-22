@@ -22,4 +22,7 @@ public:
 	//開放
 	void Release() override;
 	
+private:
+	// ポーズ中かどうかのフラグ
+	bool isPaused_;
 };
