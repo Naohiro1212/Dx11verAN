@@ -1,6 +1,7 @@
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "GameObject.h"
+#include "../Engine/Collider.h"
 #include "Model.h"
 #include "Transform.h"
 #include <assert.h>
@@ -24,10 +25,8 @@ Collider::~Collider()
 //–ß’lFÚG‚µ‚Ä‚¢‚ê‚Îtrue
 bool Collider::IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB)
 {
-
 	XMFLOAT3 boxPosA = Transform::Float3Add(boxA->pGameObject_->GetWorldPosition(), boxA->center_);
 	XMFLOAT3 boxPosB = Transform::Float3Add(boxB->pGameObject_->GetWorldPosition(), boxB->center_);
-
 	if ((boxPosA.x + boxA->size_.x / 2) > (boxPosB.x - boxB->size_.x / 2) &&
 		(boxPosA.x - boxA->size_.x / 2) < (boxPosB.x + boxB->size_.x / 2) &&
 		(boxPosA.y + boxA->size_.y / 2) > (boxPosB.y - boxB->size_.y / 2) &&
@@ -106,7 +105,10 @@ bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circ
 void Collider::Draw(XMFLOAT3 position, XMFLOAT3 rotate)
 {
 	Transform transform;
-	transform.position_ = XMFLOAT3(position.x, position.y, position.z);
+	transform.position_ = XMFLOAT3(
+		position.x + center_.x, 
+		position.y + center_.y,
+		position.z + center_.z);
 	transform.scale_ = size_;
 	transform.rotate_ = rotate;
 //	transform.Calclation();

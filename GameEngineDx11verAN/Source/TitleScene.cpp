@@ -70,9 +70,7 @@ void TitleScene::Draw()
 	// ƒ{ƒ^ƒ“•`‰æ
 	pButton_->Draw();
 
-	pText_->Draw(Direct3D::screenWidth_ * 0.5f - 
-		
-		150.0f, Direct3D::screenHeight_ * 0.5f - 100.0f, "Press to Left Click!");
+	pText_->Draw(Direct3D::screenWidth_ * 0.5f - 150.0f, Direct3D::screenHeight_ * 0.5f - 100.0f, "Press to Left Click!");
 }
 
 void TitleScene::Release()

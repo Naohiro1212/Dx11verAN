@@ -1,12 +1,9 @@
 #include "Plane.h"
 #include "../Engine/Model.h"
 #include <assert.h>
-#include "../Engine/BoxCollider.h"
-
 namespace
 {
-	const float PLANE_ROTATE_X = 0.0f;
-	const XMFLOAT3 PLANE_SCALE = { 3000.0f, 3.0f, 3000.0f };
+	const XMFLOAT3 PLANE_SCALE = { 700.0f, 3.0f, 700.0f };
 	const XMFLOAT3 PLANE_POSITION = { 0.0f, -5.0f, 0.0f };
 }
 

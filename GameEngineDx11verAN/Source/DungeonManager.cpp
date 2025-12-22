@@ -20,11 +20,10 @@ namespace
 	const size_t ROOMLENGTH_RAND_Y = 1; // 部屋のY座標のサイズ加算
 	const size_t MAPX_RLk = 22; //マップ縦サイズ
 	const size_t MAPY_RLk = 22;   //マップ横サイズ
-	const XMFLOAT3 MAPCHIP_SCALE = { 0.3f, 0.3f, 0.3f }; // 描画の際のスケール
+	const XMFLOAT3 MAPCHIP_SCALE = { 0.3f, 0.40f, 0.3f }; // 描画の際のスケール
 	const float MAPTILE_SIZE = 30.0f;
 	const XMFLOAT3 COLLIDER_SIZE = { 40.0f, 30.0f, 33.0f };
 	const float WALL_DRAW_DISTANCE = 500.0f * 500.0f; // 壁の描画距離（距離の2乗で管理）
-
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -39,7 +38,6 @@ DungeonManager::DungeonManager(GameObject* _parent)
 		ROOMLENGTH_RAND_X,
 		ROOMLENGTH_RAND_Y
 	};
-	objectName_ = "DungeonManager";
 }
 
 DungeonManager::~DungeonManager()
@@ -139,6 +137,7 @@ void DungeonManager::DungeonReset()
 	{
 		if (enemy)
 		{
+			enemy->SetWallColliders({});
 			enemy->KillMe();
 		}
 	}
@@ -198,7 +197,10 @@ void DungeonManager::DungeonReset()
 
 	for (auto* enemy : enemies_)
 	{
-		enemy->SetWallColliders(wallColliders_);
+		if (enemy)
+		{
+			enemy->SetWallColliders(wallColliders_);
+		}
 	}
 }
 

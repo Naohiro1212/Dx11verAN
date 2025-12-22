@@ -27,7 +27,6 @@ Player::Player(GameObject* parent)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
-	objectName_ = "Player";
 
 	wallColliders_.clear();
 }
@@ -203,9 +202,9 @@ void Player::Update()
     if (exp_ >= 100.0f)
     {
         exp_ = 0.0f;
-        transform_.scale_.x += 0.02f;
+ /*       transform_.scale_.x += 0.02f;
 		transform_.scale_.y += 0.02f;
-		transform_.scale_.z += 0.02f;
+		transform_.scale_.z += 0.02f;*/
     }
 
     // カメラ更新
@@ -219,11 +218,11 @@ void Player::Draw()
     // 現在のモデルを描画
 	Model::SetTransform(nowModel_, transform_);
 	Model::Draw(nowModel_);
-   // pCollider_->Draw(transform_.position_, transform_.rotate_);
+    pCollider_->Draw(transform_.position_, transform_.rotate_);
 
     if (attackCollider_)
     {
-  //      attackCollider_->Draw(transform_.position_, transform_.rotate_);
+        attackCollider_->Draw(transform_.position_, transform_.rotate_);
     }
 }
 
@@ -461,8 +460,6 @@ void Player::MeleeAttack()
         attackCollider_->SetCenter(localOffset);
         attackCollider_->SetRole(Collider::Role::Attack);
         AddCollider(attackCollider_);
-
-		XMFLOAT3 center_ = attackCollider_->GetCenter();
 
         // 移動リセット
         fwd_ = 0;

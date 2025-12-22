@@ -56,4 +56,6 @@ private:
 
 	// 一定距離以内の壁コライダーキャッシュ
 	std::vector<BoxCollider*> nearWallColliders_;
+
+	bool needDungeonReset_;
 };

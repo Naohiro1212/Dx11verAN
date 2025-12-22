@@ -136,7 +136,7 @@ void testEnemy::Update()
 void testEnemy::Draw()
 {
 	Model::Draw(modelHandle_);
-//	pCollider_->Draw(transform_.position_, transform_.rotate_);
+	pCollider_->Draw(transform_.position_, transform_.rotate_);
 }
 
 void testEnemy::Release()
