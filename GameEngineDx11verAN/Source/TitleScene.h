@@ -22,6 +22,7 @@ public:
 	void Release() override;
 
 private:
+
 	// テキスト
 	Text* pText_;
 

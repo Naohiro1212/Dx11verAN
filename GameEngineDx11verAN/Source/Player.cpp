@@ -214,14 +214,16 @@ void Player::Update()
 
 void Player::Draw()
 {
+    // 一旦テストでコライダーの描画消す　敵も自機も
+
     // 現在のモデルを描画
 	Model::SetTransform(nowModel_, transform_);
 	Model::Draw(nowModel_);
-    pCollider_->Draw(transform_.position_, transform_.rotate_);
+   // pCollider_->Draw(transform_.position_, transform_.rotate_);
 
     if (attackCollider_)
     {
-        attackCollider_->Draw(transform_.position_, transform_.rotate_);
+  //      attackCollider_->Draw(transform_.position_, transform_.rotate_);
     }
 }
 
@@ -325,74 +327,6 @@ void Player::ChangeModel()
     }
 }
 
-//void Player::UpdateGravity()
-//{
-//    float g = cnf_.GRAVITY;
-//    if (velocityY_ < 0.0f) {
-//        g *= cnf_.GRAVITY_MULTIPLIER;
-//    }
-//
-//    // 地面に接地していて下向きの速度なら、まず速度をゼロクリアして自己貫通を防ぐ
-//    if (onGround_ && velocityY_ <= 0.0f) {
-//        velocityY_ = 0.0f;
-//    }
-//
-//    float nextVelY = velocityY_ + (-g) * dt_;
-//    float nextY = transform_.position_.y + velocityY_ * dt_ + (-g) * 0.5f * dt_ * dt_;
-//
-//    // レイを現在位置（または probe 上方）から下向きに飛ばして
-//    // 今フレームの移動範囲内に床があるかを判定する
-//    Plane* pPlane = (Plane*)FindObject("plane");
-//    assert(pPlane != nullptr);
-//    int hPlaneModel = pPlane->GetPlaneHandle();
-//
-//    RayCastData hitData;
-//    // レイの開始は現在の transform_.position_ の上に取る
-//	hitData.start = transform_.position_;
-//    hitData.start.y = transform_.position_.y + cnf_.PROBE_UP_OFFSET;
-//	hitData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-//	Model::RayCast(hPlaneModel, hitData);
-//
-//    const float EPS = 1e-3f;
-//    const float ENTER_EPS = cnf_.GROUND_EPS;          // 例: 0.02f
-//    const float EXIT_EPS = cnf_.GROUND_EPS * 2.0f;   // 例: 0.04f
-//
-//    bool willGroundThisFrame = false;
-//    float groundY = -INFINITY;
-//
-//    if (hitData.hit) {
-//		groundY = hitData.start.y - hitData.dist;
-//        float maxTravel = (std::max)(0.0f, hitData.start.y - nextY);
-//
-//        // 既に接地しているなら緩めの閾値、未接地なら厳しめ
-//        float threshold = onGround_ ? EXIT_EPS : ENTER_EPS;
-//
-//        if (hitData.dist <= maxTravel + EPS && nextY <= groundY + threshold) {
-//            willGroundThisFrame = true;
-//        }
-//    }
-//
-//    if (willGroundThisFrame) {
-//        transform_.position_.y = groundY; // スナップ固定
-//        velocityY_ = 0.0f;
-//        onGround_ = true;
-//        jumpCount_ = 0;
-//    }
-//    else {
-//        transform_.position_.y = nextY;
-//        velocityY_ = nextVelY;
-//
-//        // 離地は「上限＋EXIT_EPS」を超えた場合のみ false にする（微小誤差で揺れない）
-//        if (groundY != -INFINITY)
-//        {
-//            onGround_ = (transform_.position_.y <= groundY + EXIT_EPS);
-//        }
-//        else {
-//            onGround_ = false;
-//        }
-//    }
-//}
-
 void Player::UpdateGravity()
 {
     const float ENTER_EPS = cnf_.GROUND_EPS;         // 例: 0.02f
@@ -424,7 +358,7 @@ void Player::UpdateGravity()
     if (hitData.hit)
     {
         float groundY = hitData.start.y - hitData.dist;
-        float maxTravel = (std::max)(0.0f, hitData.start.y - nextY);
+        float maxTravel = (std::max)(0.5f, hitData.start.y - nextY);
         float threshold = onGround_ ? EXIT_EPS : ENTER_EPS;
 
         // 今フレーム内に床があり、nextY が閾値以内ならスナップして着地

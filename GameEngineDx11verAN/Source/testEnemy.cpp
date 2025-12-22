@@ -31,7 +31,7 @@ testEnemy::~testEnemy()
 
 void testEnemy::Initialize()
 {
-	transform_.position_ = { 0.0f, 0.0f, 0.0f };
+	transform_.position_ = { 0.0f, 0.5f, 0.0f };
     transform_.scale_ = ENEMY_SCALE;
 
 	// 仮にプレイヤーのアイドルモデルを使う
@@ -136,7 +136,7 @@ void testEnemy::Update()
 void testEnemy::Draw()
 {
 	Model::Draw(modelHandle_);
-	pCollider_->Draw(transform_.position_, transform_.rotate_);
+//	pCollider_->Draw(transform_.position_, transform_.rotate_);
 }
 
 void testEnemy::Release()

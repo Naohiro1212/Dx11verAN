@@ -99,7 +99,7 @@ void DungeonManager::Draw()
 			if (maprl[i][j].mapData == MAPCHIP_WALL)
 			{
 				// 壁のワールド座標
-				XMFLOAT3 wallPos = { static_cast<float>(i) * MAPTILE_SIZE, 1.5f, static_cast<float>(j) * MAPTILE_SIZE };
+				XMFLOAT3 wallPos = { static_cast<float>(i) * MAPTILE_SIZE, 0.5f, static_cast<float>(j) * MAPTILE_SIZE };
 
 				// 距離計算
 				float dx = wallPos.x - playerPos_.x;
