@@ -6,6 +6,7 @@
 
 class Player;
 class testEnemy;
+class Portal;
 class DungeonGenerator;
 class EnemyGenerator;
 class BoxCollider;
@@ -30,7 +31,14 @@ public:
 	// 壁当たり判定用のゲッター
 	const std::vector<BoxCollider*>& GetWallColliders() const { return wallColliders_; }
 
+	// 現在の階数取得
+	int GetNowFloor() const { return nowFloor_; }
+
 private:
+	// 敵の数が0かつ、ポータルとプレイヤーが近づきキーを押すとダンジョン再生成フラグを立てる
+	// ダンジョン踏破中
+	void StageClearCheck();
+
 	DungeonGenerator* dungeonGenerator_;
 	DungeonMap_Info* dungeonMapInfo_;
 	EnemyGenerator* enemyGenerator_;
@@ -51,6 +59,10 @@ private:
 	Player* player_;
 	XMFLOAT3 playerStartPos_;
 
+	// ポータルの位置
+	Portal* portal_;
+	XMFLOAT3 portalPos_;
+
 	// 壁のコライダー
 	std::vector<BoxCollider*> wallColliders_;
 
@@ -58,4 +70,7 @@ private:
 	std::vector<BoxCollider*> nearWallColliders_;
 
 	bool needDungeonReset_;
+
+	// ダンジョンの現在階数
+	int nowFloor_;
 };

@@ -155,6 +155,9 @@
     <ClCompile Include="Engine\Button.cpp">
       <Filter>Engine\GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Portal.cpp">
+      <Filter>リソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -282,6 +285,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Button.h">
       <Filter>Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Portal.h">
+      <Filter>リソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

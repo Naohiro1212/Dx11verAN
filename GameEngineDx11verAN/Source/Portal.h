@@ -17,8 +17,19 @@ public:
 	// 開放
 	void Release() override;
 
+	void SetPosition(const XMFLOAT3& pos) { transform_.position_ = pos; }
+	void SetActive(bool active) { isActive_ = active; }
+	bool GetActive() const { return isActive_; }
+
 private:
-	int portalModel_;
+	// 敵の数が0になったらポータルを有効化する
+	void ActivatePortal();
+
+	int portalSphereModel_;
+	int portalStandModel_;
+	Transform standTransform_;
+
+	bool isActive_;
 
 	// ポータルに近づいたらムービー演出と共にダンジョン再生成する
 	// 描画を暗くして、ムービー演出を入れる予定

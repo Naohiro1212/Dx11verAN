@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "MiniMap.h"
 #include "testEnemy.h"
+#include "Portal.h"
 
 namespace
 {
@@ -27,7 +28,7 @@ namespace
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
-	: dungeonGenerator_(nullptr), enemyGenerator_(nullptr), GameObject(_parent, "DungeonManager")
+	: dungeonGenerator_(nullptr), enemyGenerator_(nullptr), GameObject(_parent, "DungeonManager"), wallModel_(-1), player_(nullptr), portal_(nullptr)
 {
 	dungeonMapInfo_ = new DungeonMap_Info
 	{
@@ -66,8 +67,12 @@ void DungeonManager::Initialize()
 	enemyGenerator_ = new EnemyGenerator();
 	dungeonGenerator_->Initialize();
 
-	// 3) プレイヤー生成（Resetで参照するため先に）
+	// 3) プレイヤー/ポータル生成（Resetで参照するため先に)
 	player_ = Instantiate<Player>(GetParent());
+	portal_ = Instantiate<Portal>(GetParent());
+
+	// 階層初期化
+	nowFloor_ = 0;
 
 	// 4) ダンジョン生成・壁/敵/コライダー設定・プレイヤー位置適用
 	DungeonReset();
@@ -83,6 +88,18 @@ void DungeonManager::Update()
 	{
 		DungeonReset();
 	}
+
+	// 死んだ敵を配列から削除
+	enemies_.erase(
+		std::remove_if(enemies_.begin(), enemies_.end(),
+			[](testEnemy* enemy) {
+				return enemy == nullptr || enemy->IsDead();
+			}),
+		enemies_.end()
+	);
+
+	// 敵の数が0で、ポータルとプレイヤーが近づきキーを押すとダンジョン再生成
+	StageClearCheck();
 }
 
 void DungeonManager::Draw()
@@ -122,6 +139,9 @@ void DungeonManager::Release()
 
 void DungeonManager::DungeonReset()
 {
+	// 階数を進める
+	nowFloor_++;
+
 	// 既存のコライダーを削除
 	for (auto* collider : wallColliders_)
 	{
@@ -157,6 +177,19 @@ void DungeonManager::DungeonReset()
 	if (player_)
 	{
 		player_->SetPosition(playerStartPos_);
+	}
+
+	// ポータル位置設定（最後の部屋の中央）
+	portalPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][2]
+		+ dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][0]) / 2) * MAPTILE_SIZE;
+	portalPos_.y = 10.0f;
+	portalPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][3]
+		+ dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][1]) / 2) * MAPTILE_SIZE;
+
+	// ポータルの位置適用
+	if (portal_)
+	{
+		portal_->SetPosition(portalPos_);
 	}
 
 	// 敵の位置取得・敵生成
@@ -200,6 +233,29 @@ void DungeonManager::DungeonReset()
 		if (enemy)
 		{
 			enemy->SetWallColliders(wallColliders_);
+		}
+	}
+}
+
+void DungeonManager::StageClearCheck()
+{
+	if (enemies_.empty())
+	{
+		// ポータル起動！ trueだと回転する
+		portal_->SetActive(true);
+
+		// プレイヤーとポータルの距離計算
+		XMFLOAT3 playerPos = player_->GetPosition();
+		XMFLOAT3 portalPos = portal_->GetPosition();
+		float dx = playerPos.x - portalPos.x;
+		float dz = playerPos.z - portalPos.z;
+		float distSq = dx * dx + dz * dz;
+		if (distSq <= 30.0f * 30.0f) // プレイヤーとポータルが10単位以内
+		{
+			if (Input::IsKeyDown(DIK_E)) // Eキーで再生成
+			{
+				DungeonReset();
+			}
 		}
 	}
 }

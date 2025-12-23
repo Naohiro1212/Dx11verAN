@@ -4,6 +4,7 @@
 #include "../Source/Plane.h"
 #include "../Source/Portal.h"
 #include "../Engine/GameObject.h"
+#include "../Engine/SceneManager.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -15,8 +16,7 @@ TestScene::TestScene(GameObject * parent)
 void TestScene::Initialize()
 {	
 	Instantiate<Plane>(this);
-	Instantiate<DungeonManager>(this);
-    Instantiate<Portal>(this);
+	dungeonManager_ = Instantiate<DungeonManager>(this);
 }
 
 //更新
@@ -33,6 +33,13 @@ void TestScene::Update()
             this->ResumeAllUpdate();    // 子オブジェクトだけ再開
         }
     }
+
+	// ダンジョンが3階層以上になったらシーン移動
+	if (dungeonManager_->GetNowFloor() >= 3)
+	{
+        SceneManager* pSceneManager = (SceneManager*)FindObject("SceneManager");
+        pSceneManager->ChangeScene(SCENE_ID_TITLE);
+	}
 }
 
 //描画
