@@ -4,6 +4,7 @@
 #include "../Engine/Button.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
+#include "../Engine/ScoreManager.h"
 
 EndScene::EndScene(GameObject* parent) : GameObject(parent, "EndScene"), EndImage_(-1), pButton_(nullptr)
 {

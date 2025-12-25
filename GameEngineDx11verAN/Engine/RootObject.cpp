@@ -1,5 +1,6 @@
 #include "RootObject.h"
 #include "SceneManager.h"
+#include "ScoreManager.h"
 
 
 RootObject::RootObject():
@@ -15,6 +16,7 @@ RootObject::~RootObject()
 void RootObject::Initialize()
 {
 	Instantiate<SceneManager>(this);
+	Instantiate<ScoreManager>(this);
 }
 
 void RootObject::Update()
