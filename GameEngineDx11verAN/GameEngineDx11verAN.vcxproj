@@ -199,6 +199,7 @@
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
+    <ClCompile Include="Source\EndScene.cpp" />
     <ClCompile Include="Source\Jewel.cpp" />
     <ClCompile Include="Source\MagicSphere.cpp" />
     <ClCompile Include="Source\Plane.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\VFX.h" />
+    <ClInclude Include="Source\EndScene.h" />
     <ClInclude Include="Source\Jewel.h" />
     <ClInclude Include="Source\MagicSphere.h" />
     <ClInclude Include="Source\Plane.h" />

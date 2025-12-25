@@ -5,7 +5,6 @@
 #include "../Engine/Text.h"
 #include "../Engine/Debug.h"
 #include "../Engine/Button.h"
-#include "../Engine/Image.h"
 
 TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), pText_(nullptr), pButton_(nullptr), titleImage_(-1)
 {
