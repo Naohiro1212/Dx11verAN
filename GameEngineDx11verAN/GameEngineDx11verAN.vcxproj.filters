@@ -36,6 +36,18 @@
     <Filter Include="リソース ファイル\Player">
       <UniqueIdentifier>{3ff7f718-3239-4e22-ac54-6148a3dcd2a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソース ファイル\Scenes">
+      <UniqueIdentifier>{138765b0-3a32-41cd-860d-4b5b1b4945bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Scenes\TitleScene">
+      <UniqueIdentifier>{95fd2ef3-2eed-41ab-9d01-0cf50e80ed78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Scenes\EndScene">
+      <UniqueIdentifier>{a23de760-8ab0-4a4a-aa4e-2e23bd13938b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Scenes\PlayScene">
+      <UniqueIdentifier>{694db77e-f079-4536-aa86-327f5eadf12e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Main.cpp">
@@ -104,17 +116,11 @@
     <ClCompile Include="Engine\VFX.cpp">
       <Filter>Engine\ResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TestScene.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DungeonGenerator.cpp">
       <Filter>リソース ファイル\Dungeon</Filter>
     </ClCompile>
     <ClCompile Include="Source\DungeonManager.cpp">
       <Filter>リソース ファイル\Dungeon</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\EnemyBox.cpp">
-      <Filter>リソース ファイル\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Source\EnemyGenerator.cpp">
       <Filter>リソース ファイル\Enemy</Filter>
@@ -131,9 +137,6 @@
     <ClCompile Include="Engine\GameTime.cpp">
       <Filter>Engine\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Source\testEnemy.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Source\MagicSphere.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
@@ -146,9 +149,6 @@
     <ClCompile Include="Source\PlayerCamera.cpp">
       <Filter>リソース ファイル\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TitleScene.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Text.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -157,6 +157,24 @@
     </ClCompile>
     <ClCompile Include="Source\Portal.cpp">
       <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TitleScene.cpp">
+      <Filter>リソース ファイル\Scenes\TitleScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EndScene.cpp">
+      <Filter>リソース ファイル\Scenes\EndScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TestScene.cpp">
+      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\ScoreManager.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\testEnemy.cpp">
+      <Filter>リソース ファイル\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ManaGauge.cpp">
+      <Filter>リソース ファイル\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -229,9 +247,6 @@
     <ClInclude Include="Engine\Texture.h">
       <Filter>Engine\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TestScene.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\CommonType.h">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -242,9 +257,6 @@
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\MagicSphere.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\testEnemy.h">
       <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Jewel.h">
@@ -262,9 +274,6 @@
     <ClInclude Include="Source\DungeonGenerator.h">
       <Filter>リソース ファイル\Dungeon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\EnemyBox.h">
-      <Filter>リソース ファイル\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="Source\EnemyGenerator.h">
       <Filter>リソース ファイル\Enemy</Filter>
     </ClInclude>
@@ -277,9 +286,6 @@
     <ClInclude Include="Source\PlayerCamera.h">
       <Filter>リソース ファイル\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TitleScene.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Text.h">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -288,6 +294,24 @@
     </ClInclude>
     <ClInclude Include="Source\Portal.h">
       <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TitleScene.h">
+      <Filter>リソース ファイル\Scenes\TitleScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EndScene.h">
+      <Filter>リソース ファイル\Scenes\EndScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TestScene.h">
+      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\ScoreManager.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\testEnemy.h">
+      <Filter>リソース ファイル\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ManaGauge.h">
+      <Filter>リソース ファイル\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

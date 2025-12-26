@@ -30,6 +30,11 @@ public:
 
 	void SetWallColliders(const std::vector<BoxCollider*>& colliders) { wallColliders_ = colliders; }
 
+	// マナ取得
+	float GetMana() const { return mana_; }
+	float GetExp() const { return exp_; }	
+	float GetMaxMana() const { return cnf_.MAX_MANA; }
+
 private:
 	//// 関数群
 	// 前後左右、入力方向の取得
@@ -136,4 +141,7 @@ private:
 
 	// 経験値
 	float exp_;
+
+	// 魔法を放つ際のマナ管理用変数
+	float mana_;
 };

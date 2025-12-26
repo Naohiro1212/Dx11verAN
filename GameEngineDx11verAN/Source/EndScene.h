@@ -2,6 +2,7 @@
 #include "../Engine/GameObject.h"
 
 class Button;
+class Text;
 
 class EndScene : public GameObject
 {
@@ -25,4 +26,7 @@ private:
 	Button* pButton_;
 
 	Transform bgTransform_;
+
+	// スコアテキスト
+	Text* pScoreText_;
 };

@@ -29,7 +29,7 @@ struct PlayerConfig
     // スラッシュアニメーション関連
     const int   SLASH_ANIM_START = 1;
     const int   SLASH_ANIM_END = 45;
-    const float BASE_ANIM_FPS = 30.0f;     // モーションが想定する基準FPS（仮定）
+    const float BASE_ANIM_FPS = 60.0f;     // モーションが想定する基準FPS（仮定）
     const float SLASH_PLAY_SPEED = 0.65f;      // 既存指定の再生スピード
     // 実時間 = (フレーム数 / FPS) / 再生スピード
     const float SLASH_DURATION_SEC = (SLASH_ANIM_END - SLASH_ANIM_START + 1) / BASE_ANIM_FPS / SLASH_PLAY_SPEED;
@@ -77,4 +77,11 @@ struct PlayerConfig
 
     // 壁当たり判定関連
     const float WALL_EPS = 1e-3f;
+
+    // 魔力ゲージ関連
+    const float MAX_MANA = 100.0f;
+	const float MANA_RECOVERY_RATE = 10.0f; // 1秒
+    
+	// 最低マナ10（魔法発射に必要）
+	const float MAGIC_MANA_COST = 10.0f;   
 };

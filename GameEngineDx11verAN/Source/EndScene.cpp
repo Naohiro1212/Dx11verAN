@@ -3,10 +3,12 @@
 #include "../Engine/SceneManager.h"
 #include "../Engine/Button.h"
 #include "../Engine/Input.h"
+#include "../Engine/Text.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/ScoreManager.h"
+#include <string>
 
-EndScene::EndScene(GameObject* parent) : GameObject(parent, "EndScene"), EndImage_(-1), pButton_(nullptr)
+EndScene::EndScene(GameObject* parent) : GameObject(parent, "EndScene"), EndImage_(-1), pButton_(nullptr), bgTransform_()
 {
 }
 
@@ -26,6 +28,9 @@ void EndScene::Initialize()
 	pButton_->SetCenter(true);
 	pButton_->SetButtonImage(Image::Load("colormap.png"));
 	pButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + 200.0f);
+
+	pScoreText_ = new Text();
+	pScoreText_->Initialize();
 }
 
 void EndScene::Update()
@@ -63,6 +68,16 @@ void EndScene::Draw()
 
 	// ボタン描画
 	pButton_->Draw();
+
+	// スコア表示
+	ScoreManager* pScoreManager = dynamic_cast<ScoreManager*>(FindObject("ScoreManager"));
+	int score = pScoreManager->GetScore();
+
+	// 数字から文字に
+	char scoreStr[32];
+	std::to_string(score);
+	pScoreText_->Draw(Direct3D::screenWidth_ * 0.5f - 30.0f, Direct3D::screenHeight_ * 0.5f - 80.0f, "SCORE:");
+	pScoreText_->Draw(Direct3D::screenWidth_ * 0.5f + 70.0f, Direct3D::screenHeight_ * 0.5f - 80.0f, score);
 }
 
 void EndScene::Release()

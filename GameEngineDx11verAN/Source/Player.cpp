@@ -76,6 +76,9 @@ void Player::Initialize()
 
     // 経験値リセット
     exp_ = 0.0f;
+
+    // マナ初期化
+    mana_ = cnf_.MAX_MANA;
 }
 
 void Player::Update()
@@ -205,6 +208,12 @@ void Player::Update()
  /*       transform_.scale_.x += 0.02f;
 		transform_.scale_.y += 0.02f;
 		transform_.scale_.z += 0.02f;*/
+    }
+
+	// 体力・マナ回復処理
+    if(mana_ < cnf_.MAX_MANA)
+    {
+		mana_ += cnf_.MANA_RECOVERY_RATE * dt_;
     }
 
     // カメラ更新
@@ -386,7 +395,7 @@ void Player::UpdateGravity()
 void Player::ShootMagic()
 {
     // 右クリックで魔法発射
-    if (Input::IsMouseButtonDown(1))
+    if (Input::IsMouseButtonDown(1) && mana_ >= cnf_.MAGIC_MANA_COST)
     {
         // 魔法弾生成
         XMFLOAT3 spawnPos = transform_.position_;
@@ -397,6 +406,7 @@ void Player::ShootMagic()
             spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
         );
         sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
+		mana_ -= cnf_.MAGIC_MANA_COST;
     }
 
     // ローカル基準オフセット（元に使っていた値）

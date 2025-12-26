@@ -203,10 +203,10 @@
     <ClCompile Include="Source\EndScene.cpp" />
     <ClCompile Include="Source\Jewel.cpp" />
     <ClCompile Include="Source\MagicSphere.cpp" />
+    <ClCompile Include="Source\ManaGauge.cpp" />
     <ClCompile Include="Source\Plane.cpp" />
     <ClCompile Include="Source\DungeonGenerator.cpp" />
     <ClCompile Include="Source\DungeonManager.cpp" />
-    <ClCompile Include="Source\EnemyBox.cpp" />
     <ClCompile Include="Source\EnemyGenerator.cpp" />
     <ClCompile Include="Source\MiniMap.cpp" />
     <ClCompile Include="Source\MiniMap.h" />
@@ -250,11 +250,11 @@
     <ClInclude Include="Source\EndScene.h" />
     <ClInclude Include="Source\Jewel.h" />
     <ClInclude Include="Source\MagicSphere.h" />
+    <ClInclude Include="Source\ManaGauge.h" />
     <ClInclude Include="Source\Plane.h" />
     <ClInclude Include="Source\DungeonManager.h" />
     <ClInclude Include="Source\DungeonGenerator.h" />
     <ClInclude Include="Source\DungeonData.h" />
-    <ClInclude Include="Source\EnemyBox.h" />
     <ClInclude Include="Source\EnemyGenerator.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\PlayerCamera.h" />
