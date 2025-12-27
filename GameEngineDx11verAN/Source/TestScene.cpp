@@ -3,8 +3,10 @@
 #include "../Engine/Input.h"
 #include "../Source/Plane.h"
 #include "../Source/Portal.h"
+#include "../Source/Player.h"
 #include "../Engine/GameObject.h"
 #include "../Engine/SceneManager.h"
+#include "../Source/ManaGauge.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -14,9 +16,15 @@ TestScene::TestScene(GameObject * parent)
 
 //初期化
 void TestScene::Initialize()
-{	
+{
 	Instantiate<Plane>(this);
 	dungeonManager_ = Instantiate<DungeonManager>(this);
+
+	// ダンジョンマネージャーの初期化が終わった後にマナゲージを生成
+	manaGauge_ = Instantiate<ManaGauge>(this);
+	player_ = dynamic_cast<Player*>(FindObject("Player"));
+	manaGauge_->SetMana(player_->GetMana());
+	manaGauge_->SetMaxMana(player_->GetMaxMana());
 }
 
 //更新
@@ -40,6 +48,9 @@ void TestScene::Update()
         SceneManager* pSceneManager = (SceneManager*)FindObject("SceneManager");
         pSceneManager->ChangeScene(SCENE_ID_TITLE);
 	}
+
+	// マナゲージの更新
+	manaGauge_->SetMana(player_->GetMana());
 }
 
 //描画

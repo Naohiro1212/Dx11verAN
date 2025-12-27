@@ -20,6 +20,15 @@ public:
 	void SetMaxMana(float maxMana) { maxMana_ = maxMana; }
 
 private:
+
+	// マナ量
 	float mana_;
 	float maxMana_;
+
+	// 現在のマナ量に応じた割合
+	float ratio_;
+
+	// ゲージ画像ハンドル
+	int gaugeImage_;
+
 };

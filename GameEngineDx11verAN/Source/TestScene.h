@@ -3,6 +3,8 @@
 #include "../Engine/Model.h"
 
 class DungeonManager;
+class ManaGauge;
+class Player;
 
 //テストシーンを管理するクラス
 class TestScene : public GameObject
@@ -28,4 +30,6 @@ private:
 	// ポーズ中かどうかのフラグ
 	bool isPaused_;
 	DungeonManager* dungeonManager_;
+	ManaGauge* manaGauge_;
+	Player* player_;
 };
