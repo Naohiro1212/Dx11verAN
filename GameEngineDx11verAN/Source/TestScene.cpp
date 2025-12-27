@@ -23,8 +23,9 @@ void TestScene::Initialize()
 	// ダンジョンマネージャーの初期化が終わった後にマナゲージを生成
 	manaGauge_ = Instantiate<ManaGauge>(this);
 	player_ = dynamic_cast<Player*>(FindObject("Player"));
-	manaGauge_->SetMana(player_->GetMana());
-	manaGauge_->SetMaxMana(player_->GetMaxMana());
+	int maxMana_ = player_->GetMaxMana();
+ 	manaGauge_->SetMana(0.0f);
+	manaGauge_->SetMaxMana(maxMana_);
 }
 
 //更新
@@ -45,8 +46,8 @@ void TestScene::Update()
 	// ダンジョンが3階層以上になったらシーン移動
 	if (dungeonManager_->GetNowFloor() >= 3)
 	{
-        SceneManager* pSceneManager = (SceneManager*)FindObject("SceneManager");
-        pSceneManager->ChangeScene(SCENE_ID_TITLE);
+		SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
+		pSceneManager->ChangeScene(SCENE_ID_TITLE);
 	}
 
 	// マナゲージの更新
