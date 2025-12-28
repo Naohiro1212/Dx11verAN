@@ -68,7 +68,4 @@ private:
     // 最初に居た座標
 	XMFLOAT3 initPos_;
     float backTimer_;
-
-    // VFX(エフェクトデータ)
-    EmitterData deathEffectData_;
 };

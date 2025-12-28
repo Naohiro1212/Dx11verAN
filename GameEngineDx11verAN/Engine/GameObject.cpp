@@ -302,6 +302,9 @@ void GameObject::Collision(GameObject* pTarget)
 					(roleA == Collider::Role::Body && roleB == Collider::Role::Static) ||
 					(roleA == Collider::Role::Static && roleB == Collider::Role::Body);
 
+				const bool isBothBody = 
+					(roleA == Collider::Role::Body && roleB == Collider::Role::Body);
+
 				if (anyAttack)
 				{
 					// 攻撃は Body 相手のみ通知（Attack×Static は除外）
@@ -316,11 +319,10 @@ void GameObject::Collision(GameObject* pTarget)
 					this->OnCollision(pTarget);
 					pTarget->OnCollision(this);
 				}
-				else
+				else if(isBothBody)
 				{
-					// 必要なら Body×Body などもここで扱う
-					// this->OnCollision(pTarget);
-					// pTarget->OnCollision(this);
+					// プレイヤーだけ通知
+					this->OnCollision(pTarget);
 				}
 			}
 		}

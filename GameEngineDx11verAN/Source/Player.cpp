@@ -242,16 +242,34 @@ void Player::Release()
 void Player::OnCollision(GameObject* pTarget)
 {
     if (!pTarget) return;
-    Collider* src = GetLastHitCollider();
+    // Ž©•ª‚Æ‚ÌÕ“Ë‚Í–³Ž‹
+    if (pTarget == this) return;
 
-    // ‚±‚±‚ÉUŒ‚ƒqƒbƒgŽž‚Ìˆ—‚ð‘‚­
-    // —á: pTarget->KillMe(); ‚â ƒqƒbƒgƒGƒtƒFƒNƒgAƒ_ƒ[ƒW“K—p‚È‚Ç
+    Collider* myCol = GetLastHitCollider();
+    Collider* targetCol = pTarget->GetLastHitCollider();
+    if (!myCol || !targetCol) return;
+
+    const auto myRole = myCol->GetRole();
+    const auto targetRole = targetCol->GetRole();
+
+    std::string eName = pTarget->GetObjectName();
 
     // •óÎŽæ“¾Žž
-	if (pTarget->GetObjectName() == "Jewel" && !pTarget->IsDead())
-	{
-		exp_ += 20; // ŒoŒ±’l‰ÁŽZ
-	}
+    if (pTarget->GetObjectName() == "Jewel" && !pTarget->IsDead())
+    {
+        exp_ += 20; // ŒoŒ±’l‰ÁŽZ
+        // ‚à‚µ Jewel ‚ðÁ‚µ‚½‚¢‚È‚ç pTarget->KillMe();
+    }
+
+    // Body~Body ‚ÌÚG‚Å“G‚Æ‚Ô‚Â‚©‚Á‚½ê‡‚Ì‰¼Ž€–Sˆ—i]—ˆ‚Ì‹““®j
+    if (myRole == Collider::Role::Body && targetRole == Collider::Role::Body)
+    {
+        bool isEnemy = (pTarget->GetObjectName() == "Enemy");
+        if (isEnemy)
+        {
+            KillMe();
+        }
+    }
 }
 
 void Player::MoveInput()

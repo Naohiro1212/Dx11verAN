@@ -14,8 +14,6 @@ EndScene::EndScene(GameObject* parent) : GameObject(parent, "EndScene"), EndImag
 
 void EndScene::Initialize()
 {
-	// Imageèâä˙âª
-	Image::Initialize();
 
 	// îwåiâÊëúì«Ç›çûÇ›
 	EndImage_ = Image::Load("EndImage.png");
@@ -64,10 +62,7 @@ void EndScene::Draw()
 	Image::SetPositionPixels(EndImage_, Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f, true);
 
 	// ï`âÊ
-	Image::Draw(EndImage_);
-
-	// É{É^Éìï`âÊ
-	pButton_->Draw();
+//	Image::Draw(EndImage_);
 
 	// ÉXÉRÉAï\é¶
 	ScoreManager* pScoreManager = dynamic_cast<ScoreManager*>(FindObject("ScoreManager"));

@@ -12,8 +12,7 @@ TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), p
 
 void TitleScene::Initialize()
 {
-	// Image初期化
-	Image::Initialize();
+
 
 	// ボタン初期化
 	pButton_ = Instantiate<Button>(this);
@@ -65,9 +64,6 @@ void TitleScene::Draw()
 
 	// 描画
 	Image::Draw(titleImage_);
-
-	// ボタン描画
-	pButton_->Draw();
 
 	pText_->Draw(Direct3D::screenWidth_ * 0.5f - 150.0f, Direct3D::screenHeight_ * 0.5f - 100.0f, "Press to Left Click!");
 }

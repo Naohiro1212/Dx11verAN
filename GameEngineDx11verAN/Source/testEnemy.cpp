@@ -20,7 +20,7 @@ namespace
 	const float BACK_TIME_LIMIT = 2.0f;
 }
 
-testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "testEnemy"), modelHandle_(-1), pCollider_(nullptr), isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr)
+testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), modelHandle_(-1), pCollider_(nullptr), isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr)
 {
     enemyWallColliders_.clear();
 }
@@ -47,22 +47,6 @@ void testEnemy::Initialize()
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     backTimer_ = 0.0f;
-
-	// エフェクトデータ読み込み
-    {
-        deathEffectData_.textureFileName = "Effects/flashA_B.png";
-        assert(!deathEffectData_.textureFileName.empty());
-        deathEffectData_.number = 10;
-		deathEffectData_.lifeTime = 1000; // 1000フレーム
-		deathEffectData_.direction = XMFLOAT3(0.0f, 1.0f, 0.0f);
-        deathEffectData_.speed = 0.5f;
-        deathEffectData_.accel = 1.0f;
-		deathEffectData_.size = XMFLOAT2(5.0f, 5.0f);
-		deathEffectData_.scale = XMFLOAT2(0.95f, 0.95f);
-        deathEffectData_.color = XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f);
-		deathEffectData_.deltaColor = XMFLOAT4(0.0f, 0.0f, 0.0f, -0.01f);
-        deathEffectData_.spin.z = 0.1f;
-    }
 }
 
 void testEnemy::Update()
@@ -267,8 +251,6 @@ void testEnemy::SetPosition(const XMFLOAT3& pos)
 {
     transform_.position_ = pos;    
     initPos_ = pos;
-    deathEffectData_.position = pos;
-    VFX::Start(deathEffectData_);
 }
 
 // 敵が死んだときに宝石をドロップする処理
