@@ -1,5 +1,7 @@
 #include "gameObject.h"
 #include <assert.h>
+#include <vector>
+#include <algorithm>
 #include "global.h"
 
 //コンストラクタ（親も名前もなし）
@@ -17,7 +19,7 @@ GameObject::GameObject(GameObject * parent) :
 
 //コンストラクタ（標準）
 GameObject::GameObject(GameObject * parent, const std::string& name)
-	: pParent_(parent),objectName_(name)
+	: pParent_(parent),objectName_(name), drawOrder_(0)
 {
 	childList_.clear();
 	state_ = { 0, 1, 1, 0 };
@@ -93,6 +95,12 @@ bool GameObject::IsEntered()
 bool GameObject::IsVisibled()
 {
 	return (state_.visible != 0);
+}
+
+// Draw順番の設定
+void GameObject::SetDrawOrder(int order)
+{
+	drawOrder_ = order;
 }
 
 //子オブジェクトリストを取得
@@ -407,10 +415,25 @@ void GameObject::DrawSub()
 	}
 #endif
 
-	//その子オブジェクトの描画処理
-	for (auto it = childList_.begin(); it != childList_.end(); it++)
+	// 子オブジェクトをソートして描画（childList_ を破壊しない）
+	if (!childList_.empty())
 	{
-		(*it)->DrawSub();
+		// 子を vector にコピー
+		std::vector<GameObject*> children;
+		children.reserve(childList_.size());
+		for (auto c : childList_) children.push_back(c);
+
+		// drawOrder_ 昇順でソート（小さいものを先に描く、大きいものほど手前に）
+		std::stable_sort(children.begin(), children.end(),
+			[](GameObject* a, GameObject* b) {
+				return a->drawOrder_ < b->drawOrder_;
+			});
+
+		// ソート後に描画呼び出し
+		for (auto c : children)
+		{
+			c->DrawSub();
+		}
 	}
 }
 

@@ -158,6 +158,8 @@ public:
 	void SetRotateMatrix(XMMATRIX& m);
 	void SetTranslateMatrix(XMMATRIX& m);
 
+	void SetDrawOrder(int order);
+
 
 private:
 
@@ -182,6 +184,9 @@ private:
 
 	//子オブジェクトリスト
 	std::list<GameObject*> childList_;
+
+	// 描画順序
+	int drawOrder_;
 };
 
 

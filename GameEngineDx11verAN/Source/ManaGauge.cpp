@@ -15,6 +15,8 @@ void ManaGauge::Initialize()
 
 	posX_ = 100.0f; // 画面左上から少し右にオフセット
 	posY_ = 50.0f;  // 画面左上から少し下にオフセット
+
+	SetDrawOrder(1);
 }
 
 void ManaGauge::Update()
