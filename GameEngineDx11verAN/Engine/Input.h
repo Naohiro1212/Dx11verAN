@@ -57,6 +57,10 @@ namespace Input
 	//戻値：放した瞬間だったらtrue
 	bool IsMouseButtonUp(int buttonCode);
 
+	// マウスの押下を消費する（UI がクリックを扱ったあとに呼ぶ）
+	// 呼ぶと内部の prevMouseState_ が現在の mouseState_ に合わせられ、
+	// 直後の IsMouseButtonDown が false になる（クリックをゲーム側へ伝えない）
+	void ConsumeMouseButtons();
 
 	//マウスカーソルの位置を取得
 	//戻値：マウスカーソルの位置

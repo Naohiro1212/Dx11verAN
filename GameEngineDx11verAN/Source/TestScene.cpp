@@ -39,14 +39,6 @@ void TestScene::Update()
     if (Input::IsKeyDown(DIK_ESCAPE))
     {
         isPaused_ = !isPaused_;
-        if (isPaused_) {
-			pausePanel_->SetPaused(true);
-            this->StopAllUpdate();      // 子オブジェクトだけ止める
-        }
-        else {
-			pausePanel_->SetPaused(false);
-            this->ResumeAllUpdate();    // 子オブジェクトだけ再開
-        }
     }
 
     // ダンジョンが3階層以上になったらシーン移動
@@ -62,6 +54,31 @@ void TestScene::Update()
         SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
         pSceneManager->ChangeScene(SCENE_ID_END);
 	}
+
+    // ポーズパネルで再開ボタンが押されたらポーズ解除
+    if (isPaused_ && pausePanel_->IsResumeButtonOn() && Input::IsMouseButtonDown(0))
+    {
+		isPaused_ = false;
+    }
+
+	// ポーズパネルでタイトルへ戻るボタンが押されたらタイトルシーンへ
+    if (isPaused_ && pausePanel_->IsBackTitleButtonOn() && Input::IsMouseButtonDown(0))
+    {
+		SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
+		pSceneManager->ChangeScene(SCENE_ID_TITLE);
+    }
+
+	// ポーズ状態の反映
+    if (isPaused_)
+    {
+        pausePanel_->SetPaused(true);
+        this->StopAllUpdate();      // 子オブジェクトだけ止める
+    }
+    else
+    {
+        pausePanel_->SetPaused(false);
+        this->ResumeAllUpdate();    // 子オブジェクトだけ再開
+    }
 
     // マナゲージの更新
     // シーンの子オブジェクトの最後にプッシュする

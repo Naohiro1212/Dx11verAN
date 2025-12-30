@@ -409,8 +409,12 @@ void GameObject::UpdateSub()
 
 void GameObject::DrawSub()
 {
+	// ここで可視フラグをチェック：false なら自身と子供の描画をスキップする
+	if (!IsVisibled())
+	{
+		return;
+	}
 	Draw();
-
 
 	//リリース時は削除
 #ifdef _DEBUG

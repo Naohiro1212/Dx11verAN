@@ -2,8 +2,11 @@
 #include "../Engine/Image.h"
 #include "../Engine/Direct3D.h"
 #include <assert.h>
+#include "../Engine/Button.h"
+#include "../Engine/Input.h"
 
-PausePanel::PausePanel(GameObject* parent) : GameObject(parent), panelImage_(-1), nowPaused_(false)
+PausePanel::PausePanel(GameObject* parent) : GameObject(parent), panelImage_(-1), nowPaused_(false),
+resumeButton_(nullptr), BackTitleButton_(nullptr), onBTButton_(false), onResumeButton_(false)
 {
 }
 
@@ -23,25 +26,64 @@ void PausePanel::Initialize()
 	// center=true にすることで SetPositionPixels に x,y を画面中心として渡せる
 	Image::SetPositionPixels(panelImage_, Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f, true);
 
+	// ボタン初期化
+	resumeButton_ = Instantiate<Button>(this);
+	resumeButton_->SetCenter(true);
+	resumeButton_->SetButtonImage(Image::Load("ResumeButton.png"));
+	resumeButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f - 50.0f);
+
+	BackTitleButton_ = Instantiate<Button>(this);
+	BackTitleButton_->SetCenter(true);
+	BackTitleButton_->SetButtonImage(Image::Load("BackTitleButton.png"));
+	BackTitleButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + 120.0f);
+
 	nowPaused_ = false;
 
 	SetDrawOrder(1);
 	// UIなのでポーズ時も描画されるようにする
 	SetIsUIObject(true);
+
+	// 最初は非表示
+	resumeButton_->Invisible();
+	BackTitleButton_->Invisible();
 }
 
 void PausePanel::Update()
 {
-	// 特に毎フレームの矩形調整は不要にした
+	XMFLOAT3 mousePos = Input::GetMousePosition();
+
+	resumeButton_->Update();
+	onResumeButton_ = resumeButton_->GetOnButton();
+	BackTitleButton_->Update();
+	onBTButton_ = BackTitleButton_->GetOnButton();
+
+	// パネルが表示されている状態で、再開ボタンがクリックされたらクリックを消費して再開する
+	if (nowPaused_)
+	{
+		if (onResumeButton_ && Input::IsMouseButtonDown(0))
+		{
+			nowPaused_ = false;
+			// UI がクリックを扱ったので、ゲーム側に同じクリックを渡さない
+			Input::ConsumeMouseButtons();
+		}
+	}
+
 }
 
 void PausePanel::Draw()
 {
-	// デバッグ確認のため、一時的に常に描画する（動作確認後に nowPaused_ 条件に戻してください）
-	// if(nowPaused_)
+	if(nowPaused_)
 	{
 		Image::Draw(panelImage_);
+		resumeButton_->Visible();
+		BackTitleButton_->Visible();
 	}
+	else
+	{
+		resumeButton_->Invisible();
+		BackTitleButton_->Invisible();
+	}
+
 }
 
 void PausePanel::Release()

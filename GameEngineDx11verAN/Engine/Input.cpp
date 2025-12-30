@@ -153,6 +153,11 @@ namespace Input
 		return false;
 	}
 
+	void ConsumeMouseButtons()
+	{
+		memcpy(&prevMouseState_, &mouseState_, sizeof(mouseState_));
+	}
+
 	//マウスカーソルの位置を取得
 	XMFLOAT3 GetMousePosition()
 	{
