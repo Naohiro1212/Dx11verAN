@@ -1,5 +1,6 @@
 #include "Global.h"
 #include "Image.h"
+#include <cmath>
 
 //3D画像を管理する
 namespace Image
@@ -197,6 +198,9 @@ namespace Image
 		// center==false のとき x,y を左上とみなして中心座標に変換
 		float centerX = center ? x : (x + texW * 0.5f);
 		float centerY = center ? y : (y + texH * 0.5f);
+
+		centerX = roundf(centerX);
+		centerY = roundf(centerY);
 
 		// ピクセル座標 -> 正規化座標（既存の Draw と同じ変換）
 		_datas[handle]->transform.position_.x = (centerX - Direct3D::screenWidth_ * 0.5f) / (Direct3D::screenWidth_ * 0.5f);

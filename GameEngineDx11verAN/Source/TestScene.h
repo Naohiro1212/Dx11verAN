@@ -5,6 +5,7 @@
 class DungeonManager;
 class ManaGauge;
 class Player;
+class PausePanel;
 
 //テストシーンを管理するクラス
 class TestScene : public GameObject
@@ -32,4 +33,7 @@ private:
 	DungeonManager* dungeonManager_;
 	ManaGauge* manaGauge_;
 	Player* player_;
+
+	// ポーズパネル
+	PausePanel* pausePanel_;
 };

@@ -12,11 +12,13 @@ void ManaGauge::Initialize()
 	gaugeImage_ = Image::Load("manaGauge.png");
 	assert(gaugeImage_ != -1);
 
-
 	posX_ = 100.0f; // 画面左上から少し右にオフセット
 	posY_ = 50.0f;  // 画面左上から少し下にオフセット
 
 	SetDrawOrder(1);
+
+	// UIなのでポーズ時も描画されるようにする
+	SetIsUIObject(true);
 }
 
 void ManaGauge::Update()
@@ -55,14 +57,8 @@ void ManaGauge::Draw()
 	// 2) 位置は外部で設定できるようにした posX_/posY_ を使う
 	Image::SetPositionPixels(gaugeImage_, posX_, posY_, false);
 
-	// 深度バッファをオフにして常に手前に描画
-	Direct3D::SetDepthBafferWriteEnable(false);
-
 	// 描画（スケールは使わない）
 	Image::Draw(gaugeImage_);
-
-	// 深度バッファを元に戻す
-	Direct3D::SetDepthBafferWriteEnable(true);
 }
 
 

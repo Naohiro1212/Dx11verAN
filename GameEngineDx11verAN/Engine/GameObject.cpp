@@ -1,7 +1,7 @@
-#include "gameObject.h"
 #include <assert.h>
 #include <vector>
 #include <algorithm>
+#include "gameObject.h"
 #include "global.h"
 
 //コンストラクタ（親も名前もなし）
@@ -264,19 +264,25 @@ void GameObject::RemoveCollider(Collider* collider)
 
 void GameObject::StopAllUpdate()
 {
-	// すべてのゲームオブジェクトの更新を停止
+	// すべてのゲームオブジェクトの更新を停止（UI は除外）
 	for (auto it = childList_.begin(); it != childList_.end(); ++it)
 	{
-		(*it)->Leave();
+		if (!(*it)->GetIsUIObject())
+		{
+			(*it)->Leave();
+		}
 	}
 }
 
 void GameObject::ResumeAllUpdate()
 {
-	// すべてのゲームオブジェクトの更新を再開
+	// すべてのゲームオブジェクトの更新を再開（UI は除外しているが、UI を除外したくなければ挙動を変えてください）
 	for (auto it = childList_.begin(); it != childList_.end(); ++it)
 	{
-		(*it)->Enter();
+		if (!(*it)->GetIsUIObject())
+		{
+			(*it)->Enter();
+		}
 	}
 }
 

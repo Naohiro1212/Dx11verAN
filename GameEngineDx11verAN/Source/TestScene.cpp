@@ -7,6 +7,7 @@
 #include "../Engine/GameObject.h"
 #include "../Engine/SceneManager.h"
 #include "../Source/ManaGauge.h"
+#include "../Source/PausePanel.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -26,6 +27,9 @@ void TestScene::Initialize()
     int maxMana_ = player_->GetMaxMana();
     manaGauge_->SetMana(0.0f);
     manaGauge_->SetMaxMana(maxMana_);
+
+	// ポーズパネルの生成
+	pausePanel_ = Instantiate<PausePanel>(this);
 }
 
 //更新
@@ -36,9 +40,11 @@ void TestScene::Update()
     {
         isPaused_ = !isPaused_;
         if (isPaused_) {
+			pausePanel_->SetPaused(true);
             this->StopAllUpdate();      // 子オブジェクトだけ止める
         }
         else {
+			pausePanel_->SetPaused(false);
             this->ResumeAllUpdate();    // 子オブジェクトだけ再開
         }
     }

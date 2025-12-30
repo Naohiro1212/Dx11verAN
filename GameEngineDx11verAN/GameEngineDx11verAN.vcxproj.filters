@@ -176,6 +176,9 @@
     <ClCompile Include="Source\ManaGauge.cpp">
       <Filter>リソース ファイル\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\PausePanel.cpp">
+      <Filter>リソース ファイル\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -311,6 +314,9 @@
       <Filter>リソース ファイル\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Source\ManaGauge.h">
+      <Filter>リソース ファイル\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PausePanel.h">
       <Filter>リソース ファイル\UI</Filter>
     </ClInclude>
   </ItemGroup>

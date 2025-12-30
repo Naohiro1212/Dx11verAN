@@ -72,7 +72,6 @@ public:
 	bool IsEntered();		// Update実行していいか
 	bool IsVisibled();		// Draw実行していいか
 
-
 	//子オブジェクトリストを取得
 	//戻値：子オブジェクトリスト
 	std::list<GameObject*>* GetChildList();
@@ -119,7 +118,7 @@ public:
 	//指定したコライダー（衝突判定）を削除
 	void RemoveCollider(Collider* collider);
 
-	//すべてのゲームオブジェクトのUpdateを停止
+	//すべてのゲームオブジェクトのUpdateを停止(UIだけ動かす)
 	void StopAllUpdate();
 
 	//すべてのゲームオブジェクトのUpdateを再開
@@ -159,7 +158,8 @@ public:
 	void SetTranslateMatrix(XMMATRIX& m);
 
 	void SetDrawOrder(int order);
-
+	void SetIsUIObject(bool isUI) { isUIObject_ = isUI; }
+	bool GetIsUIObject() const { return isUIObject_; }
 
 private:
 
@@ -187,6 +187,7 @@ private:
 
 	// 描画順序
 	int drawOrder_;
+	bool isUIObject_;
 };
 
 
