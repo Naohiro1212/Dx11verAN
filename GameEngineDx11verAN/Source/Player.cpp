@@ -69,7 +69,7 @@ void Player::Initialize()
     Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
 
     pCollider_ = new BoxCollider(
-        XMFLOAT3(0.0f,0.0f,0.0f),
+        cnf_.COLLIDER_BASE_POS,
         cnf_.COLLIDER_SCALE);
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);

@@ -10,7 +10,7 @@
 Collider::Collider():
 	pGameObject_(nullptr)
 {
-	hDebugModel_ = Model::Load("Box.fbx");
+	hDebugModel_ = Model::Load("testbox.fbx");
 	assert(hDebugModel_ != -1);
 }
 
@@ -27,12 +27,12 @@ bool Collider::IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB)
 {
 	XMFLOAT3 boxPosA = Transform::Float3Add(boxA->pGameObject_->GetWorldPosition(), boxA->center_);
 	XMFLOAT3 boxPosB = Transform::Float3Add(boxB->pGameObject_->GetWorldPosition(), boxB->center_);
-	if ((boxPosA.x + boxA->size_.x / 2) > (boxPosB.x - boxB->size_.x / 2) &&
-		(boxPosA.x - boxA->size_.x / 2) < (boxPosB.x + boxB->size_.x / 2) &&
-		(boxPosA.y + boxA->size_.y / 2) > (boxPosB.y - boxB->size_.y / 2) &&
-		(boxPosA.y - boxA->size_.y / 2) < (boxPosB.y + boxB->size_.y / 2) &&
-		(boxPosA.z + boxA->size_.z / 2) > (boxPosB.z - boxB->size_.z / 2) &&
-		(boxPosA.z - boxA->size_.z / 2) < (boxPosB.z + boxB->size_.z / 2))
+	if ((boxPosA.x + boxA->size_.x / 2) >= (boxPosB.x - boxB->size_.x / 2) &&
+		(boxPosA.x - boxA->size_.x / 2) <= (boxPosB.x + boxB->size_.x / 2) &&
+		(boxPosA.y + boxA->size_.y / 2) >= (boxPosB.y - boxB->size_.y / 2) &&
+		(boxPosA.y - boxA->size_.y / 2) <= (boxPosB.y + boxB->size_.y / 2) &&
+		(boxPosA.z + boxA->size_.z / 2) >= (boxPosB.z - boxB->size_.z / 2) &&
+		(boxPosA.z - boxA->size_.z / 2) <= (boxPosB.z + boxB->size_.z / 2))
 	{
 		return true;
 	}
@@ -53,7 +53,7 @@ bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 	const float hy = box->size_.y * 0.5f;
 	const float hz = box->size_.z * 0.5f;
 
-	// Sphere 半径（size_.x が半径である前提。もし直径なら 0.5 を掛けてください）
+	// Sphere 半径
 	const float r = sphere->size_.x;
 
 	// ボックスの各軸の最小・最大
