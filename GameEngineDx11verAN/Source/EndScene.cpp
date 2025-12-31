@@ -6,6 +6,7 @@
 #include "../Engine/Text.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/ScoreManager.h"
+#include "../Engine/Timer.h"
 #include <string>
 
 EndScene::EndScene(GameObject* parent) : GameObject(parent, "EndScene"), EndImage_(-1), pButton_(nullptr), bgTransform_()
@@ -29,6 +30,11 @@ void EndScene::Initialize()
 
 	pScoreText_ = new Text();
 	pScoreText_->Initialize();
+	pClearTimeText_ = new Text();
+	pClearTimeText_->Initialize();
+
+	// タイマー停止
+	Timer::Stop();
 }
 
 void EndScene::Update()
@@ -71,8 +77,13 @@ void EndScene::Draw()
 	// 数字から文字に
 	char scoreStr[32];
 	std::to_string(score);
-	pScoreText_->Draw(Direct3D::screenWidth_ * 0.5f - 30.0f, Direct3D::screenHeight_ * 0.5f - 80.0f, "SCORE:");
-	pScoreText_->Draw(Direct3D::screenWidth_ * 0.5f + 70.0f, Direct3D::screenHeight_ * 0.5f - 80.0f, score);
+	pScoreText_->Draw(Direct3D::screenWidth_ * 0.5f - 200.0f, Direct3D::screenHeight_ * 0.5f - 130.0f, "SCORE:");
+	pScoreText_->Draw(Direct3D::screenWidth_ * 0.5f + 70.0f, Direct3D::screenHeight_ * 0.5f - 130.0f, score);
+
+	// クリアタイム表示
+	std::string timeStr = Timer::ToString();
+	pClearTimeText_->Draw(Direct3D::screenWidth_ * 0.5f - 200.0f, Direct3D::screenHeight_ * 0.5f - 80.0f, "CLEAR TIME:");
+	pClearTimeText_->Draw(Direct3D::screenWidth_ * 0.5f + 70.0f, Direct3D::screenHeight_ * 0.5f - 80.0f, timeStr.c_str());
 }
 
 void EndScene::Release()

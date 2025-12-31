@@ -29,4 +29,7 @@ private:
 
 	// スコアテキスト
 	Text* pScoreText_;
+
+	// クリアタイマー
+	Text* pClearTimeText_;
 };

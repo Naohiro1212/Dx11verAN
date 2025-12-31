@@ -8,6 +8,7 @@
 #include "../Engine/SceneManager.h"
 #include "../Source/ManaGauge.h"
 #include "../Source/PausePanel.h"
+#include "../Engine/Timer.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -30,11 +31,17 @@ void TestScene::Initialize()
 
 	// ポーズパネルの生成
 	pausePanel_ = Instantiate<PausePanel>(this);
+
+    Timer::Initialize();
+    Timer::Start();
 }
 
 //更新
 void TestScene::Update()
 {
+    // タイマー更新
+    Timer::Update();
+
     // ESCキーで切り替え
     if (Input::IsKeyDown(DIK_ESCAPE))
     {
