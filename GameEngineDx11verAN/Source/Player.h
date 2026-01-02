@@ -35,6 +35,10 @@ public:
 	float GetExp() const { return exp_; }	
 	float GetMaxMana() const { return cnf_.MAX_MANA; }
 
+	// 体力取得
+	float GetHealth() const { return health_; }
+	float GetMaxHealth() const { return cnf_.MAX_HEALTH; }
+
 private:
 	//// 関数群
 	// 前後左右、入力方向の取得
@@ -144,4 +148,8 @@ private:
 
 	// 魔法を放つ際のマナ管理用変数
 	float mana_;
+
+	// 体力
+	float health_;
+	float damageCooldown_;
 };

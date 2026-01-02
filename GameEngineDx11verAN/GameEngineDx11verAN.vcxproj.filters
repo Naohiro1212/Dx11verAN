@@ -5,21 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{e74e206c-eb7e-49cd-a37b-afdfd066c921}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Collider">
-      <UniqueIdentifier>{c6b4f7c6-834d-4f3e-b2fc-4f6a2ab550ce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\DirectX">
-      <UniqueIdentifier>{57afb609-9480-4d1c-8336-763742a4b217}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\GameObject">
-      <UniqueIdentifier>{a5f97aa9-8ee2-4807-9d1e-99b2e3fb0bf6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\ResourceManager">
-      <UniqueIdentifier>{ff39afe6-32f2-4774-897e-369eb044dc0b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -47,6 +32,21 @@
     </Filter>
     <Filter Include="リソース ファイル\Scenes\PlayScene">
       <UniqueIdentifier>{694db77e-f079-4536-aa86-327f5eadf12e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{e74e206c-eb7e-49cd-a37b-afdfd066c921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Collider">
+      <UniqueIdentifier>{c6b4f7c6-834d-4f3e-b2fc-4f6a2ab550ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\DirectX">
+      <UniqueIdentifier>{57afb609-9480-4d1c-8336-763742a4b217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GameObject">
+      <UniqueIdentifier>{a5f97aa9-8ee2-4807-9d1e-99b2e3fb0bf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\ResourceManager">
+      <UniqueIdentifier>{ff39afe6-32f2-4774-897e-369eb044dc0b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -182,6 +182,9 @@
     <ClCompile Include="Engine\Timer.cpp">
       <Filter>Engine\ResourceManager</Filter>
     </ClCompile>
+    <ClCompile Include="Source\healthGauge.cpp">
+      <Filter>リソース ファイル\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -313,9 +316,6 @@
     <ClInclude Include="Engine\ScoreManager.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\testEnemy.h">
-      <Filter>リソース ファイル\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ManaGauge.h">
       <Filter>リソース ファイル\UI</Filter>
     </ClInclude>
@@ -324,6 +324,10 @@
     </ClInclude>
     <ClInclude Include="Engine\Timer.h">
       <Filter>Engine\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\testEnemy.h" />
+    <ClInclude Include="Source\healthGauge.h">
+      <Filter>リソース ファイル\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

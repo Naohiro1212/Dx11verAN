@@ -4,6 +4,7 @@
 
 class DungeonManager;
 class ManaGauge;
+class HealthGauge;
 class Player;
 class PausePanel;
 
@@ -32,6 +33,7 @@ private:
 	bool isPaused_;
 	DungeonManager* dungeonManager_;
 	ManaGauge* manaGauge_;
+	HealthGauge* healthGauge_;
 	Player* player_;
 
 	// ポーズパネル

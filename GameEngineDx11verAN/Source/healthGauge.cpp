@@ -1,43 +1,40 @@
-#include "ManaGauge.h"
+#include "healthGauge.h"
 #include "../Engine/Image.h"
 #include <algorithm>
 #include "../Engine/Direct3D.h"
 
-ManaGauge::ManaGauge(GameObject* parent) : GameObject(parent), mana_(0.0f), maxMana_(0.0f), gaugeImage_(-1)
+HealthGauge::HealthGauge(GameObject* parent) : GameObject(parent), health_(0.0f), maxHealth_(0.0f), gaugeImage_(-1)
 {
 }
 
-void ManaGauge::Initialize()
+void HealthGauge::Initialize()
 {
-	gaugeImage_ = Image::Load("manaGauge.png");
+	gaugeImage_ = Image::Load("healthGauge.png");
 	assert(gaugeImage_ != -1);
-
 	posX_ = 100.0f; // 画面左上から少し右にオフセット
-	posY_ = 50.0f;  // 画面左上から少し下にオフセット
-
+	posY_ = 150.0f;  // 画面左上から少し下にオフセット
 	SetDrawOrder(1);
-
 	// UIなのでポーズ時も描画されるようにする
 	SetIsUIObject(true);
 }
 
-void ManaGauge::Update()
+void HealthGauge::Update()
 {
 	RECT rect = Image::GetRect(gaugeImage_);
-	// mana/maxmana の0～１にする
+	// health/maxhealth の0～１にする
 	Image::ResetRect(gaugeImage_);
 }
 
-void ManaGauge::Draw()
+void HealthGauge::Draw()
 {
-	// マナ量に応じた割合を計算（安全に）
-	if (maxMana_ <= 1e-6f)
+	// マナ量に応じた割合を計算
+	if (maxHealth_ <= 1e-6f)
 	{
 		ratio_ = 0.0f;
 	}
-	else 
+	else
 	{
-		ratio_ = mana_ / maxMana_;
+		ratio_ = health_ / maxHealth_;
 	}
 
 	// 0..1 にクランプ
@@ -64,8 +61,6 @@ void ManaGauge::Draw()
 	Image::Draw(gaugeImage_);
 }
 
-
-
-void ManaGauge::Release()
+void HealthGauge::Release()
 {
 }

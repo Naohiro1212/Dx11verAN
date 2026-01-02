@@ -84,4 +84,10 @@ struct PlayerConfig
     
 	// 最低マナ10（魔法発射に必要）
 	const float MAGIC_MANA_COST = 10.0f;   
+
+    // 体力関係
+	const float MAX_HEALTH = 100.0f;
+
+    // ダメージを受けたときの無敵時間
+	const float DAMAGE_INVINCIBLE_TIME = 1.0f;
 };

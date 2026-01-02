@@ -79,6 +79,12 @@ void Player::Initialize()
 
     // マナ初期化
     mana_ = cnf_.MAX_MANA;
+
+	// 体力初期化
+	health_ = cnf_.MAX_HEALTH;
+
+	// ダメージを受けたときの無敵時間用タイマー初期化
+    damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
 }
 
 void Player::Update()
@@ -88,6 +94,12 @@ void Player::Update()
 
     // 攻撃モーション中は他の動作を行えない
     MeleeAttack();
+
+	// ダメージクールタイム更新
+    if (damageCooldown_ > 0.0f)
+    {
+		damageCooldown_ -= dt_;
+    }
 
     if (!isAttacking_)
     {
@@ -216,6 +228,12 @@ void Player::Update()
 		mana_ += cnf_.MANA_RECOVERY_RATE * dt_;
     }
 
+    // 体力が0になったら死亡
+    if (health_ <= 0.0f)
+    {
+        KillMe();
+    }
+
     // カメラ更新
     plvision_.Update(transform_.position_);
  }
@@ -265,9 +283,10 @@ void Player::OnCollision(GameObject* pTarget)
     if (myRole == Collider::Role::Body && targetRole == Collider::Role::Body)
     {
         bool isEnemy = (pTarget->GetObjectName() == "Enemy");
-        if (isEnemy)
+        if (isEnemy && damageCooldown_ <= 0.0f)
         {
-            KillMe();
+            health_ -= 10.0f; // 体力減少
+			damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
         }
     }
 }

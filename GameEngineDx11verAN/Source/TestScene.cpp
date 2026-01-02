@@ -7,6 +7,7 @@
 #include "../Engine/GameObject.h"
 #include "../Engine/SceneManager.h"
 #include "../Source/ManaGauge.h"
+#include "../Source/healthGauge.h"
 #include "../Source/PausePanel.h"
 #include "../Engine/Timer.h"
 
@@ -28,6 +29,12 @@ void TestScene::Initialize()
     int maxMana_ = player_->GetMaxMana();
     manaGauge_->SetMana(0.0f);
     manaGauge_->SetMaxMana(maxMana_);
+
+    // ヘルスゲージの生成
+	healthGauge_ = Instantiate<HealthGauge>(this);
+	int maxHealth_ = player_->GetMaxHealth();
+	healthGauge_->SetHealth(0.0f);
+	healthGauge_->SetMaxHealth(maxHealth_);
 
 	// ポーズパネルの生成
 	pausePanel_ = Instantiate<PausePanel>(this);
@@ -87,9 +94,10 @@ void TestScene::Update()
         this->ResumeAllUpdate();    // 子オブジェクトだけ再開
     }
 
-    // マナゲージの更新
-    // シーンの子オブジェクトの最後にプッシュする
+    // ゲージの更新
+    // シーンの子オブジェクトの最後にプッシュする(SetDrawOrderの順番)
     manaGauge_->SetMana(player_->GetMana());
+	healthGauge_->SetHealth(player_->GetHealth());
 }
 
 //描画
