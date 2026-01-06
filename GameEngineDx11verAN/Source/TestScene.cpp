@@ -11,10 +11,17 @@
 #include "../Source/PausePanel.h"
 #include "../Engine/Timer.h"
 #include "../Source/PopUpDamage.h" 
+#include "../Engine/Text.h"
+
+namespace
+{
+    const float textPosX_ = 100.0f;
+    const float textPosY_ = 200.0f; // 体力バーの下
+}
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
-    : GameObject(parent, "TestScene"), isPaused_(false)
+    : GameObject(parent, "TestScene"), isPaused_(false), objectiveText_(nullptr)
 {
 }
 

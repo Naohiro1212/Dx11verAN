@@ -250,8 +250,9 @@ void DungeonManager::StageClearCheck()
 		float dx = playerPos.x - portalPos.x;
 		float dz = playerPos.z - portalPos.z;
 		float distSq = dx * dx + dz * dz;
-		if (distSq <= 30.0f * 30.0f) // プレイヤーとポータルが10単位以内
+		if (distSq <= 30.0f * 30.0f)
 		{
+			// Eキーで再生成
 			if (Input::IsKeyDown(DIK_E)) // Eキーで再生成
 			{
 				DungeonReset();

@@ -253,20 +253,6 @@ void Player::Draw()
 
 void Player::Release()
 {
-    Model::Release(walkModel_);
-    Model::Release(runModel_);
-    Model::Release(leftStrafeModel_);
-    Model::Release(rightStrafeModel_);
-    Model::Release(backStrafeModel_);
-    Model::Release(idleModel_);
-    Model::Release(slashModel_);
-    delete pCollider_;
-    pCollider_ = nullptr;
-    if (attackCollider_)
-    {
-        delete attackCollider_;
-        attackCollider_ = nullptr;
-	}
 }
 
 void Player::OnCollision(GameObject* pTarget)
