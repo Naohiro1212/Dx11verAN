@@ -258,6 +258,11 @@ void DungeonManager::StageClearCheck()
 			}
 		}
 	}
+	else
+	{
+		// 敵が存在するのであれば、ポータルは非アクティブ
+		portal_->SetActive(false);
+	}
 }
 
 XMFLOAT3 DungeonManager::GetPlayerPosition() const

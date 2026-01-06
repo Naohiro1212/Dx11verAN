@@ -32,4 +32,7 @@ private:
 	// îwåi
 	int titleImage_;
 	Transform bgTransform_;
+
+	// BGM
+	int bgmHandle_;
 };

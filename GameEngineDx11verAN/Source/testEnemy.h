@@ -68,4 +68,7 @@ private:
     // Å‰‚É‹‚½À•W
 	XMFLOAT3 initPos_;
     float backTimer_;
+
+    // ‘Ì—Í
+    float health_;
 };

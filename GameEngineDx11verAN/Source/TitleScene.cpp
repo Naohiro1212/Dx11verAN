@@ -5,6 +5,7 @@
 #include "../Engine/Text.h"
 #include "../Engine/Debug.h"
 #include "../Engine/Button.h"
+#include "../Engine/Audio.h"
 
 TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), pText_(nullptr), pButton_(nullptr), titleImage_(-1)
 {
@@ -12,7 +13,6 @@ TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), p
 
 void TitleScene::Initialize()
 {
-
 
 	// ボタン初期化
 	pButton_ = Instantiate<Button>(this);
@@ -29,6 +29,11 @@ void TitleScene::Initialize()
 	// テキスト初期化
 	pText_ = new Text();
 	pText_->Initialize();
+
+	// BGM読み込みと再生
+	bgmHandle_ = Audio::Load("Audio/BGM_Title.wav", true);
+	Audio::SetVolume(bgmHandle_, 0.02f);
+	Audio::Play(bgmHandle_);
 }
 
 void TitleScene::Update()
@@ -42,6 +47,10 @@ void TitleScene::Update()
 	{
 		if (Input::IsMouseButtonDown(0))
 		{
+			// BGM停止
+			Audio::Stop(bgmHandle_);
+
+			// シーン切り替え
 			SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
 			pSceneManager->ChangeScene(SCENE_ID_TEST);
 		}

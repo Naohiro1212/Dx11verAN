@@ -200,3 +200,18 @@ void Audio::AllRelease()
 	}
 	pXAudio->Release();
 }
+
+void Audio::SetMasterVolume(float volume)
+{
+	if (!pMasteringVoice) return;
+	pMasteringVoice->SetVolume(volume);
+}
+
+void Audio::SetVolume(int ID, float volume)
+{
+	if (ID < 0 || ID >= audioDatas.size()) return;
+	for (int i = 0; i < audioDatas[ID].svNum; i++)
+	{
+		audioDatas[ID].pSourceVoice[i]->SetVolume(volume);
+	}
+}

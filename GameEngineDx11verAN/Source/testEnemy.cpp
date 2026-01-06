@@ -47,6 +47,7 @@ void testEnemy::Initialize()
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     backTimer_ = 0.0f;
+    health_ = 50.0f;
 }
 
 void testEnemy::Update()

@@ -30,5 +30,11 @@ namespace Audio
 
 	//本体も解放
 	void AllRelease();
+
+	// 音量調整
+	void SetMasterVolume(float volume);
+
+	// 指定サウンドの音量調整
+	void SetVolume(int ID, float volume);
 };
 

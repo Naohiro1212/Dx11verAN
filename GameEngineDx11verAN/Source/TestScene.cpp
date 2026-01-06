@@ -10,6 +10,7 @@
 #include "../Source/healthGauge.h"
 #include "../Source/PausePanel.h"
 #include "../Engine/Timer.h"
+#include "../Source/PopUpDamage.h" 
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -41,6 +42,9 @@ void TestScene::Initialize()
 
     Timer::Initialize();
     Timer::Start();
+
+    // ポップアップダメージのモデル読み込み
+    PopUpDamage::PreLoadDigitModels();
 }
 
 //更新

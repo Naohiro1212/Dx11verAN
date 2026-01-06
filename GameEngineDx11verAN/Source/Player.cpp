@@ -13,6 +13,7 @@
 #include "../Source/MagicSphere.h"
 #include "../Source/Plane.h"
 #include "../Source/DungeonManager.h"
+#include "PopUpDamage.h"
 
 using namespace DirectX;
 
@@ -217,9 +218,6 @@ void Player::Update()
     if (exp_ >= 100.0f)
     {
         exp_ = 0.0f;
- /*       transform_.scale_.x += 0.02f;
-		transform_.scale_.y += 0.02f;
-		transform_.scale_.z += 0.02f;*/
     }
 
 	// 体力・マナ回復処理
@@ -255,6 +253,20 @@ void Player::Draw()
 
 void Player::Release()
 {
+    Model::Release(walkModel_);
+    Model::Release(runModel_);
+    Model::Release(leftStrafeModel_);
+    Model::Release(rightStrafeModel_);
+    Model::Release(backStrafeModel_);
+    Model::Release(idleModel_);
+    Model::Release(slashModel_);
+    delete pCollider_;
+    pCollider_ = nullptr;
+    if (attackCollider_)
+    {
+        delete attackCollider_;
+        attackCollider_ = nullptr;
+	}
 }
 
 void Player::OnCollision(GameObject* pTarget)
@@ -286,7 +298,19 @@ void Player::OnCollision(GameObject* pTarget)
         if (isEnemy && damageCooldown_ <= 0.0f)
         {
             health_ -= 10.0f; // 体力減少
-			damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
+            damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
+
+            // PopupDamageオブジェクト生成
+            PopUpDamage* popup_ = Instantiate<PopUpDamage>(GetParent());
+			assert(popup_ != nullptr);
+            if (popup_)
+            {
+				// popupのステータス設定
+                popup_->SetDamage(10);
+                // popupの位置と回転をプレイヤーに合わせる予定（今は一旦位置のみ）
+                popup_->SetPosition(transform_.position_);
+                popup_->Initialize();
+            }
         }
     }
 }
