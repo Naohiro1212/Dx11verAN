@@ -5,6 +5,7 @@
 
 class BoxCollider;
 class Player;
+class EnemyDeathEffect;
 
 //仮の敵を管理するクラス
 class testEnemy : public GameObject
@@ -71,4 +72,7 @@ private:
 
     // 体力
     float health_;
+
+    // 死んだときのエフェクト
+    EnemyDeathEffect* deathEffect_;
 };

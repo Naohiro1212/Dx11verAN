@@ -24,7 +24,7 @@ Player::Player(GameObject* parent)
     nowModel_(-1), attackTimer_(0.0f), isAttacking_(false),
     prevMouseLeftDown_(false),pCollider_(nullptr), magicDir_(0.0f, 0.0f, 0.0f), cnf_(),
 	attackCollider_(nullptr), lastSlashFrame_(0.0f),
-	rotateCenter_(0.0f, 0.0f, 0.0f), dt_(0.0f)
+	rotateCenter_(0.0f, 0.0f, 0.0f), dt_(0.0f), vAirMove_(XMVectorZero()), prevOnGround_(true)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -41,6 +41,7 @@ void Player::Initialize()
     backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
 	idleModel_ = Model::Load("Models/idle.fbx");
     slashModel_ = Model::Load("Models/slash.fbx");
+	jumpModel_ = Model::Load("Models/jump.fbx");
 
 	assert(walkModel_ != -1);
     assert(runModel_ != -1);
@@ -49,6 +50,7 @@ void Player::Initialize()
     assert(backStrafeModel_ != -1);
     assert(idleModel_ != -1);
     assert(slashModel_ != -1);
+    assert(jumpModel_ != -1);
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
 	transform_.scale_ = { cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE };
@@ -146,15 +148,54 @@ void Player::Update()
     }
 
     // カメラ相対の移動ベクトルで移動
+ // ジャンプ中は、現在の移動方向を維持したまま、XZ平面で移動する
+ // 空中制御は完全不可能にする
     XMVECTOR vMove = XMVectorZero();
+
+    // 地上入力から方向ベクトル（XZ）を作る
+    XMVECTOR vInput = XMVectorZero();
     if (fwd_ != 0)
     {
-        vMove = XMVectorAdd(vMove, XMVectorScale(vForward, static_cast<float>(fwd_)));
+        vInput = XMVectorAdd(vInput, XMVectorScale(vForward, static_cast<float>(fwd_)));
     }
     if (str_ != 0)
     {
-        vMove = XMVectorAdd(vMove, XMVectorScale(vRight, static_cast<float>(str_)));
+        vInput = XMVectorAdd(vInput, XMVectorScale(vRight, static_cast<float>(str_)));
     }
+    // XZ平面へ投影（y=0）
+    vInput = XMVectorSet(XMVectorGetX(vInput), 0.0f, XMVectorGetZ(vInput), 0.0f);
+
+    // 地上→空中の遷移検出
+    bool justLeftGround = (prevOnGround_ && !onGround_);
+
+    if (!onGround_)
+    {
+        if (justLeftGround)
+        {
+            // 空中に出た瞬間に現在の移動方向をロック（無入力ならゼロ）
+            if (XMVectorGetX(XMVector3LengthSq(vInput)) > 1e-6f && wasMoving_)
+            {
+                vAirMove_ = XMVector3Normalize(vInput);
+            }
+            else
+            {
+                vAirMove_ = XMVectorZero();
+            }
+        }
+
+        // 空中では入力を無視してロック方向のみで移動
+        vMove = vAirMove_;
+    }
+    else
+    {
+        // 地上にいるときは入力に応じて移動
+        vMove = vInput;
+        // wasMoving_ の更新（無入力判定）
+        wasMoving_ = (XMVectorGetX(XMVector3LengthSq(vInput)) > 1e-6f);
+    }
+
+    // 次フレーム用に接地状態を保持
+    prevOnGround_ = onGround_;
 
     // 正規化
     if (XMVector3LengthSq(vMove).m128_f32[0] > 1e-5f)
@@ -330,27 +371,27 @@ void Player::MoveInput()
 
 void Player::ChangeModel()
 {
-    if (isAttacking_) return;
-
     int prevModel = nowModel_;
     int targetModel = nowModel_;
 
-    if (fwd_ > 0) {
-        if (str_ > 0) {
-            targetModel = rightStrafeModel_;
-        }
-        else if (str_ < 0) {
-            targetModel = leftStrafeModel_;
-        }
-        else {
-            targetModel = walkModel_;
-        }
-    }
-    else if (fwd_ < 0) {
-        targetModel = backStrafeModel_;
+    // 1) 空中は最優先（攻撃よりも優先）
+    if (!onGround_) {
+        targetModel = jumpModel_;
     }
     else {
-        if (str_ > 0) {
+        // 2) 地上のときだけ攻撃でロックしたいならここで抜ける
+        if (isAttacking_) return;
+
+        // 3) 地上の移動入力で分岐（整理版）
+        if (fwd_ > 0) {
+            if (str_ > 0)       targetModel = rightStrafeModel_;
+            else if (str_ < 0)  targetModel = leftStrafeModel_;
+            else                targetModel = walkModel_;
+        }
+        else if (fwd_ < 0) {
+            targetModel = backStrafeModel_;
+        }
+        else if (str_ > 0) {
             targetModel = rightStrafeModel_;
         }
         else if (str_ < 0) {
@@ -361,13 +402,11 @@ void Player::ChangeModel()
         }
     }
 
-    // 移動のアニメーション
+    // 4) 変更があるときだけ適用
     if (prevModel != targetModel) {
         nowModel_ = targetModel;
-        if (nowModel_ == rightStrafeModel_) {
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
-        }
-        else if (nowModel_ == leftStrafeModel_) {
+
+        if (nowModel_ == rightStrafeModel_ || nowModel_ == leftStrafeModel_) {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
         }
         else if (nowModel_ == walkModel_) {
@@ -378,6 +417,11 @@ void Player::ChangeModel()
         }
         else if (nowModel_ == idleModel_) {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
+        }
+        else if (nowModel_ == jumpModel_) {
+            // ジャンプアニメーション（空中は常にこれ）
+            float jumpAnimSpeed = cnf_.ANIM_BASE_SPEED * (JumpV0_ / (JumpV0_ + cnf_.GRAVITY)) + cnf_.ANIM_JUMP_BUFFER;
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_JUMP_END, jumpAnimSpeed);
         }
     }
 }

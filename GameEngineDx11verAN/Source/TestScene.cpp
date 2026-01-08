@@ -52,6 +52,9 @@ void TestScene::Initialize()
 
     // ポップアップダメージのモデル読み込み
     PopUpDamage::PreLoadDigitModels();
+
+    objectiveText_ = new Text();
+	objectiveText_->Initialize();
 }
 
 //更新
@@ -114,6 +117,22 @@ void TestScene::Update()
 //描画
 void TestScene::Draw()
 {
+    if (dungeonManager_->GetEnemyCount() == 0)
+    {
+		if (!objectiveText_)
+		{
+			// エネミーがすべて死んでいる場合
+			objectiveText_->Draw(textPosX_, textPosY_, "All enemies are defeat!");
+		}
+    }
+    else
+    {
+        if (!objectiveText_)
+        {
+			// エネミーが生きている場合
+			objectiveText_->Draw(textPosX_, textPosY_, "Enemies alive!");
+        }
+    }
 }
 
 //開放

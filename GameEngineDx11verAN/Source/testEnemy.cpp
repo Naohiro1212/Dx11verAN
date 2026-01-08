@@ -6,6 +6,7 @@
 #include "../Source/DungeonManager.h"
 #include "../Source/Player.h"
 #include "../Engine/GameTime.h"
+#include "../Source/EnemyDeathEffect.h"
 
 namespace
 {
@@ -20,7 +21,8 @@ namespace
 	const float BACK_TIME_LIMIT = 2.0f;
 }
 
-testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), modelHandle_(-1), pCollider_(nullptr), isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr)
+testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), modelHandle_(-1), pCollider_(nullptr),
+isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr)
 {
     enemyWallColliders_.clear();
 }
@@ -145,6 +147,9 @@ void testEnemy::OnCollision(GameObject* pTarget)
 
     if (anyAttack && isPlayer)
     {
+        // ダメージ処理
+        // 死んだときのエフェクトはシーン側との親子関係にさせるので、敵とは別に生成
+        deathEffect_ = Instantiate<EnemyDeathEffect>(GetParent(), transform_.position_);
         DropJewel(5);
         KillMe();
     }

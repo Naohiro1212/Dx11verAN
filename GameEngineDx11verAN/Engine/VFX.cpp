@@ -24,7 +24,7 @@ void VFX::ParticleUpdate()
     for (auto particle = particleList_.begin(); particle != particleList_.end();)
     {
         //Žõ–½‚ªs‚«‚½‚Ì‚ÅÁ‚·
-        if ((*particle)->life == 0)
+        if ((*particle)->life <= 0)
         {
             (*particle)->pEmitter->particleNum--;
             delete (*particle);

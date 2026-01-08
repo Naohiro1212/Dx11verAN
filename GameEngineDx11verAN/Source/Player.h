@@ -78,6 +78,7 @@ private:
 	int idleModel_;
 	int slashModel_;
 	int nowModel_;
+	int jumpModel_;
 
 	// カメラパラメーター
 	float camYawRad_;
@@ -95,6 +96,10 @@ private:
 	// ジャンプ関連
 	float JumpV0_;
 	float velocityY_;
+	// XZ方向のロック用
+	XMVECTOR vAirMove_;
+	// 前フレームの接地状態
+	bool prevOnGround_;
 
 	// 攻撃時間計測
 	float attackTimer_;

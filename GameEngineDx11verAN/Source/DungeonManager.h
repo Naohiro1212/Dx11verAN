@@ -33,6 +33,7 @@ public:
 
 	// 現在の階数取得
 	int GetNowFloor() const { return nowFloor_; }
+	int GetEnemyCount() const { return static_cast<int>(enemies_.size()); }
 
 private:
 	// 敵の数が0かつ、ポータルとプレイヤーが近づきキーを押すとダンジョン再生成フラグを立てる
