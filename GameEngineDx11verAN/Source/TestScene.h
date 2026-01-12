@@ -7,7 +7,7 @@ class ManaGauge;
 class HealthGauge;
 class Player;
 class PausePanel;
-class Text;
+class ObjectiveText;
 
 //テストシーンを管理するクラス
 class TestScene : public GameObject
@@ -41,5 +41,5 @@ private:
 	PausePanel* pausePanel_;
 
 	// 目的テキスト
-	Text* objectiveText_;
+	ObjectiveText* objectiveText_;
 };

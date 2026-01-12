@@ -42,6 +42,7 @@ void Player::Initialize()
 	idleModel_ = Model::Load("Models/idle.fbx");
     slashModel_ = Model::Load("Models/slash.fbx");
 	jumpModel_ = Model::Load("Models/jump.fbx");
+	deathModel_ = Model::Load("Models/death.fbx");
 
 	assert(walkModel_ != -1);
     assert(runModel_ != -1);
@@ -51,6 +52,7 @@ void Player::Initialize()
     assert(idleModel_ != -1);
     assert(slashModel_ != -1);
     assert(jumpModel_ != -1);
+	assert(deathModel_ != -1);
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
 	transform_.scale_ = { cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE };
@@ -206,8 +208,8 @@ void Player::Update()
     XMStoreFloat3(&moveVec, vMove);
 
 	// 移動処理
-	// SHIFTキーでダッシュ（速度2倍）
-    if (Input::IsKey(DIK_LSHIFT))
+	// 接地状態でSHIFTキーでダッシュ（速度2倍）
+    if (Input::IsKey(DIK_LSHIFT) && onGround_)
     {
 		moveVec.x *= 2.0f;
 		moveVec.z *= 2.0f;
@@ -270,7 +272,7 @@ void Player::Update()
     // 体力が0になったら死亡
     if (health_ <= 0.0f)
     {
-        KillMe();
+        deathTimer_ += dt_;
     }
 
     // カメラ更新
@@ -330,7 +332,7 @@ void Player::OnCollision(GameObject* pTarget)
             // PopupDamageオブジェクト生成
             PopUpDamage* popup_ = Instantiate<PopUpDamage>(GetParent());
 			assert(popup_ != nullptr);
-            if (popup_)
+            if (popup_ && health_ > 0.0f)
             {
 				// popupのステータス設定
                 popup_->SetDamage(10);
@@ -374,54 +376,73 @@ void Player::ChangeModel()
     int prevModel = nowModel_;
     int targetModel = nowModel_;
 
-    // 1) 空中は最優先（攻撃よりも優先）
-    if (!onGround_) {
-        targetModel = jumpModel_;
-    }
-    else {
-        // 2) 地上のときだけ攻撃でロックしたいならここで抜ける
-        if (isAttacking_) return;
-
-        // 3) 地上の移動入力で分岐（整理版）
-        if (fwd_ > 0) {
-            if (str_ > 0)       targetModel = rightStrafeModel_;
-            else if (str_ < 0)  targetModel = leftStrafeModel_;
-            else                targetModel = walkModel_;
-        }
-        else if (fwd_ < 0) {
-            targetModel = backStrafeModel_;
-        }
-        else if (str_ > 0) {
-            targetModel = rightStrafeModel_;
-        }
-        else if (str_ < 0) {
-            targetModel = leftStrafeModel_;
+    // 体力が0になったら死亡モーション
+    if (health_ <= 0.0f)
+    {
+        // 死亡モーション実装予定
+        targetModel = deathModel_;
+	}
+    else
+    {
+        if (!onGround_) {
+            targetModel = jumpModel_;
         }
         else {
-            targetModel = idleModel_;
+            // 2) 地上のときだけ攻撃でロックしたいならここで抜ける
+            if (isAttacking_) return;
+
+            // 3) 地上の移動入力で分岐（整理版）
+            if (fwd_ > 0) {
+                if (str_ > 0)       targetModel = rightStrafeModel_;
+                else if (str_ < 0)  targetModel = leftStrafeModel_;
+                else                targetModel = walkModel_;
+            }
+            else if (fwd_ < 0) {
+                targetModel = backStrafeModel_;
+            }
+            else if (str_ > 0) {
+                targetModel = rightStrafeModel_;
+            }
+            else if (str_ < 0) {
+                targetModel = leftStrafeModel_;
+            }
+            else {
+                targetModel = idleModel_;
+            }
         }
     }
 
     // 4) 変更があるときだけ適用
-    if (prevModel != targetModel) {
+    if (prevModel != targetModel)
+    {
         nowModel_ = targetModel;
 
-        if (nowModel_ == rightStrafeModel_ || nowModel_ == leftStrafeModel_) {
+        if (nowModel_ == rightStrafeModel_ || nowModel_ == leftStrafeModel_)
+        {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == walkModel_) {
+        else if (nowModel_ == walkModel_)
+        {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_WALK_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == backStrafeModel_) {
+        else if (nowModel_ == backStrafeModel_)
+        {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_BACK_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == idleModel_) {
+        else if (nowModel_ == idleModel_)
+        {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == jumpModel_) {
+        else if (nowModel_ == jumpModel_) 
+        {
             // ジャンプアニメーション（空中は常にこれ）
             float jumpAnimSpeed = cnf_.ANIM_BASE_SPEED * (JumpV0_ / (JumpV0_ + cnf_.GRAVITY)) + cnf_.ANIM_JUMP_BUFFER;
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_JUMP_END, jumpAnimSpeed);
+        }
+        else if (nowModel_ == deathModel_)
+        {
+                        // 死亡アニメーション（1回だけ再生）
+			Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_PLAY_SPEED);
         }
     }
 }

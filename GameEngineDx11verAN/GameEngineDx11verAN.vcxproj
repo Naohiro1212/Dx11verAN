@@ -208,6 +208,7 @@
     <ClCompile Include="Source\Jewel.cpp" />
     <ClCompile Include="Source\MagicSphere.cpp" />
     <ClCompile Include="Source\ManaGauge.cpp" />
+    <ClCompile Include="Source\ObjectiveText.cpp" />
     <ClCompile Include="Source\PausePanel.cpp" />
     <ClCompile Include="Source\Plane.cpp" />
     <ClCompile Include="Source\DungeonGenerator.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Source\Jewel.h" />
     <ClInclude Include="Source\MagicSphere.h" />
     <ClInclude Include="Source\ManaGauge.h" />
+    <ClInclude Include="Source\ObjectiveText.h" />
     <ClInclude Include="Source\PausePanel.h" />
     <ClInclude Include="Source\Plane.h" />
     <ClInclude Include="Source\DungeonManager.h" />

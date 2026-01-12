@@ -11,13 +11,7 @@
 #include "../Source/PausePanel.h"
 #include "../Engine/Timer.h"
 #include "../Source/PopUpDamage.h" 
-#include "../Engine/Text.h"
-
-namespace
-{
-    const float textPosX_ = 100.0f;
-    const float textPosY_ = 200.0f; // 体力バーの下
-}
+#include "../Source/ObjectiveText.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -53,8 +47,7 @@ void TestScene::Initialize()
     // ポップアップダメージのモデル読み込み
     PopUpDamage::PreLoadDigitModels();
 
-    objectiveText_ = new Text();
-	objectiveText_->Initialize();
+	objectiveText_ = Instantiate<ObjectiveText>(this);
 }
 
 //更新
@@ -76,8 +69,8 @@ void TestScene::Update()
         pSceneManager->ChangeScene(SCENE_ID_END);
     }
     
-	// プレイヤーがKillMeされていたらタイトルへ戻る   
-    if(player_->IsDead())
+	// プレイヤーが死亡したらエンドシーンへ   
+    if(player_->GetDeathTimer() >= 5.0f)
     {
         SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
         pSceneManager->ChangeScene(SCENE_ID_END);
@@ -117,22 +110,6 @@ void TestScene::Update()
 //描画
 void TestScene::Draw()
 {
-    if (dungeonManager_->GetEnemyCount() == 0)
-    {
-		if (!objectiveText_)
-		{
-			// エネミーがすべて死んでいる場合
-			objectiveText_->Draw(textPosX_, textPosY_, "All enemies are defeat!");
-		}
-    }
-    else
-    {
-        if (!objectiveText_)
-        {
-			// エネミーが生きている場合
-			objectiveText_->Draw(textPosX_, textPosY_, "Enemies alive!");
-        }
-    }
 }
 
 //開放

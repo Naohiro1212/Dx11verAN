@@ -42,7 +42,9 @@ struct PlayerConfig
     const int ANIM_WALK_END = 32;
     const int ANIM_BACK_END = 17;
     const int ANIM_JUMP_END = 60;
+    const int ANIM_DEATH_END = 235;
 	const float ANIM_JUMP_BUFFER = 0.12f; // ジャンプアニメーションの速度調整用
+    const float ANIM_DEATH_PLAY_SPEED = 1.2f;
 
     // プレイヤーのスケール
     const float PLAYER_SCALE = 0.1f;

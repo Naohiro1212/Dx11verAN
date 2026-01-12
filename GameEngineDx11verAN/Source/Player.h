@@ -39,6 +39,9 @@ public:
 	float GetHealth() const { return health_; }
 	float GetMaxHealth() const { return cnf_.MAX_HEALTH; }
 
+	// デスタイマー取得
+	float GetDeathTimer() const { return deathTimer_; }
+
 private:
 	//// 関数群
 	// 前後左右、入力方向の取得
@@ -79,6 +82,7 @@ private:
 	int slashModel_;
 	int nowModel_;
 	int jumpModel_;
+	int deathModel_;
 
 	// カメラパラメーター
 	float camYawRad_;
@@ -157,4 +161,8 @@ private:
 	// 体力
 	float health_;
 	float damageCooldown_;
+
+	// 死亡したのちに開始するタイマー
+	// 一定時間経過後にタイトルへ戻る
+	float deathTimer_;
 };

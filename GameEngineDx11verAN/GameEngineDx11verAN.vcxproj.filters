@@ -191,11 +191,14 @@
     <ClCompile Include="Source\PopUpDamage.cpp">
       <Filter>リソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\EnemyDeathEffect.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
     <ClCompile Include="Source\InfoScene.cpp">
       <Filter>リソース ファイル\Scenes\InfoScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ObjectiveText.cpp">
+      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EnemyDeathEffect.cpp">
+      <Filter>リソース ファイル\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,9 +349,14 @@
     <ClInclude Include="Source\testEnemy.h">
       <Filter>リソース ファイル\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\EnemyDeathEffect.h" />
     <ClInclude Include="Source\InfoScene.h">
       <Filter>リソース ファイル\Scenes\InfoScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ObjectiveText.h">
+      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnemyDeathEffect.h">
+      <Filter>リソース ファイル\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
