@@ -204,6 +204,7 @@
     <ClCompile Include="Source\EndScene.cpp" />
     <ClCompile Include="Source\EnemyDeathEffect.cpp" />
     <ClCompile Include="Source\healthGauge.cpp" />
+    <ClCompile Include="Source\InfoScene.cpp" />
     <ClCompile Include="Source\Jewel.cpp" />
     <ClCompile Include="Source\MagicSphere.cpp" />
     <ClCompile Include="Source\ManaGauge.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Source\EndScene.h" />
     <ClInclude Include="Source\EnemyDeathEffect.h" />
     <ClInclude Include="Source\healthGauge.h" />
+    <ClInclude Include="Source\InfoScene.h" />
     <ClInclude Include="Source\Jewel.h" />
     <ClInclude Include="Source\MagicSphere.h" />
     <ClInclude Include="Source\ManaGauge.h" />

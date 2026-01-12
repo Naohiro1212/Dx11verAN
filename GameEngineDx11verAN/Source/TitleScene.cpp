@@ -13,7 +13,6 @@ TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), p
 
 void TitleScene::Initialize()
 {
-
 	// ボタン初期化
 	pButton_ = Instantiate<Button>(this);
 	pButton_->SetCenter(true);
@@ -49,10 +48,9 @@ void TitleScene::Update()
 		{
 			// BGM停止
 			Audio::Stop(bgmHandle_);
-
 			// シーン切り替え
 			SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
-			pSceneManager->ChangeScene(SCENE_ID_TEST);
+			pSceneManager->ChangeScene(SCENE_ID_INFO);
 		}
 	}
 }

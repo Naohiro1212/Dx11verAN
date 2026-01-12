@@ -48,6 +48,9 @@
     <Filter Include="Engine\ResourceManager">
       <UniqueIdentifier>{ff39afe6-32f2-4774-897e-369eb044dc0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソース ファイル\Scenes\InfoScene">
+      <UniqueIdentifier>{8ac653c1-671c-462b-8af2-29718b2475fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Main.cpp">
@@ -187,6 +190,12 @@
     </ClCompile>
     <ClCompile Include="Source\PopUpDamage.cpp">
       <Filter>リソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EnemyDeathEffect.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\InfoScene.cpp">
+      <Filter>リソース ファイル\Scenes\InfoScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -336,6 +345,10 @@
     </ClInclude>
     <ClInclude Include="Source\testEnemy.h">
       <Filter>リソース ファイル\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnemyDeathEffect.h" />
+    <ClInclude Include="Source\InfoScene.h">
+      <Filter>リソース ファイル\Scenes\InfoScene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
