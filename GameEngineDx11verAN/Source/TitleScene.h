@@ -2,7 +2,6 @@
 #include "../Engine/GameObject.h"
 
 class Button;
-class Text;
 class Sprite;
 
 // タイトルシーンを管理するクラス
@@ -23,11 +22,9 @@ public:
 
 private:
 
-	// テキスト
-	Text* pText_;
-
 	// 仮ボタン
-	Button* pButton_;
+	Button* startButton_;
+	Button* endButton_;
 
 	// 背景
 	int titleImage_;

@@ -2,32 +2,42 @@
 #include "../Engine/Input.h"
 #include "../Engine/SceneManager.h"
 #include "../Engine/Image.h"
-#include "../Engine/Text.h"
 #include "../Engine/Debug.h"
 #include "../Engine/Button.h"
 #include "../Engine/Audio.h"
 
-TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), pText_(nullptr), pButton_(nullptr), titleImage_(-1)
+namespace
+{
+	const float START_BUTTON_POS_X = 960.0f;
+	const float START_BUTTON_POS_Y = 740.0f;
+	const float END_BUTTON_POS_X = 960.0f;
+	const float END_BUTTON_POS_Y = 890.0f;
+}
+
+TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), 
+startButton_(nullptr), 
+endButton_(nullptr),
+titleImage_(-1)
 {
 }
 
 void TitleScene::Initialize()
 {
 	// ボタン初期化
-	pButton_ = Instantiate<Button>(this);
-	pButton_->SetCenter(true);
-	pButton_->SetButtonImage(Image::Load("colormap.png"));
-	pButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + 200.0f);
+	startButton_ = Instantiate<Button>(this);
+	startButton_->SetCenter(true);
+	startButton_->SetButtonImage(Image::Load("startButton01.png"));
+	startButton_->SetButtonPosition(START_BUTTON_POS_X, START_BUTTON_POS_Y);
+	endButton_ = Instantiate<Button>(this);
+	endButton_->SetCenter(true);
+	endButton_->SetButtonImage(Image::Load("endButton02.png"));
+	endButton_->SetButtonPosition(END_BUTTON_POS_X, END_BUTTON_POS_Y);
 
 	// 背景画像読み込み
 	titleImage_ = Image::Load("Title.jpg");
 	assert(titleImage_ >= 0);
 	Image::ResetRect(titleImage_);
 	bgTransform_.position_ = { 0.0f, 0.0f, 0.0f };
-
-	// テキスト初期化
-	pText_ = new Text();
-	pText_->Initialize();
 
 	// BGM読み込みと再生
 	bgmHandle_ = Audio::Load("Audio/BGM_Title.wav", true);
@@ -39,10 +49,12 @@ void TitleScene::Update()
 {
 	XMFLOAT3 mousePos = Input::GetMousePosition();
 
-	pButton_->Update();
-	bool onButton = pButton_->GetOnButton();
+	startButton_->Update();
+	endButton_->Update();
+	bool onStartButton = startButton_->GetOnButton();
+	bool onEndButton = endButton_->GetOnButton();
 
-	if (onButton)
+	if (onStartButton)
 	{
 		if (Input::IsMouseButtonDown(0))
 		{
@@ -51,6 +63,14 @@ void TitleScene::Update()
 			// シーン切り替え
 			SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
 			pSceneManager->ChangeScene(SCENE_ID_INFO);
+		}
+	}
+	else if (onEndButton)
+	{
+		if(Input::IsMouseButtonDown(0))
+		{
+			// アプリ終了
+			PostQuitMessage(0);
 		}
 	}
 }
@@ -71,8 +91,6 @@ void TitleScene::Draw()
 
 	// 描画
 	Image::Draw(titleImage_);
-
-	pText_->Draw(Direct3D::screenWidth_ * 0.5f - 150.0f, Direct3D::screenHeight_ * 0.5f - 100.0f, "Press to Left Click!");
 }
 
 void TitleScene::Release()
