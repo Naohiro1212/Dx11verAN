@@ -586,10 +586,8 @@ void FbxParts::Draw(Transform& transform)
 		cb.lightDirection = XMFLOAT4(-1, -1, 1, 0);
 		cb.isTexture = pMaterial_[i].pTexture != nullptr;
 
-
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
 		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));		// リソースへ値を送る
-
 
 		// テクスチャをシェーダーに設定
 

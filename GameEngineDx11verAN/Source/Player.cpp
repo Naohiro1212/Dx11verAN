@@ -472,7 +472,7 @@ void Player::UpdateGravity()
     RayCastData hitData;
     hitData.start = transform_.position_;
     hitData.start.y += cnf_.PROBE_UP_OFFSET;
-    hitData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+    hitData.dir = XMFLOAT3(0.0f, -10.0f, 0.0f);
     Model::RayCast(pPlane->GetPlaneHandle(), hitData);
 
     if (hitData.hit)
