@@ -6,8 +6,7 @@
 
 class BoxCollider;
 
-class Player :
-    public GameObject
+class Player : public GameObject
 {
 public:
 	//コンストラクタ
@@ -32,7 +31,7 @@ public:
 
 	// マナ取得
 	float GetMana() const { return mana_; }
-	float GetExp() const { return exp_; }	
+	float GetExp() const { return exp_; }
 	float GetMaxMana() const { return cnf_.MAX_MANA; }
 
 	// 体力取得
@@ -64,6 +63,9 @@ private:
 
 	// ジャンプ
 	void Jump();
+
+	// 移動に伴う音再生
+	void PlayMoveSound();
 
 	// 壁ずり処理
 	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
@@ -165,4 +167,12 @@ private:
 	// 死亡したのちに開始するタイマー
 	// 一定時間経過後にタイトルへ戻る
 	float deathTimer_;
+
+	// 音関係変数
+	int hitSEHandle_;
+	int moveSEHandle_;
+	int strafeSEHandle_;
+	int shootSEHandle_;
+	int jumpSEHandle_;
+	int ongroundSEHandle_;
 };

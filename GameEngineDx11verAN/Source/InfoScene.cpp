@@ -48,12 +48,12 @@ void InfoScene::Draw()
 
 	if(currentPage == 0)
 	{
-		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150.0f, Direct3D::screenHeight_ - 100.0f, "Press to Left Click to Next Page!");
+		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150, Direct3D::screenHeight_ - 100, "Press to Left Click to Next Page!");
 	}
 	else
 	{
-		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150.0f, Direct3D::screenHeight_ - 130.0f, "Press to Right Click to Back Page!");
-		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150.0f, Direct3D::screenHeight_ - 100.0f, "Press to Left Click to Go Dungeon!");
+		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150, Direct3D::screenHeight_ - 130, "Press to Right Click to Back Page!");
+		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150, Direct3D::screenHeight_ - 100, "Press to Left Click to Go Dungeon!");
 	}
 }
 
