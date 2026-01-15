@@ -14,12 +14,9 @@
 #include "../Source/Plane.h"
 #include "../Source/DungeonManager.h"
 #include "PopUpDamage.h"
-<<<<<<< HEAD
 #include "../Engine/RandomNum.h"
 #include "../Source/LevelUpEffect.h"
-=======
 #include "../Engine/Audio.h"
->>>>>>> 2ca843891f497ac230d3f9410d2f01fcd588812d
 
 using namespace DirectX;
 
@@ -698,7 +695,6 @@ void Player::Jump()
     }
 }
 
-<<<<<<< HEAD
 void Player::LevelUp()
 {
     // レベルアップ時の処理
@@ -712,7 +708,9 @@ void Player::LevelUp()
         {
 			levelUpEffect_->SetPosition(transform_.position_);
         }
-=======
+    }
+}
+
 void Player::PlayMoveSound()
 {
     // 地上のみサウンド再生／停止を扱う
@@ -744,7 +742,6 @@ void Player::PlayMoveSound()
         // 空中では両方停止（地上専用のループSEのため）
         Audio::Stop(strafeSEHandle_);
         Audio::Stop(moveSEHandle_);
->>>>>>> 2ca843891f497ac230d3f9410d2f01fcd588812d
     }
 }
 

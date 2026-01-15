@@ -7,7 +7,7 @@ namespace
 {
 	const float MAGIC_SPEED = 100.0f;
 	const float ATTACK_DURATION = 5.0f;
-	const float MAGIC_SCALE = 1.0f;
+	const float MAGIC_SCALE = 0.6f;
 
 	const float COLLILDER_RADIUS = 2.5f;
 }
