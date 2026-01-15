@@ -14,8 +14,12 @@
 #include "../Source/Plane.h"
 #include "../Source/DungeonManager.h"
 #include "PopUpDamage.h"
+<<<<<<< HEAD
 #include "../Engine/RandomNum.h"
 #include "../Source/LevelUpEffect.h"
+=======
+#include "../Engine/Audio.h"
+>>>>>>> 2ca843891f497ac230d3f9410d2f01fcd588812d
 
 using namespace DirectX;
 
@@ -29,6 +33,7 @@ Player::Player(GameObject* parent) : GameObject(parent, "Player")
 
 void Player::Initialize()
 {
+    // アニメーション読み込み
 	walkModel_ = Model::Load("Models/walk.fbx");
     runModel_ = Model::Load("Models/run.fbx");
     leftStrafeModel_ = Model::Load("Models/leftstrafe.fbx");
@@ -48,6 +53,23 @@ void Player::Initialize()
     assert(slashModel_ != -1);
     assert(jumpModel_ != -1);
 	assert(deathModel_ != -1);
+
+    // サウンド読み込み
+	hitSEHandle_ = Audio::Load("Audio/hitsound.wav");
+	moveSEHandle_ = Audio::Load("Audio/move.wav", true,1);
+	strafeSEHandle_ = Audio::Load("Audio/strafe.wav", true,1);
+	shootSEHandle_ = Audio::Load("Audio/shootmagic.wav");
+	jumpSEHandle_ = Audio::Load("Audio/jump.wav");
+    ongroundSEHandle_ = Audio::Load("Audio/onGround.wav");
+
+	assert(hitSEHandle_ != -1);
+	assert(moveSEHandle_ != -1);
+	assert(strafeSEHandle_ != -1);
+	assert(shootSEHandle_ != -1);
+    assert(jumpSEHandle_ != -1);
+	assert(ongroundSEHandle_ != -1);
+
+	// 初期位置・スケール設定
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
 	transform_.scale_ = { cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE };
@@ -109,9 +131,17 @@ void Player::Update()
         // 移動入力取得
         MoveInput();
 
+        PlayMoveSound();
+
         // 入力によるモデル切り替え
         // 切り替えたタイミングでアニメーションを最初から再生
         ChangeModel();
+    }
+
+    // 死亡タイマー
+    if (health_ <= 0.0f)
+    {
+        deathTimer_ += dt_;
     }
 
     if (isMovingNow_)
@@ -261,12 +291,6 @@ void Player::Update()
 		mana_ += cnf_.MANA_RECOVERY_RATE * dt_;
     }
 
-    // 体力が0になったら死亡
-    if (health_ <= 0.0f)
-    {
-        deathTimer_ += dt_;
-    }
-
     // カメラ更新
     plvision_.Update(transform_.position_);
  }
@@ -341,7 +365,9 @@ void Player::MoveInput()
     // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレーフ）
     fwd_ = 0;
     str_ = 0;
-    if (!isAttacking_)
+
+    // 攻撃しておらず、なおかつ死んでいない状態でのみ移動入力を受け付ける
+    if (!isAttacking_ && health_ > 0.0f)
     {
         if (Input::IsKey(DIK_W)) {
             fwd_ += 1;
@@ -433,8 +459,19 @@ void Player::ChangeModel()
         }
         else if (nowModel_ == deathModel_)
         {
-                        // 死亡アニメーション（1回だけ再生）
-			Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_PLAY_SPEED);
+            // 死亡アニメーション（1回だけ再生開始）
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_PLAY_SPEED);
+        }
+    }
+
+    // ここで「死亡アニメーションが最後まで再生されたら最終フレームで停止」を実施
+    if (nowModel_ == deathModel_)
+    {
+        const int cur = Model::GetAnimFrame(nowModel_);
+        if (cur >= cnf_.ANIM_DEATH_END)
+        {
+            // 開始=end, 終了=end, 速度=0 にして完全停止
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
         }
     }
 }
@@ -446,12 +483,6 @@ void Player::UpdateGravity()
 
     // 重力（上昇/下降で倍率を切り替え）
     float g = cnf_.GRAVITY * (velocityY_ < 0.0f ? cnf_.GRAVITY_MULTIPLIER : 1.0f);
-
-    // 接地していて下向き速度ならまずゼロ化（貫通防止）
-    if (onGround_ && velocityY_ <= 0.0f)
-    {
-        velocityY_ = 0.0f;
-    }
 
     // 次フレームの速度・位置を予測
     float nextVelY = velocityY_ - g * dt_;
@@ -467,6 +498,8 @@ void Player::UpdateGravity()
     hitData.dir = XMFLOAT3(0.0f, -10.0f, 0.0f);
     Model::RayCast(pPlane->GetPlaneHandle(), hitData);
 
+    bool landedThisFrame = false;
+
     if (hitData.hit)
     {
         float groundY = hitData.start.y - hitData.dist;
@@ -478,22 +511,51 @@ void Player::UpdateGravity()
         {
             transform_.position_.y = groundY;
             velocityY_ = 0.0f;
+
+            // 非接地→接地の遷移なら着地音
+            if (!prevOnGround_) {
+                landedThisFrame = true;
+            }
+
             onGround_ = true;
             jumpCount_ = 0;
-            return;
         }
+        else
+        {
+            // スナップしない場合の onGround 判定（微小誤差は EXIT_EPS で緩和）
+            bool wasOnGround = onGround_;
+            onGround_ = (nextY <= groundY + EXIT_EPS);
 
-        // スナップしない場合の onGround 判定（微小誤差は EXIT_EPS で緩和）
-        onGround_ = (nextY <= groundY + EXIT_EPS);
+            // 非接地→接地の遷移なら着地音
+            if (!prevOnGround_ && onGround_) {
+                landedThisFrame = true;
+            }
+
+            // 空中移動を適用
+            transform_.position_.y = nextY;
+            velocityY_ = nextVelY;
+        }
     }
-    else 
+    else
     {
         onGround_ = false;
+
+        // 空中移動を適用
+        transform_.position_.y = nextY;
+        velocityY_ = nextVelY;
     }
 
-    // 空中移動を適用
-    transform_.position_.y = nextY;
-    velocityY_ = nextVelY;
+    // 接地状態での下向き速度のゼロ化（貫通防止）
+    if (onGround_ && velocityY_ < 0.0f)
+    {
+        velocityY_ = 0.0f;
+    }
+
+    // 着地音再生（このフレームで初めて接地した場合のみ）
+    if (landedThisFrame)
+    {
+        Audio::Play(ongroundSEHandle_);
+    }
 }
 
 void Player::ShootMagic()
@@ -511,6 +573,9 @@ void Player::ShootMagic()
         );
         sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
 		mana_ -= cnf_.MAGIC_MANA_COST;
+
+        // 魔法発射音
+		Audio::Play(shootSEHandle_);
     }
 
     // ローカル基準オフセット（元に使っていた値）
@@ -575,11 +640,15 @@ void Player::MeleeAttack()
         attackCollider_->SetRole(Collider::Role::Attack);
         AddCollider(attackCollider_);
 
+
         // 移動リセット
         fwd_ = 0;
         str_ = 0;
         isMovingNow_ = false;
         isAttacking_ = true;
+
+        // ヒット音
+        Audio::Play(hitSEHandle_);
 
         nowModel_ = slashModel_;
         Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
@@ -620,12 +689,16 @@ void Player::Jump()
     // ジャンプや重力処理
     if (Input::IsKeyDown(DIK_SPACE) && (onGround_ || jumpCount_ < cnf_.JUMP_MAX_COUNT))
     {
+		// ジャンプ音
+		Audio::Play(jumpSEHandle_);
+
         velocityY_ = JumpV0_;   // 上向き初速
         onGround_ = false;
         ++jumpCount_;
     }
 }
 
+<<<<<<< HEAD
 void Player::LevelUp()
 {
     // レベルアップ時の処理
@@ -639,6 +712,39 @@ void Player::LevelUp()
         {
 			levelUpEffect_->SetPosition(transform_.position_);
         }
+=======
+void Player::PlayMoveSound()
+{
+    // 地上のみサウンド再生／停止を扱う
+    if (onGround_)
+    {
+        // ストレイフまたはダッシュ中はストレイフ音を優先再生
+        if (str_ != 0 || Input::IsKey(DIK_LSHIFT))
+        {
+            Audio::Play(strafeSEHandle_);
+            // ストレイフ音優先時は歩行音を止める（混ざり防止）
+            Audio::Stop(moveSEHandle_);
+        }
+        // それ以外で前後移動のみなら歩行音再生
+        else if (fwd_ != 0)
+        {
+            Audio::Play(moveSEHandle_);
+            // 前後のみならストレイフ音は止める
+            Audio::Stop(strafeSEHandle_);
+        }
+        // 無入力なら両方停止
+        else
+        {
+            Audio::Stop(strafeSEHandle_);
+            Audio::Stop(moveSEHandle_);
+        }
+    }
+    else
+    {
+        // 空中では両方停止（地上専用のループSEのため）
+        Audio::Stop(strafeSEHandle_);
+        Audio::Stop(moveSEHandle_);
+>>>>>>> 2ca843891f497ac230d3f9410d2f01fcd588812d
     }
 }
 

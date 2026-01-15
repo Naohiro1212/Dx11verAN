@@ -35,7 +35,7 @@ struct PlayerConfig
     const float SLASH_DURATION_SEC = (SLASH_ANIM_END - SLASH_ANIM_START + 1) / BASE_ANIM_FPS / SLASH_PLAY_SPEED;
 
     // アニメーションそれぞれの速度
-    const float ANIM_BASE_SPEED = 0.6f;
+    const float ANIM_BASE_SPEED = 0.5f;
     const int ANIM_BASE_START = 1;
     const int ANIM_IDLE_END = 76;
     const int ANIM_STRAFE_END = 21;

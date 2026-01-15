@@ -7,8 +7,7 @@
 class BoxCollider;
 class LevelUpEffect;
 
-class Player :
-    public GameObject
+class Player : public GameObject
 {
 public:
 	//コンストラクタ
@@ -33,7 +32,7 @@ public:
 
 	// マナ取得
 	float GetMana() const { return mana_; }
-	float GetExp() const { return exp_; }	
+	float GetExp() const { return exp_; }
 	float GetMaxMana() const { return cnf_.MAX_MANA; }
 
 	// 体力取得
@@ -66,8 +65,13 @@ private:
 	// ジャンプ
 	void Jump();
 
+<<<<<<< HEAD
 	// レベルアップのステータス処理
 	void LevelUp();
+=======
+	// 移動に伴う音再生
+	void PlayMoveSound();
+>>>>>>> 2ca843891f497ac230d3f9410d2f01fcd588812d
 
 	// 壁ずり処理
 	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
@@ -134,8 +138,51 @@ private:
 	std::vector<BoxCollider*> wallColliders_;
 	XMFLOAT3 rotateCenter_ = { 0.0f, 0.0f, 0.0f };
 
+<<<<<<< HEAD
 	//// その他
 	float dt_ = 0.0f;
 	LevelUpEffect* levelUpEffect_ = nullptr;
 	PlayerConfig cnf_;
+=======
+	// 入力方向の処理
+	int fwd_;
+	int str_;
+
+	// デルタタイム
+	float dt_;
+
+	// カメラ基準の前方ベクトル（XZ平面、Y成分は0）
+	XMFLOAT3 forward;
+
+	// カメラ基準の前方ベクトル（DirectXMath型、正規化済み）
+	XMVECTOR vForward;
+
+	// カメラ基準の右方向ベクトル（XZ平面、Y成分は0）
+	XMFLOAT3 right;
+
+	// カメラ基準の右方向ベクトル（DirectXMath型、正規化済み）
+	XMVECTOR vRight;
+
+	// 経験値
+	float exp_;
+
+	// 魔法を放つ際のマナ管理用変数
+	float mana_;
+
+	// 体力
+	float health_;
+	float damageCooldown_;
+
+	// 死亡したのちに開始するタイマー
+	// 一定時間経過後にタイトルへ戻る
+	float deathTimer_;
+
+	// 音関係変数
+	int hitSEHandle_;
+	int moveSEHandle_;
+	int strafeSEHandle_;
+	int shootSEHandle_;
+	int jumpSEHandle_;
+	int ongroundSEHandle_;
+>>>>>>> 2ca843891f497ac230d3f9410d2f01fcd588812d
 };

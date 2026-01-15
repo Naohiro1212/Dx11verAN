@@ -38,6 +38,9 @@ void SceneManager::Update()
 		Model::AllRelease();
 		Image::AllRelease();
 
+		//画像システムを再初期化
+		Image::Initialize();
+
 		//次のシーンを作成
 		switch (nextSceneID_)
 		{
