@@ -136,10 +136,6 @@ private:
 	std::vector<BoxCollider*> wallColliders_;
 	XMFLOAT3 rotateCenter_ = { 0.0f, 0.0f, 0.0f };
 
-	// 死亡したのちに開始するタイマー
-	// 一定時間経過後にタイトルへ戻る
-	float deathTimer_;
-
 	// 音関係変数
 	int hitSEHandle_;
 	int moveSEHandle_;
@@ -147,4 +143,13 @@ private:
 	int shootSEHandle_;
 	int jumpSEHandle_;
 	int ongroundSEHandle_;
+
+	// プレイヤー設定読み込み用変数
+	PlayerConfig cnf_;
+
+	// deltaTime 保存用
+	float dt_;
+
+	// レベルアップエフェクト
+	LevelUpEffect* levelUpEffect_;
 };

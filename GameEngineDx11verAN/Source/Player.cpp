@@ -704,10 +704,7 @@ void Player::LevelUp()
         strength_ += 5.0f;
 		// レベルアップエフェクト生成
 		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
-        if (levelUpEffect_)
-        {
-			levelUpEffect_->SetPosition(transform_.position_);
-        }
+
     }
 }
 
