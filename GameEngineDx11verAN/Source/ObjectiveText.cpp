@@ -4,8 +4,11 @@
 
 namespace
 {
-	const float textPosX_ = 100.0f;
-	const float textPosY_ = 250.0f; // 体力バーの下
+	const float TEXTPOS_X = 100.0f;
+	const float TEXTPOS_Y = 250.0f; // 体力バーの下
+
+    const float LEVELUP_TEXTPOS_X = 100.0f;
+	const float LEVELUP_TEXTPOS_Y = 300.0f;
 }
 
 ObjectiveText::ObjectiveText(GameObject* parent) : GameObject(parent), objectiveText_(nullptr), dungeonManager_(nullptr)
@@ -36,14 +39,14 @@ void ObjectiveText::Draw()
     {
         if (objectiveText_)
         {
-            objectiveText_->Draw(textPosX_, textPosY_, "All enemies are defeat!");
+            objectiveText_->Draw(TEXTPOS_X, TEXTPOS_Y, "All enemies are defeat!");
         }
     }
     else
     {
         if (objectiveText_)
         {
-            objectiveText_->Draw(textPosX_, textPosY_, "Enemies alive!");
+            objectiveText_->Draw(TEXTPOS_X, TEXTPOS_Y, "Enemies alive!");
         }
     }
 }

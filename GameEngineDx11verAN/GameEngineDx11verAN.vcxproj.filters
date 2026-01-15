@@ -188,9 +188,6 @@
     <ClCompile Include="Source\healthGauge.cpp">
       <Filter>リソース ファイル\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\PopUpDamage.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Source\InfoScene.cpp">
       <Filter>リソース ファイル\Scenes\InfoScene</Filter>
     </ClCompile>
@@ -199,6 +196,12 @@
     </ClCompile>
     <ClCompile Include="Source\EnemyDeathEffect.cpp">
       <Filter>リソース ファイル\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PopUpDamage.cpp">
+      <Filter>リソース ファイル\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LevelUpEffect.cpp">
+      <Filter>リソース ファイル\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -343,9 +346,6 @@
     <ClInclude Include="Source\healthGauge.h">
       <Filter>リソース ファイル\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Source\PopUpDamage.h">
-      <Filter>リソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Source\testEnemy.h">
       <Filter>リソース ファイル\Enemy</Filter>
     </ClInclude>
@@ -357,6 +357,12 @@
     </ClInclude>
     <ClInclude Include="Source\EnemyDeathEffect.h">
       <Filter>リソース ファイル\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PopUpDamage.h">
+      <Filter>リソース ファイル\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LevelUpEffect.h">
+      <Filter>リソース ファイル\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -14,17 +14,12 @@
 #include "../Source/Plane.h"
 #include "../Source/DungeonManager.h"
 #include "PopUpDamage.h"
+#include "../Engine/RandomNum.h"
+#include "../Source/LevelUpEffect.h"
 
 using namespace DirectX;
 
-Player::Player(GameObject* parent)
-    :GameObject(parent, "Player"), walkModel_(-1), runModel_(-1), 
-    leftStrafeModel_(-1), rightStrafeModel_(-1), backStrafeModel_(-1), 
-    idleModel_(-1), wasMoving_(false), velocityY_(0.0f), jumpCount_(0), onGround_(true), 
-    nowModel_(-1), attackTimer_(0.0f), isAttacking_(false),
-    prevMouseLeftDown_(false),pCollider_(nullptr), magicDir_(0.0f, 0.0f, 0.0f), cnf_(),
-	attackCollider_(nullptr), lastSlashFrame_(0.0f),
-	rotateCenter_(0.0f, 0.0f, 0.0f), dt_(0.0f), vAirMove_(XMVectorZero()), prevOnGround_(true)
+Player::Player(GameObject* parent) : GameObject(parent, "Player")
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -257,11 +252,8 @@ void Player::Update()
     // 右クリックで魔法攻撃
     ShootMagic();
 
-    // 経験値100に達したらレベルアップで少し体を大きくする
-    if (exp_ >= 100.0f)
-    {
-        exp_ = 0.0f;
-    }
+    // 経験値100に達したらレベルアップでステータスアップ
+    LevelUp();
 
 	// 体力・マナ回復処理
     if(mana_ < cnf_.MAX_MANA)
@@ -286,7 +278,7 @@ void Player::Draw()
     // 現在のモデルを描画
 	Model::SetTransform(nowModel_, transform_);
 	Model::Draw(nowModel_);
-    pCollider_->Draw(transform_.position_, transform_.rotate_);
+    //pCollider_->Draw(transform_.position_, transform_.rotate_);
 
     if (attackCollider_)
     {
@@ -631,6 +623,22 @@ void Player::Jump()
         velocityY_ = JumpV0_;   // 上向き初速
         onGround_ = false;
         ++jumpCount_;
+    }
+}
+
+void Player::LevelUp()
+{
+    // レベルアップ時の処理
+    if (exp_ >= 100.0f)
+    {
+        exp_ = 0.0f;
+        strength_ += 5.0f;
+		// レベルアップエフェクト生成
+		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
+        if (levelUpEffect_)
+        {
+			levelUpEffect_->SetPosition(transform_.position_);
+        }
     }
 }
 

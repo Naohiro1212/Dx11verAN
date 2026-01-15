@@ -5,6 +5,7 @@
 #include <vector>
 
 class BoxCollider;
+class LevelUpEffect;
 
 class Player :
     public GameObject
@@ -65,104 +66,76 @@ private:
 	// ジャンプ
 	void Jump();
 
+	// レベルアップのステータス処理
+	void LevelUp();
+
 	// 壁ずり処理
 	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
 	// 固定したい高さ
 	bool gFreezeY_ = true;
 
-	//// 変数群
-	// モデルハンドル
-	int walkModel_;
-	int runModel_;
-	int leftStrafeModel_;
-	int rightStrafeModel_;
-	int backStrafeModel_;
-	int idleModel_;
-	int slashModel_;
-	int nowModel_;
-	int jumpModel_;
-	int deathModel_;
+	//// モデル状態に関する変数
+	int walkModel_ = -1;
+	int runModel_ = -1;
+	int leftStrafeModel_ = -1;
+	int rightStrafeModel_ = -1;
+	int backStrafeModel_ = -1;
+	int idleModel_ = -1;
+	int slashModel_ = -1;
+	int nowModel_ = -1;
+	int jumpModel_ = -1;
+	int deathModel_ = -1;
 
-	// カメラパラメーター
-	float camYawRad_;
-	float camPitchRad_;
-	float camDistance_;
+	//// プレイヤーの移動やアクションに関する変数
+	bool wasMoving_ = false;
+	bool isMovingNow_ = false;
+	bool prevOnGround_ = true;
+	bool prevMouseLeftDown_ = false;
+	bool onGround_ = true;
+	float JumpV0_ = 0.0f;
+	float velocityY_ = 0.0f;
+	size_t jumpCount_ = 0;
+	XMVECTOR vAirMove_ = XMVectorZero();
 
-	float minPitchRad_;
-	float maxPitchRad_;
-	float minDistance_;
-	float maxDistance_;
-
+	//// カメラ関連の変数
+	float camYawRad_ = 0.0f;
+	float camPitchRad_ = 0.0f;
+	float camDistance_ = 0.0f;
+	float minPitchRad_ = -1.0f;
+	float maxPitchRad_ = 1.0f;
+	float minDistance_ = 1.0f;
+	float maxDistance_ = 10.0f;
+	XMFLOAT3 forward = {};
+	XMVECTOR vForward = XMVectorZero();
+	XMFLOAT3 right = {};
+	XMVECTOR vRight = XMVectorZero();
 	PlayerCamera plvision_;
 
-	bool wasMoving_;
-	// ジャンプ関連
-	float JumpV0_;
-	float velocityY_;
-	// XZ方向のロック用
-	XMVECTOR vAirMove_;
-	// 前フレームの接地状態
-	bool prevOnGround_;
+	//// 戦闘関連の変数
+	bool isAttacking_ = false;
+	float attackTimer_ = 0.0f;
+	float damageCooldown_ = 0.0f;
+	float strength_ = 10.0f;
+	float lastSlashFrame_ = 0.0f;
+	XMFLOAT3 magicDir_ = { 0.0f, 0.0f, 0.0f };
+	BoxCollider* attackCollider_ = nullptr;
 
-	// 攻撃時間計測
-	float attackTimer_;
+	//// ステータス関連の変数
+	float health_ = 0.0f;
+	float mana_ = 0.0f;
+	float exp_ = 0.0f;
+	float deathTimer_ = 0.0f;
 
-	// ジャンプ上限
-	size_t jumpCount_;
-
-	// フラグ群
-	bool onGround_;
-	bool isAttacking_;
-	bool prevMouseLeftDown_;
-	bool isMovingNow_;
-	float lastSlashFrame_;
-
-	// 当たり判定
-	BoxCollider* pCollider_;
-	BoxCollider* attackCollider_;
-	// 攻撃用コライダーの回転を反映した中心オフセット
-	XMFLOAT3 rotateCenter_;
-
-	// 魔法攻撃用方向ベクトル
-	XMFLOAT3 magicDir_;
-
-	// プレイヤーのコンフィグ
-	PlayerConfig cnf_;
-
-	// 当たり判定用壁コライダー
+	//// 入力処理や当たり判定関連の変数
+	int fwd_ = 0;
+	int str_ = 0;
+	BoxCollider* pCollider_ = nullptr;
 	std::vector<BoxCollider*> wallColliders_;
+	XMFLOAT3 rotateCenter_ = { 0.0f, 0.0f, 0.0f };
 
-	// 入力方向の処理
-	int fwd_;
-	int str_;
-
-	// デルタタイム
-	float dt_;
-
-	// カメラ基準の前方ベクトル（XZ平面、Y成分は0）
-	XMFLOAT3 forward;
-
-	// カメラ基準の前方ベクトル（DirectXMath型、正規化済み）
-	XMVECTOR vForward;
-
-	// カメラ基準の右方向ベクトル（XZ平面、Y成分は0）
-	XMFLOAT3 right;
-
-	// カメラ基準の右方向ベクトル（DirectXMath型、正規化済み）
-	XMVECTOR vRight;
-
-	// 経験値
-	float exp_;
-
-	// 魔法を放つ際のマナ管理用変数
-	float mana_;
-
-	// 体力
-	float health_;
-	float damageCooldown_;
-
-	// 死亡したのちに開始するタイマー
-	// 一定時間経過後にタイトルへ戻る
-	float deathTimer_;
+	//// その他
+	float dt_ = 0.0f;
+	LevelUpEffect* levelUpEffect_ = nullptr;
+	PlayerConfig cnf_;
 };

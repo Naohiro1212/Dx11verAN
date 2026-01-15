@@ -206,6 +206,7 @@
     <ClCompile Include="Source\healthGauge.cpp" />
     <ClCompile Include="Source\InfoScene.cpp" />
     <ClCompile Include="Source\Jewel.cpp" />
+    <ClCompile Include="Source\LevelUpEffect.cpp" />
     <ClCompile Include="Source\MagicSphere.cpp" />
     <ClCompile Include="Source\ManaGauge.cpp" />
     <ClCompile Include="Source\ObjectiveText.cpp" />
@@ -260,6 +261,7 @@
     <ClInclude Include="Source\healthGauge.h" />
     <ClInclude Include="Source\InfoScene.h" />
     <ClInclude Include="Source\Jewel.h" />
+    <ClInclude Include="Source\LevelUpEffect.h" />
     <ClInclude Include="Source\MagicSphere.h" />
     <ClInclude Include="Source\ManaGauge.h" />
     <ClInclude Include="Source\ObjectiveText.h" />

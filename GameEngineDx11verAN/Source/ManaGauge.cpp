@@ -3,6 +3,12 @@
 #include <algorithm>
 #include "../Engine/Direct3D.h"
 
+namespace
+{
+	const float GAUGE_POS_X = 100.0f; // マナゲージのX位置
+	const float GAUGE_POS_Y = 150.0f;  // マナゲージのY位置
+}
+
 ManaGauge::ManaGauge(GameObject* parent) : GameObject(parent), mana_(0.0f), maxMana_(0.0f), gaugeImage_(-1)
 {
 }
@@ -12,8 +18,8 @@ void ManaGauge::Initialize()
 	gaugeImage_ = Image::Load("manaGauge.png");
 	assert(gaugeImage_ != -1);
 
-	posX_ = 100.0f; // 画面左上から少し右にオフセット
-	posY_ = 50.0f;  // 画面左上から少し下にオフセット
+	posX_ = GAUGE_POS_X; // 画面左上から少し右にオフセット
+	posY_ = GAUGE_POS_Y;  // 画面左上から少し下にオフセット
 
 	SetDrawOrder(1);
 

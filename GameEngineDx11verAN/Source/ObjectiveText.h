@@ -3,7 +3,10 @@
 
 class DungeonManager;
 class Text;
+class Player;
 
+// シーンの状況に応じたテキスト表示
+// 敵がいるかどうか、プレイヤーがレベルアップしたかどうかなど
 class ObjectiveText : public GameObject
 {
 	// コンストラクタ
@@ -20,4 +23,5 @@ public:
 private:
 	Text* objectiveText_;
 	DungeonManager* dungeonManager_;
+	Player* player;
 };
