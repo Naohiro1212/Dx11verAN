@@ -359,7 +359,7 @@ void Player::OnCollision(GameObject* pTarget)
 
 void Player::MoveInput()
 {
-    // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレーフ）
+    // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレイフ）
     fwd_ = 0;
     str_ = 0;
 
@@ -713,18 +713,19 @@ void Player::PlayMoveSound()
     // 地上のみサウンド再生／停止を扱う
     if (onGround_)
     {
-        // ストレイフまたはダッシュ中はストレイフ音を優先再生
-        if (str_ != 0 || Input::IsKey(DIK_LSHIFT))
+        const bool isMoving = (str_ != 0 || fwd_ != 0);
+        const bool isDash = Input::IsKey(DIK_LSHIFT);
+
+        // ストレイフ：左右入力あり または ダッシュ+前後移動中
+        if (str_ != 0 || (isDash && fwd_ != 0))
         {
             Audio::Play(strafeSEHandle_);
-            // ストレイフ音優先時は歩行音を止める（混ざり防止）
-            Audio::Stop(moveSEHandle_);
+            Audio::Stop(moveSEHandle_); // 混ざり防止
         }
-        // それ以外で前後移動のみなら歩行音再生
+        // それ以外で前後移動のみなら歩行音
         else if (fwd_ != 0)
         {
             Audio::Play(moveSEHandle_);
-            // 前後のみならストレイフ音は止める
             Audio::Stop(strafeSEHandle_);
         }
         // 無入力なら両方停止
@@ -748,8 +749,8 @@ XMFLOAT3 Player::SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n)
     XMVECTOR vn = XMLoadFloat3(&n);
 
     // Y成分をゼロにして水平法線へ
-	vn = XMVectorSet(XMVectorGetX(vn), 0.0f, XMVectorGetZ(vn), 0.0f); 
-	vn = XMVector3Normalize(vn);
+    vn = XMVectorSet(XMVectorGetX(vn), 0.0f, XMVectorGetZ(vn), 0.0f);
+    vn = XMVector3Normalize(vn);
 
     float d = XMVectorGetX(XMVector3Dot(vf, vn));
     XMVECTOR vw = XMVectorSubtract(vf, XMVectorScale(vn, d));

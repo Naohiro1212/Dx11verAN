@@ -18,7 +18,7 @@ namespace Model
 		std::string fileName;
 
 		//ロードしたモデルデータのアドレス
-		Fbx*		pFbx;
+		Fbx* pFbx;
 
 		//行列
 		Transform 	transform;
@@ -109,4 +109,8 @@ namespace Model
 	//引数：handle	判定したいモデルの番号
 	//引数：data	必要なものをまとめたデータ
 	void RayCastWorld(int handle, RayCastData* data);
+
+	void SetGlobalAnimPause(bool isPaused);
+
+	bool IsGlobalAnimPaused();
 };

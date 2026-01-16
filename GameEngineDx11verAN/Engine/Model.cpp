@@ -5,6 +5,8 @@
 //3Dモデル（FBXファイル）を管理する
 namespace Model
 {
+	static bool globalAnimPaused = false;
+
 	//ロード済みのモデルデータ一覧
 	std::vector<ModelData*>	_datas;
 
@@ -74,14 +76,16 @@ namespace Model
 			return;
 		}
 
-		//アニメーションを進める
-		_datas[handle]->nowFrame += _datas[handle]->animSpeed;
+		// ポーズ中はフレームを進めない
+		if (globalAnimPaused)
+		{
+			// アニメーションを進める
+			_datas[handle]->nowFrame += _datas[handle]->animSpeed;
 
-		//最後までアニメーションしたら戻す
-		if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
-			_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
-
-
+			// 最後までアニメーションしたら戻す
+			if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
+				_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
+		}
 
 		if (_datas[handle]->pFbx)
 		{
@@ -278,5 +282,14 @@ namespace Model
 		data->dist = worldDist;
 		data->normal = worldNormal;
 	//	data->hitPos = worldHitPos; // RayCastData に XMFLOAT3 hitPos を追加しておく
+	}
+	void SetGlobalAnimPause(bool isPaused)
+	{
+		globalAnimPaused = isPaused;
+	}
+
+	bool IsGlobalAnimPaused()
+	{
+		return globalAnimPaused;
 	}
 }

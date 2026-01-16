@@ -28,6 +28,8 @@ public:
 
 	//開放
 	void Release() override;
+
+	bool GetPaused() const { return isPaused_; }
 	
 private:
 	// ポーズ中かどうかのフラグ

@@ -93,11 +93,13 @@ void TestScene::Update()
     if (isPaused_)
     {
         pausePanel_->SetPaused(true);
+		Model::SetGlobalAnimPause(false); // モデルのアニメーションも停止
         this->StopAllUpdate();      // 子オブジェクトだけ止める
     }
     else
     {
         pausePanel_->SetPaused(false);
+		Model::SetGlobalAnimPause(true); // モデルのアニメーション再開
         this->ResumeAllUpdate();    // 子オブジェクトだけ再開
     }
 
