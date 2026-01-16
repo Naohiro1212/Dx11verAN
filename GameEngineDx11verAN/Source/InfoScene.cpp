@@ -21,24 +21,52 @@ void InfoScene::Initialize()
 	pInfoText_ = new Text();
 	pInfoText_->Initialize();
 
+	// BGM読み込みと再生
+	bgmHandle_ = Audio::Load("Audio/BGM_Title.wav", true);
+	assert(bgmHandle_ >= 0);
+	Audio::SetVolume(bgmHandle_, 0.02f);
+	Audio::Play(bgmHandle_);
+
 	// ページ数設定
 	currentPage = 0;
 }
 
 void InfoScene::Update()
 {
-	// 左クリックで次の情報ページへ
-	if (Input::IsMouseButtonDown(0))
+	// 現在の押下状態
+	const bool mouseDown = Input::IsMouseButtonDown(0);
+	// エッジ検出（押し始めた瞬間のみ true）
+	const bool mouseClicked = mouseDown && !prevMouseLeftDown_;
+
+	// 左クリックで次の情報ページへ（0 -> 1）
+	if (mouseClicked && currentPage < 1)
 	{
 		currentPage++;
+		// このクリックでは遷移させない（ここで終了）
+		prevMouseLeftDown_ = mouseDown;
+		return;
 	}
-	// 最後のページならダンジョンシーンへ移動
-	if (currentPage == 1)
+
+	// 右クリックで前の情報ページへ（1 -> 0）
+	if(Input::IsMouseButtonDown(1) && currentPage > 0)
 	{
-		// シーン切り替え
-		SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
-		pSceneManager->ChangeScene(SCENE_ID_TEST);
+		currentPage--;
+		// このクリックでは遷移させない（ここで終了）
+		prevMouseLeftDown_ = mouseDown;
+		return;
 	}
+
+	// 2枚目（currentPage == 1）になっていて、次のクリックでスタート
+	if (currentPage == 1 && mouseClicked)
+	{
+		if (auto* pSceneManager = dynamic_cast<SceneManager*>(GetParent()))
+		{
+			pSceneManager->ChangeScene(SCENE_ID_TEST);
+		}
+	}
+
+	// 前フレーム状態の更新
+	prevMouseLeftDown_ = mouseDown;
 }
 
 void InfoScene::Draw()

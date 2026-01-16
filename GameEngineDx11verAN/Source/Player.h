@@ -117,6 +117,7 @@ private:
 	//// í“¬ŠÖ˜A‚Ì•Ï”
 	bool isAttacking_ = false;
 	float attackTimer_ = 0.0f;
+	bool slashSoundPlayed_ = false;
 	float damageCooldown_ = 0.0f;
 	float strength_ = 10.0f;
 	float lastSlashFrame_ = 0.0f;

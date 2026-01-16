@@ -94,4 +94,7 @@ struct PlayerConfig
 
     // ダメージを受けたときの無敵時間
 	const float DAMAGE_INVINCIBLE_TIME = 1.0f;
+
+    // 効果音が鳴るまでのディレイ
+	const float SLASH_SOUND_DELAY = 0.5f;
 };

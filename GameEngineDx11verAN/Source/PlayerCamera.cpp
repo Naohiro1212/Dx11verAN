@@ -15,8 +15,8 @@ namespace
 
 void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance) 
 { 
-    mouseSens_ = 0.01f;
-    zoomSens_ = 2.0f;
+    mouseSens_ = 0.004f;
+    zoomSens_ = 2.3f;
     minPitchDeg_ = -30.0f;
     maxPitchDeg_ = 40.0f;
     minDistance_ = 20.0f;
@@ -30,6 +30,8 @@ void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance)
 
 void PlayerCamera::Update(const XMFLOAT3& _targetPos)
 {
+	float dt_ = GameTime::DeltaTime();
+
     XMFLOAT3 md_ = Input::GetMouseMove();
     float dx_ = md_.x;
     float dy_ = md_.y;
@@ -41,11 +43,12 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos)
 
     // 角度更新
     yawRad_ += dx_ * mouseSens_;
-	pitchRad_ = std::clamp(pitchRad_ + dy_ * mouseSens_, minPitchRad_, maxPitchRad_);
+    pitchRad_ = std::clamp(pitchRad_ + dy_ * mouseSens_, minPitchRad_, maxPitchRad_);
 
+    // ズーム更新（dt でスムーズに）
     if (wheelSteps_ != 0.0f)
     {
-		distance_ = std::clamp(distance_ - wheelSteps_ * zoomSens_, minDistance_, maxDistance_);
+        distance_ = std::clamp(distance_ - wheelSteps_ * zoomSens_, minDistance_, maxDistance_);
     }
 
 	focus_ = { _targetPos.x, _targetPos.y + CAMERA_DISTANCE, _targetPos.z};

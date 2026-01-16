@@ -24,4 +24,8 @@ private:
 	Text* pInfoText_;
 	Transform bgTransform_;
 	int currentPage = 0;
+
+	int bgmHandle_;
+
+	bool prevMouseLeftDown_ = false;
 };

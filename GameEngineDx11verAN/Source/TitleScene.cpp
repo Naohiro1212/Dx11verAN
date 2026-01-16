@@ -41,6 +41,7 @@ void TitleScene::Initialize()
 
 	// BGM“Ç‚Ýž‚Ý‚ÆÄ¶
 	bgmHandle_ = Audio::Load("Audio/BGM_Title.wav", true);
+	assert(bgmHandle_ >= 0);
 	Audio::SetVolume(bgmHandle_, 0.02f);
 	Audio::Play(bgmHandle_);
 }

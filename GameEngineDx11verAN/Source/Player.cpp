@@ -55,9 +55,11 @@ void Player::Initialize()
 	hitSEHandle_ = Audio::Load("Audio/hitsound.wav");
 	moveSEHandle_ = Audio::Load("Audio/move.wav", true,1);
 	strafeSEHandle_ = Audio::Load("Audio/strafe.wav", true,1);
-	shootSEHandle_ = Audio::Load("Audio/shootmagic.wav");
+	shootSEHandle_ = Audio::Load("Audio/shootmagic.wav", false, 15);
 	jumpSEHandle_ = Audio::Load("Audio/jump.wav");
     ongroundSEHandle_ = Audio::Load("Audio/onGround.wav");
+
+    Audio::SetMasterVolume(0.1f);
 
 	assert(hitSEHandle_ != -1);
 	assert(moveSEHandle_ != -1);
@@ -592,6 +594,16 @@ void Player::MeleeAttack()
     // 攻撃モーション中は他の動作を行えない
     if (isAttacking_)
     {
+        // 経過時間を積算
+        attackTimer_ += dt_;
+
+        // 遅延到達で一度だけ効果音
+        if (!slashSoundPlayed_ && attackTimer_ >= cnf_.SLASH_SOUND_DELAY)
+        {
+            Audio::Play(hitSEHandle_);
+            slashSoundPlayed_ = true;
+        }
+
         // 1周目の途中でループ（startに戻る）したら終了
         int cur = Model::GetAnimFrame(slashModel_);
         if (cur < lastSlashFrame_) // startへ巻き戻った＝ループ発生
@@ -637,15 +649,15 @@ void Player::MeleeAttack()
         attackCollider_->SetRole(Collider::Role::Attack);
         AddCollider(attackCollider_);
 
-
         // 移動リセット
         fwd_ = 0;
         str_ = 0;
         isMovingNow_ = false;
         isAttacking_ = true;
 
-        // ヒット音
-        Audio::Play(hitSEHandle_);
+        // タイマー初期化
+        attackTimer_ = 0.0f;
+        slashSoundPlayed_ = false;
 
         nowModel_ = slashModel_;
         Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);

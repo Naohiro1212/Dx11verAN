@@ -23,7 +23,7 @@ void LevelUpEffect::Initialize()
 
 	data_.delay = 10;
 	data_.number = 16;
-	data_.lifeTime = 120;
+	data_.lifeTime = 30;
 
 	data_.color = XMFLOAT4(1.0f, 0.9f, 0.2f, 0.85f); // 黄色＋高α
 	data_.deltaColor = XMFLOAT4(-0.001f, -0.001f, -0.001f, -0.012f); // 徐々に暗く＆フェードアウト
@@ -37,7 +37,7 @@ void LevelUpEffect::Initialize()
 	data_.directionRnd = XMFLOAT3(20.0f, 20.0f, 20.0f); // 角度のランダム（小さめ）
 	data_.speed = 0.060f;    // 初速は弱め
 	data_.accel = 0.992f;    // ゆるく減速（拡散感）
-	data_.gravity = -0.0050f;   // 上昇を徐々に止める（落下はしない程度）
+	data_.gravity = -0.0055f;   // 上昇を徐々に止める（落下はしない程度）
 
 	// ほんの少し回転を付ける（煙のゆらぎ）
 	data_.spin = XMFLOAT3(0.0f, 0.0f, 0.06f);
