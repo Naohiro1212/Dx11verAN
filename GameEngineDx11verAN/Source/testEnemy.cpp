@@ -19,6 +19,9 @@ namespace
 	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };
 
 	const float BACK_TIME_LIMIT = 2.0f;
+
+    // モデル切替の移動しきい値
+    const float MOVE_EPS = 1e-3f;
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), modelHandle_(-1), pCollider_(nullptr),
@@ -36,8 +39,12 @@ void testEnemy::Initialize()
 	transform_.position_ = { 0.0f, 0.5f, 0.0f };
     transform_.scale_ = ENEMY_SCALE;
 
-	// 仮にプレイヤーのアイドルモデルを使う
-	modelHandle_ = Model::Load("Models/idle.fbx");
+	// モデル読み込み
+	idleModel_ = Model::Load("Models/mutantIdle.fbx");
+	walkModel_ = Model::Load("Models/mutantWalk.fbx");
+	assert(modelHandle_ != -1);
+
+	nowModel_ = idleModel_;
 
 	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
 	AddCollider(pCollider_);
@@ -116,13 +123,13 @@ void testEnemy::Update()
     }
 
     // モデルのワールド行列更新
-    Model::SetTransform(modelHandle_, transform_);
+    Model::SetTransform(nowModel_, transform_);
 
 }
 
 void testEnemy::Draw()
 {
-	Model::Draw(modelHandle_);
+	Model::Draw(nowModel_);
 	pCollider_->Draw(transform_.position_, transform_.rotate_);
 }
 
@@ -292,4 +299,35 @@ XMFLOAT3 testEnemy::SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n)
     XMFLOAT3 w;
     XMStoreFloat3(&w, vw);
     return w;
+}
+
+void testEnemy::ChangeModel()
+{
+    int prevModel = nowModel_;
+    int targetModel = nowModel_;
+
+    // 現在どのモデルにするか
+    // 移動しているならば移動モーションへ
+    float moveLenSq = velocity_.x * velocity_.x + velocity_.z * velocity_.z;
+
+    if (moveLenSq > MOVE_EPS * MOVE_EPS)
+    {
+        // 移動しているなら移動モーション
+        targetModel = walkModel_;
+    }
+    else
+    {
+        // 停止ならアイドル
+        targetModel = idleModel_;
+    }
+
+    if (prevModel != targetModel)
+    {
+        nowModel_ = targetModel;
+
+        if (nowModel_ == idleModel_)
+        {
+            Model::SetAnimFrame(nowModel_, 0, )
+        }
+    }
 }

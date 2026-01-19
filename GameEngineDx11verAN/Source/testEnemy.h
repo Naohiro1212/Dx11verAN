@@ -44,6 +44,8 @@ public:
     // セッター
     void SetPosition(const XMFLOAT3& pos);
 
+    void ChangeModel();
+
 private:
     // 死んだ際にアイテムドロップ
     void DropJewel(int numJewels);
@@ -54,7 +56,6 @@ private:
     // プレイヤーの位置を取得するためのポインタ
     Player* player_;
 
-    int modelHandle_;
 	BoxCollider* pCollider_;
     std::vector<BoxCollider*> enemyWallColliders_;
 
@@ -75,4 +76,9 @@ private:
 
     // 死んだときのエフェクト
     EnemyDeathEffect* deathEffect_;
+
+    // モデル
+    int nowModel_;
+    int idleModel_;
+    int walkModel_;
 };
