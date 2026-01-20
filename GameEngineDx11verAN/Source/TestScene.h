@@ -44,4 +44,7 @@ private:
 
 	// 目的テキスト
 	ObjectiveText* objectiveText_;
+
+	// BGM
+	int bgmHandle_;
 };

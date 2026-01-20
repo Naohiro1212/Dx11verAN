@@ -21,11 +21,12 @@ namespace
 	const float BACK_TIME_LIMIT = 2.0f;
 
     // モデル切替の移動しきい値
-    const float MOVE_EPS = 1e-3f;
+    const float MOVE_EPS = 1e-2f;
+	const float DAMAGE_COOLDOWN_TIME = 1.0f;
 }
 
-testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), modelHandle_(-1), pCollider_(nullptr),
-isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr)
+testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), idleModel_(-1), walkModel_(-1), pCollider_(nullptr),
+isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr), damageCooldown_(0.0f)
 {
     enemyWallColliders_.clear();
 }
@@ -42,9 +43,11 @@ void testEnemy::Initialize()
 	// モデル読み込み
 	idleModel_ = Model::Load("Models/mutantIdle.fbx");
 	walkModel_ = Model::Load("Models/mutantWalk.fbx");
-	assert(modelHandle_ != -1);
+    assert(idleModel_ != -1);
+    assert(walkModel_ != -1);
 
 	nowModel_ = idleModel_;
+    Model::SetAnimFrame(nowModel_,0, 427, 1.0f);
 
 	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
 	AddCollider(pCollider_);
@@ -62,6 +65,12 @@ void testEnemy::Initialize()
 void testEnemy::Update()
 {
     float dt_ = GameTime::DeltaTime();
+
+    // ダメージクールタイム更新
+    if(damageCooldown_ > 0.0f)
+    {
+        damageCooldown_ -= dt_;
+	}
 
     // プレイヤーを視認・追跡
     LookAtPlayer();
@@ -123,6 +132,7 @@ void testEnemy::Update()
     }
 
     // モデルのワールド行列更新
+    ChangeModel();
     Model::SetTransform(nowModel_, transform_);
 
 }
@@ -152,13 +162,10 @@ void testEnemy::OnCollision(GameObject* pTarget)
 
     const bool isPlayer = (pTarget->GetObjectName() == "Player" || pTarget->GetObjectName() == "MagicSphere");
 
-    if (anyAttack && isPlayer)
+    if (anyAttack && isPlayer && damageCooldown_ <= 0.0f)
     {
-        // ダメージ処理
-        // 死んだときのエフェクトはシーン側との親子関係にさせるので、敵とは別に生成
-        deathEffect_ = Instantiate<EnemyDeathEffect>(GetParent(), transform_.position_);
-        DropJewel(5);
-        KillMe();
+        health_ -= player_->GetStrength();
+		damageCooldown_ = DAMAGE_COOLDOWN_TIME;
     }
     // Body×Body の場合、敵側ではダメージ適用しない（重複防止）
 }
@@ -306,28 +313,29 @@ void testEnemy::ChangeModel()
     int prevModel = nowModel_;
     int targetModel = nowModel_;
 
-    // 現在どのモデルにするか
-    // 移動しているならば移動モーションへ
-    float moveLenSq = velocity_.x * velocity_.x + velocity_.z * velocity_.z;
-
+    // 今フレームの水平移動ベクトルで移動/停止判定
+    float moveLenSq = moveVec_.x * moveVec_.x + moveVec_.z * moveVec_.z;
     if (moveLenSq > MOVE_EPS * MOVE_EPS)
     {
-        // 移動しているなら移動モーション
         targetModel = walkModel_;
     }
     else
     {
-        // 停止ならアイドル
         targetModel = idleModel_;
     }
 
+    // 変更時のみ適用とアニメ範囲設定
     if (prevModel != targetModel)
     {
         nowModel_ = targetModel;
 
         if (nowModel_ == idleModel_)
         {
-            Model::SetAnimFrame(nowModel_, 0, )
+            Model::SetAnimFrame(nowModel_, 0, 427, 1.0f);
+        }
+        else if (nowModel_ == walkModel_)
+        {
+            Model::SetAnimFrame(nowModel_, 0, 43, 1.0f);
         }
     }
 }

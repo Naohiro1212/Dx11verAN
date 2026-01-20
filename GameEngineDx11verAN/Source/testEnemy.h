@@ -73,6 +73,7 @@ private:
 
     // 体力
     float health_;
+    float damageCooldown_;
 
     // 死んだときのエフェクト
     EnemyDeathEffect* deathEffect_;

@@ -42,6 +42,9 @@ public:
 	// デスタイマー取得
 	float GetDeathTimer() const { return deathTimer_; }
 
+	// 攻撃力取得
+	float GetStrength() const { return strength_; }
+
 private:
 	//// 関数群
 	// 前後左右、入力方向の取得

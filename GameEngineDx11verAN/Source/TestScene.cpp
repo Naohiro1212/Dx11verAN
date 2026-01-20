@@ -12,10 +12,11 @@
 #include "../Engine/Timer.h"
 #include "../Source/PopUpDamage.h" 
 #include "../Source/ObjectiveText.h"
+#include "../Engine/Audio.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
-    : GameObject(parent, "TestScene"), isPaused_(false), objectiveText_(nullptr)
+	: GameObject(parent, "TestScene"), isPaused_(false), objectiveText_(nullptr), bgmHandle_(-1)
 {
 }
 
@@ -48,6 +49,12 @@ void TestScene::Initialize()
     PopUpDamage::PreLoadDigitModels();
 
 	objectiveText_ = Instantiate<ObjectiveText>(this);
+
+    // BGM再生
+    bgmHandle_ = Audio::Load("Audio/Dungeon.wav", true, 0);
+	assert(bgmHandle_ != -1);
+    Audio::SetVolume(bgmHandle_, 0.1f);
+    Audio::Play(bgmHandle_);
 }
 
 //更新
