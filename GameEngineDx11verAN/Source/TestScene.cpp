@@ -51,9 +51,9 @@ void TestScene::Initialize()
 	objectiveText_ = Instantiate<ObjectiveText>(this);
 
     // BGMçƒê∂
-    bgmHandle_ = Audio::Load("Audio/Dungeon.wav", true, 0);
+    bgmHandle_ = Audio::Load("Audio/Dungeon.wav", true, 1);
 	assert(bgmHandle_ != -1);
-    Audio::SetVolume(bgmHandle_, 0.1f);
+    Audio::SetVolume(bgmHandle_, 0.15f);
     Audio::Play(bgmHandle_);
 }
 

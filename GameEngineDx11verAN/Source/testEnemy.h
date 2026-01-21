@@ -77,9 +77,11 @@ private:
 
     // 死んだときのエフェクト
     EnemyDeathEffect* deathEffect_;
+    float deathTimer_;
 
     // モデル
     int nowModel_;
     int idleModel_;
     int walkModel_;
+    int deathModel_;
 };

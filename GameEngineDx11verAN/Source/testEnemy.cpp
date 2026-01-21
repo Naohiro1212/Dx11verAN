@@ -22,11 +22,12 @@ namespace
 
     // モデル切替の移動しきい値
     const float MOVE_EPS = 1e-2f;
-	const float DAMAGE_COOLDOWN_TIME = 1.0f;
+	const float DAMAGE_COOLDOWN_TIME = 0.1f;
+    const float DEATH_TIMER_LIMIT = 3.0f;
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), idleModel_(-1), walkModel_(-1), pCollider_(nullptr),
-isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr), damageCooldown_(0.0f)
+isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr)
 {
     enemyWallColliders_.clear();
 }
@@ -43,8 +44,10 @@ void testEnemy::Initialize()
 	// モデル読み込み
 	idleModel_ = Model::Load("Models/mutantIdle.fbx");
 	walkModel_ = Model::Load("Models/mutantWalk.fbx");
+    deathModel_ = Model::Load("Models/mutantDeath.fbx");
     assert(idleModel_ != -1);
     assert(walkModel_ != -1);
+    assert(deathModel_ != -1);
 
 	nowModel_ = idleModel_;
     Model::SetAnimFrame(nowModel_,0, 427, 1.0f);
@@ -60,62 +63,80 @@ void testEnemy::Initialize()
 
     backTimer_ = 0.0f;
     health_ = 50.0f;
+	damageCooldown_ = 0.0f;
+	deathTimer_ = 0.0f;
 }
 
 void testEnemy::Update()
 {
     float dt_ = GameTime::DeltaTime();
 
-    // ダメージクールタイム更新
-    if(damageCooldown_ > 0.0f)
+    // ダメージクールタイム更新（抜けていた）
+    if (damageCooldown_ > 0.0f)
     {
         damageCooldown_ -= dt_;
-	}
+        if (damageCooldown_ < 0.0f) damageCooldown_ = 0.0f;
+    }
 
-    // プレイヤーを視認・追跡
+    if (health_ <= 0.0f)
+    {
+        // 死亡初回フレームで当たり判定や移動を止める
+        if (deathTimer_ == 0.0f)
+        {
+            isSpoted_ = false;
+            velocity_ = { 0.0f, 0.0f, 0.0f };
+            moveVec_ = { 0.0f, 0.0f, 0.0f };
+        }
+
+        // 死亡タイマー進行
+        deathTimer_ += dt_;
+
+        // モーション更新
+        ChangeModel();
+        Model::SetTransform(nowModel_, transform_);
+
+        // 一定時間後にエフェクト生成→ドロップ→消滅
+        if (deathTimer_ >= DEATH_TIMER_LIMIT)
+        {
+            deathEffect_ = Instantiate<EnemyDeathEffect>(GetParent(), transform_.position_);
+            DropJewel(3);
+            KillMe();
+        }
+        return;
+    }
+
+    // 生存時の処理（視認・追跡・復帰）
     LookAtPlayer();
     MoveToPlayer();
 
-    // isSpotedが一定時間継続している場合、一定時間を超えると追跡をやめ元の位置に戻る
     if (isSpoted_)
     {
         backTimer_ += dt_;
         transform_.position_.x += moveVec_.x * dt_;
         transform_.position_.z += moveVec_.z * dt_;
     }
-	// 視認していない場合、元の位置に戻る
     else
     {
-		// 元の位置までのベクトル
         XMFLOAT3 dirToInit{
             initPos_.x - transform_.position_.x,
             0.0f,
             initPos_.z - transform_.position_.z
         };
-		// 正規化（ゼロ長チェック）
-		XMVECTOR vDirToInit = XMLoadFloat3(&dirToInit);
-		float lenSq = XMVectorGetX(XMVector3LengthSq(vDirToInit));
-        if (lenSq > 1e-6f)
-        {
-            vDirToInit = XMVector3Normalize(vDirToInit);
-		}
-        else 
-        {
-            vDirToInit = XMVectorZero();
-        }
-		XMStoreFloat3(&dirToInit, vDirToInit);
-		// 移動
-		transform_.position_.x += dirToInit.x * CHASE_SPEED * dt_;
-		transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
+        XMVECTOR vDirToInit = XMLoadFloat3(&dirToInit);
+        float lenSq = XMVectorGetX(XMVector3LengthSq(vDirToInit));
+        if (lenSq > 1e-6f) vDirToInit = XMVector3Normalize(vDirToInit);
+        else               vDirToInit = XMVectorZero();
+        XMStoreFloat3(&dirToInit, vDirToInit);
+
+        transform_.position_.x += dirToInit.x * CHASE_SPEED * dt_;
+        transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
     }
 
     if (backTimer_ > BACK_TIME_LIMIT)
     {
         isSpoted_ = false;
-		backTimer_ = 0.0f;
+        backTimer_ = 0.0f;
     }
-
-    moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     // 壁ずり・貫通解消
     for (auto* wallCollider_ : enemyWallColliders_)
@@ -125,16 +146,13 @@ void testEnemy::Update()
         {
             transform_.position_.x += res.push.x + (res.push.x > 0 ? WALL_EPS : (res.push.x < 0 ? -WALL_EPS : 0.0f));
             transform_.position_.z += res.push.z + (res.push.z > 0 ? WALL_EPS : (res.push.z < 0 ? -WALL_EPS : 0.0f));
-
-            // 次フレーム以降の移動方向を壁法線に沿ってスライドさせる
             moveVec_ = SlideAlongWall(moveVec_, res.normal);
         }
     }
 
-    // モデルのワールド行列更新
+    // モデル更新
     ChangeModel();
     Model::SetTransform(nowModel_, transform_);
-
 }
 
 void testEnemy::Draw()
@@ -313,15 +331,24 @@ void testEnemy::ChangeModel()
     int prevModel = nowModel_;
     int targetModel = nowModel_;
 
-    // 今フレームの水平移動ベクトルで移動/停止判定
-    float moveLenSq = moveVec_.x * moveVec_.x + moveVec_.z * moveVec_.z;
-    if (moveLenSq > MOVE_EPS * MOVE_EPS)
+    // 体力が0になったら死亡モーションへ
+    if (health_ <= 0.0f)
     {
-        targetModel = walkModel_;
+		// 死亡モーションへ変更
+        targetModel = deathModel_;
     }
     else
     {
-        targetModel = idleModel_;
+        // 今フレームの水平移動ベクトルで移動/停止判定
+        float moveLenSq = moveVec_.x * moveVec_.x + moveVec_.z * moveVec_.z;
+        if (moveLenSq > MOVE_EPS * MOVE_EPS)
+        {
+            targetModel = walkModel_;
+        }
+        else
+        {
+            targetModel = idleModel_;
+        }
     }
 
     // 変更時のみ適用とアニメ範囲設定
@@ -336,6 +363,19 @@ void testEnemy::ChangeModel()
         else if (nowModel_ == walkModel_)
         {
             Model::SetAnimFrame(nowModel_, 0, 43, 1.0f);
+        }
+        else if(nowModel_ == deathModel_)
+        {
+            Model::SetAnimFrame(nowModel_, 0, 139, 0.8f);
+		}
+    }
+
+    if (nowModel_ == deathModel_)
+    {
+        const int cur = Model::GetAnimFrame(nowModel_);
+        if (cur >= 139)
+        {
+			Model::SetAnimFrame(nowModel_, 139, 139, 0.0f); // 最終フレームで停止
         }
     }
 }

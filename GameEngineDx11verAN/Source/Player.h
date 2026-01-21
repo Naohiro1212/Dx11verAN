@@ -142,11 +142,16 @@ private:
 
 	// ‰¹ŠÖŒW•Ï”
 	int hitSEHandle_;
+	int swingSEHandle_;
 	int moveSEHandle_;
 	int strafeSEHandle_;
 	int shootSEHandle_;
 	int jumpSEHandle_;
 	int ongroundSEHandle_;
+
+	// ‹ßÚUŒ‚‚ÌˆêU‚è’†‚Ìó‘ÔŠÇ—
+	bool attackHitThisSwing_ = false;
+	bool attackSoundPlayedThisSwing_ = false;
 
 	// ƒvƒŒƒCƒ„[İ’è“Ç‚İ‚İ—p•Ï”
 	PlayerConfig cnf_;

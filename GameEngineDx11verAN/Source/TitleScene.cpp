@@ -17,7 +17,10 @@ namespace
 TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), 
 startButton_(nullptr), 
 endButton_(nullptr),
-titleImage_(-1)
+titleImage_(-1),
+clickSoundHandle_(-1),
+startDelay_(600),
+endDelay_(600)
 {
 }
 
@@ -44,6 +47,11 @@ void TitleScene::Initialize()
 	assert(bgmHandle_ >= 0);
 	Audio::SetVolume(bgmHandle_, 0.02f);
 	Audio::Play(bgmHandle_);
+
+	// クリック音読み込み
+	clickSoundHandle_ = Audio::Load("Audio/click.wav");
+	assert(clickSoundHandle_ >= 0);
+	Audio::SetVolume(clickSoundHandle_, 0.5f);
 }
 
 void TitleScene::Update()
@@ -55,10 +63,29 @@ void TitleScene::Update()
 	bool onStartButton = startButton_->GetOnButton();
 	bool onEndButton = endButton_->GetOnButton();
 
-	if (onStartButton)
+	// クリックで遅延処理を予約
+	if (onStartButton && Input::IsMouseButtonDown(0) && !pendingStart_ && !pendingEnd_)
 	{
-		if (Input::IsMouseButtonDown(0))
+		Audio::Play(clickSoundHandle_);
+		pendingStart_ = true;
+		startTriggerTime_ = std::chrono::steady_clock::now();
+	}
+
+	if (onEndButton && Input::IsMouseButtonDown(0) && !pendingEnd_ && !pendingStart_)
+	{
+		Audio::Play(clickSoundHandle_);
+		pendingEnd_ = true;
+		endTriggerTime_ = std::chrono::steady_clock::now();
+	}
+
+	// 予約された処理の実行
+	auto now = std::chrono::steady_clock::now();
+
+	if (pendingStart_)
+	{
+		if(now - startTriggerTime_ >= startDelay_)
 		{
+			pendingStart_ = false;
 			// BGM停止
 			Audio::Stop(bgmHandle_);
 			// シーン切り替え
@@ -66,11 +93,14 @@ void TitleScene::Update()
 			pSceneManager->ChangeScene(SCENE_ID_INFO);
 		}
 	}
-	else if (onEndButton)
+
+	if(pendingEnd_)
 	{
-		if(Input::IsMouseButtonDown(0))
+		if (now - endTriggerTime_ >= endDelay_)
 		{
-			// アプリ終了
+			pendingEnd_ = false;
+			// BGM停止
+			Audio::Stop(bgmHandle_);
 			PostQuitMessage(0);
 		}
 	}

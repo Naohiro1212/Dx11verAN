@@ -1,5 +1,6 @@
 #pragma once
 #include "../Engine/GameObject.h"
+#include <chrono>
 
 class Button;
 class Sprite;
@@ -32,4 +33,13 @@ private:
 
 	// BGM
 	int bgmHandle_;
+	int clickSoundHandle_;
+
+	// 遅延実行用タイマー
+	bool pendingStart_;
+	bool pendingEnd_;
+	std::chrono::steady_clock::time_point startTriggerTime_;
+	std::chrono::steady_clock::time_point endTriggerTime_;
+	std::chrono::milliseconds startDelay_;
+	std::chrono::milliseconds endDelay_;
 };

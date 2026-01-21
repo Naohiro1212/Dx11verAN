@@ -4,6 +4,7 @@
 class DungeonManager;
 class Text;
 class Player;
+class Portal;
 
 // シーンの状況に応じたテキスト表示
 // 敵がいるかどうか、プレイヤーがレベルアップしたかどうかなど
@@ -23,5 +24,6 @@ public:
 private:
 	Text* objectiveText_;
 	DungeonManager* dungeonManager_;
-	Player* player;
+	Player* player_;
+	Portal* portal_;
 };

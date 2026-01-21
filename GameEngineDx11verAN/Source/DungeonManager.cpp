@@ -28,7 +28,8 @@ namespace
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
-	: dungeonGenerator_(nullptr), enemyGenerator_(nullptr), GameObject(_parent, "DungeonManager"), wallModel_(-1), player_(nullptr), portal_(nullptr)
+	: dungeonGenerator_(nullptr), enemyGenerator_(nullptr), GameObject(_parent, "DungeonManager"), wallModel_(-1), player_(nullptr), portal_(nullptr),
+	resetDungeon_(false), nearPortal_(false)
 {
 	dungeonMapInfo_ = new DungeonMap_Info
 	{
@@ -97,6 +98,12 @@ void DungeonManager::Update()
 			}),
 		enemies_.end()
 	);
+
+	if(resetDungeon_)
+	{
+		DungeonReset();
+		resetDungeon_ = false;
+	}
 
 	// 敵の数が0で、ポータルとプレイヤーが近づきキーを押すとダンジョン再生成
 	StageClearCheck();
@@ -252,11 +259,16 @@ void DungeonManager::StageClearCheck()
 		float distSq = dx * dx + dz * dz;
 		if (distSq <= 30.0f * 30.0f)
 		{
+			nearPortal_ = true;
 			// Eキーで再生成
 			if (Input::IsKeyDown(DIK_E)) // Eキーで再生成
 			{
-				DungeonReset();
+				resetDungeon_ = true;
 			}
+		}
+		else
+		{
+			nearPortal_ = false;
 		}
 	}
 	else

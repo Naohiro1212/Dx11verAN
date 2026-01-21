@@ -52,7 +52,9 @@ void Player::Initialize()
 	assert(deathModel_ != -1);
 
     // サウンド読み込み
+    // ヒット音のみ2つ用意し、ヒットしたら切り替え
 	hitSEHandle_ = Audio::Load("Audio/hitsound.wav");
+	swingSEHandle_ = Audio::Load("Audio/slash.wav");
 	moveSEHandle_ = Audio::Load("Audio/move.wav", true,1);
 	strafeSEHandle_ = Audio::Load("Audio/strafe.wav", true,1);
 	shootSEHandle_ = Audio::Load("Audio/shootmagic.wav", false, 15);
@@ -62,6 +64,7 @@ void Player::Initialize()
     Audio::SetMasterVolume(0.1f);
 
 	assert(hitSEHandle_ != -1);
+    assert(slashSEHandle_ != -1);
 	assert(moveSEHandle_ != -1);
 	assert(strafeSEHandle_ != -1);
 	assert(shootSEHandle_ != -1);
@@ -335,6 +338,23 @@ void Player::OnCollision(GameObject* pTarget)
         // もし Jewel を消したいなら pTarget->KillMe();
     }
 
+    // 近接攻撃のヒット判定（自分のAttack -> 相手Body が "Enemy"）
+    if (myRole == Collider::Role::Attack && targetRole == Collider::Role::Body)
+    {
+        const bool isEnemy = (pTarget->GetObjectName() == std::string("Enemy"));
+        if (isEnemy && isAttacking_)
+        {
+            attackHitThisSwing_ = true;
+
+            // まだ効果音を鳴らしていなければ、ヒット瞬間に鳴らす
+            if (!attackSoundPlayedThisSwing_)
+            {
+                Audio::Play(hitSEHandle_);
+                attackSoundPlayedThisSwing_ = true;
+            }
+        }
+    }
+
     // Body×Body の接触で敵とぶつかった場合の仮死亡処理（従来の挙動）
     if (myRole == Collider::Role::Body && targetRole == Collider::Role::Body)
     {
@@ -597,11 +617,12 @@ void Player::MeleeAttack()
         // 経過時間を積算
         attackTimer_ += dt_;
 
-        // 遅延到達で一度だけ効果音
-        if (!slashSoundPlayed_ && attackTimer_ >= cnf_.SLASH_SOUND_DELAY)
+        // サウンド再生タイミング到達
+        if (!attackSoundPlayedThisSwing_ && attackTimer_ >= cnf_.SLASH_SOUND_DELAY)
         {
-            Audio::Play(hitSEHandle_);
-            slashSoundPlayed_ = true;
+            // 当たっていればヒットSE、当たっていなければ空振りSE
+            Audio::Play(attackHitThisSwing_ ? hitSEHandle_ : swingSEHandle_);
+            attackSoundPlayedThisSwing_ = true;
         }
 
         // 1周目の途中でループ（startに戻る）したら終了
@@ -618,6 +639,10 @@ void Player::MeleeAttack()
             }
             nowModel_ = idleModel_;
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
+
+            // 次回に向けて状態を戻す
+            attackHitThisSwing_ = false;
+            attackSoundPlayedThisSwing_ = false;
         }
         else
         {
@@ -636,20 +661,20 @@ void Player::MeleeAttack()
         float yawRad = XMConvertToRadians(transform_.rotate_.y);
         XMFLOAT3 forwardDir = { -sinf(yawRad), 0.0f, -cosf(yawRad) };
 
-        // ローカル基準オフセット（元と同じ式）
+        // ローカル基準オフセット
         XMFLOAT3 localOffset = {
             forwardDir.x * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET,
             transform_.scale_.y * cnf_.HEIGHT_OFFSET,
             forwardDir.z * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET
         };
 
-		// 攻撃用コライダー生成
+        // 攻撃用コライダー生成
         attackCollider_ = new BoxCollider(cnf_.ATTACK_COLLIDER_BASE_POS, cnf_.ATTACK_COLLIDER_SCALE);
         attackCollider_->SetCenter(localOffset);
         attackCollider_->SetRole(Collider::Role::Attack);
         AddCollider(attackCollider_);
 
-        // 移動リセット
+        // 入力・状態初期化
         fwd_ = 0;
         str_ = 0;
         isMovingNow_ = false;
@@ -657,16 +682,17 @@ void Player::MeleeAttack()
 
         // タイマー初期化
         attackTimer_ = 0.0f;
-        slashSoundPlayed_ = false;
+        lastSlashFrame_ = cnf_.SLASH_ANIM_START;
+        attackHitThisSwing_ = false;
+        attackSoundPlayedThisSwing_ = false; 
 
         nowModel_ = slashModel_;
         Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
-        lastSlashFrame_ = cnf_.SLASH_ANIM_START; // 巻き戻り検知の基準
         Model::SetTransform(nowModel_, transform_);
         plvision_.Update(transform_.position_);
         return;
     }
- }
+}
 
 void Player::CalcCameraDirectionXZ()
 {

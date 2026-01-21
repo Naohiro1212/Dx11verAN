@@ -35,6 +35,9 @@ public:
 	int GetNowFloor() const { return nowFloor_; }
 	int GetEnemyCount() const { return static_cast<int>(enemies_.size()); }
 
+	bool GetResetDungeon() const { return resetDungeon_; }
+	bool GetNearPortal() const { return nearPortal_; }
+
 private:
 	// 敵の数が0かつ、ポータルとプレイヤーが近づきキーを押すとダンジョン再生成フラグを立てる
 	// ダンジョン踏破中
@@ -70,8 +73,9 @@ private:
 	// 一定距離以内の壁コライダーキャッシュ
 	std::vector<BoxCollider*> nearWallColliders_;
 
-	bool needDungeonReset_;
-
 	// ダンジョンの現在階数
 	int nowFloor_;
+
+	bool resetDungeon_;
+	bool nearPortal_;
 };
