@@ -84,4 +84,8 @@ private:
     int idleModel_;
     int walkModel_;
     int deathModel_;
+
+    // ノックバック用の変数
+    XMFLOAT3 knockbackVec_;
+    float knockbackTimer_;
 };

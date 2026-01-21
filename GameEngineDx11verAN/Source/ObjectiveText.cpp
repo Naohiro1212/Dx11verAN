@@ -65,7 +65,7 @@ void ObjectiveText::Draw()
     {
         if (dungeonManager_->GetEnemyCount() == 0)
         {
-            objectiveText_->Draw(NEXTAREA_TEXTPOS_X, NEXTAREA_TEXTPOS_Y, "Go to The Portal!")
+            objectiveText_->Draw(NEXTAREA_TEXTPOS_X, NEXTAREA_TEXTPOS_Y, "Go to The Portal!");
         }
     }
 }

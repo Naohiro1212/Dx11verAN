@@ -22,8 +22,12 @@ namespace
 
     // モデル切替の移動しきい値
     const float MOVE_EPS = 1e-2f;
-	const float DAMAGE_COOLDOWN_TIME = 0.1f;
+	const float DAMAGE_COOLDOWN_TIME = 0.5f;
     const float DEATH_TIMER_LIMIT = 3.0f;
+
+    // ノックバック関連
+    const float KNOCKBACK_DURATION = 0.25f; // ノックバック継続時間（秒）
+    const float KNOCKBACK_SPEED = 8.0f;     // ノックバック速度（単位/秒）
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), idleModel_(-1), walkModel_(-1), pCollider_(nullptr),
@@ -65,6 +69,11 @@ void testEnemy::Initialize()
     health_ = 50.0f;
 	damageCooldown_ = 0.0f;
 	deathTimer_ = 0.0f;
+
+    // ノックバック初期化
+    knockbackVec_ = { 0.0f, 0.0f, 0.0f };
+    knockbackTimer_ = 0.0f;
+
 }
 
 void testEnemy::Update()
@@ -86,6 +95,9 @@ void testEnemy::Update()
             isSpoted_ = false;
             velocity_ = { 0.0f, 0.0f, 0.0f };
             moveVec_ = { 0.0f, 0.0f, 0.0f };
+            // コライダー無効化
+            RemoveCollider(pCollider_);
+			pCollider_ = nullptr;
         }
 
         // 死亡タイマー進行
@@ -108,6 +120,9 @@ void testEnemy::Update()
     // 生存時の処理（視認・追跡・復帰）
     LookAtPlayer();
     MoveToPlayer();
+
+    // ここで velocity_ を moveVec_ に反映
+    moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     if (isSpoted_)
     {
@@ -158,7 +173,10 @@ void testEnemy::Update()
 void testEnemy::Draw()
 {
 	Model::Draw(nowModel_);
-	pCollider_->Draw(transform_.position_, transform_.rotate_);
+    if (pCollider_)
+    {
+        pCollider_->Draw(transform_.position_, transform_.rotate_);
+    }
 }
 
 void testEnemy::Release()
@@ -182,8 +200,37 @@ void testEnemy::OnCollision(GameObject* pTarget)
 
     if (anyAttack && isPlayer && damageCooldown_ <= 0.0f)
     {
+        // プレイヤーの近接ダメージを1回だけ受ける
         health_ -= player_->GetStrength();
-		damageCooldown_ = DAMAGE_COOLDOWN_TIME;
+        damageCooldown_ = DAMAGE_COOLDOWN_TIME;
+
+        // ノックバック設定: プレイヤー方向の逆（敵から見てプレイヤーへ向かうベクトルの反対）
+        XMFLOAT3 playerPos = player_->GetPosition();
+        XMFLOAT3 enemyPos = transform_.position_;
+        XMFLOAT3 kbDir{
+            enemyPos.x - playerPos.x,
+            0.0f,
+            enemyPos.z - playerPos.z
+        };
+
+        XMVECTOR vKb = XMLoadFloat3(&kbDir);
+        if (XMVectorGetX(XMVector3LengthSq(vKb)) > 1e-6f)
+        {
+            vKb = XMVector3Normalize(vKb);
+            vKb = XMVectorScale(vKb, KNOCKBACK_SPEED);
+            XMStoreFloat3(&knockbackVec_, vKb);
+            knockbackTimer_ = KNOCKBACK_DURATION;
+
+            // ノックバック中は通常の velocity を止めておく（必要なら）
+            velocity_ = { 0.0f, 0.0f, 0.0f };
+            moveVec_ = { 0.0f, 0.0f, 0.0f };
+        }
+        else
+        {
+            // 近接しすぎて方向が取れない場合は軽く後ろへ押すだけ
+            knockbackVec_ = { -0.1f * KNOCKBACK_SPEED, 0.0f, -0.1f * KNOCKBACK_SPEED };
+            knockbackTimer_ = KNOCKBACK_DURATION * 0.3f;
+        }
     }
     // Body×Body の場合、敵側ではダメージ適用しない（重複防止）
 }
