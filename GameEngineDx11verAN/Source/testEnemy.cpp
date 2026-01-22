@@ -26,8 +26,10 @@ namespace
     const float DEATH_TIMER_LIMIT = 3.0f;
 
     // ノックバック関連
-    const float KNOCKBACK_DURATION = 0.25f; // ノックバック継続時間（秒）
-    const float KNOCKBACK_SPEED = 8.0f;     // ノックバック速度（単位/秒）
+    const float KNOCKBACK_DURATION = 0.50f; // ノックバック継続時間（秒）
+    const float KNOCKBACK_SPEED = 200.0f;     // ノックバック速度（単位/秒）
+    const float KNOCKBACK_DAMP = 0.92f;     // 毎フレーム減衰（必要なら調整）
+
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), idleModel_(-1), walkModel_(-1), pCollider_(nullptr),
@@ -117,6 +119,41 @@ void testEnemy::Update()
         return;
     }
 
+    // ノックバック中は追跡を停止してノックバックのみ適用
+    if (knockbackTimer_ > 0.0f)
+    {
+        // 位置更新（XZ のみ）
+        transform_.position_.x += knockbackVec_.x * dt_;
+        transform_.position_.z += knockbackVec_.z * dt_;
+
+        // 減衰（必要なければこの行は削除）
+        knockbackVec_.x *= KNOCKBACK_DAMP;
+        knockbackVec_.z *= KNOCKBACK_DAMP;
+
+        knockbackTimer_ -= dt_;
+        if (knockbackTimer_ < 0.0f) knockbackTimer_ = 0.0f;
+
+        // アニメ用に「移動中」とみなす
+        moveVec_ = knockbackVec_;
+
+        // 壁ずり・貫通解消
+        for (auto* wallCollider_ : enemyWallColliders_)
+        {
+            PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
+            if (res.overlapped)
+            {
+                transform_.position_.x += res.push.x + (res.push.x > 0 ? WALL_EPS : (res.push.x < 0 ? -WALL_EPS : 0.0f));
+                transform_.position_.z += res.push.z + (res.push.z > 0 ? WALL_EPS : (res.push.z < 0 ? -WALL_EPS : 0.0f));
+                moveVec_ = SlideAlongWall(moveVec_, res.normal);
+            }
+        }
+
+        // モデル更新して今フレーム終了
+        ChangeModel();
+        Model::SetTransform(nowModel_, transform_);
+        return;
+    }
+
     // 生存時の処理（視認・追跡・復帰）
     LookAtPlayer();
     MoveToPlayer();
@@ -200,37 +237,39 @@ void testEnemy::OnCollision(GameObject* pTarget)
 
     if (anyAttack && isPlayer && damageCooldown_ <= 0.0f)
     {
-        // プレイヤーの近接ダメージを1回だけ受ける
+        // ダメージ
         health_ -= player_->GetStrength();
         damageCooldown_ = DAMAGE_COOLDOWN_TIME;
 
-        // ノックバック設定: プレイヤー方向の逆（敵から見てプレイヤーへ向かうベクトルの反対）
-        XMFLOAT3 playerPos = player_->GetPosition();
+        // ノックバック方向（攻撃発生源 → 敵 の反対方向）
+        // 可能なら攻撃発生源の位置を使う。Player は player_->GetPosition() がある前提。
+        XMFLOAT3 srcPos =
+            isPlayer ? player_->GetPosition()
+            : pTarget->GetPosition(); // MagicSphere に GetPosition がある前提。無ければ player_->GetPosition() に置き換え可。
+
         XMFLOAT3 enemyPos = transform_.position_;
-        XMFLOAT3 kbDir{
-            enemyPos.x - playerPos.x,
+        XMFLOAT3 dir =
+        {
+            enemyPos.x - srcPos.x,
             0.0f,
-            enemyPos.z - playerPos.z
+            enemyPos.z - srcPos.z
         };
 
-        XMVECTOR vKb = XMLoadFloat3(&kbDir);
-        if (XMVectorGetX(XMVector3LengthSq(vKb)) > 1e-6f)
+        // 正規化して速度ベクトルへ
+        XMVECTOR vDir = XMLoadFloat3(&dir);
+        float lenSq = XMVectorGetX(XMVector3LengthSq(vDir));
+        if (lenSq > 1e-6f)
         {
-            vKb = XMVector3Normalize(vKb);
-            vKb = XMVectorScale(vKb, KNOCKBACK_SPEED);
-            XMStoreFloat3(&knockbackVec_, vKb);
+            vDir = XMVector3Normalize(vDir);
+            XMFLOAT3 n; XMStoreFloat3(&n, vDir);
+            knockbackVec_.x = n.x * KNOCKBACK_SPEED;
+            knockbackVec_.z = n.z * KNOCKBACK_SPEED;
+            knockbackVec_.y = 0.0f;
             knockbackTimer_ = KNOCKBACK_DURATION;
+        }
 
-            // ノックバック中は通常の velocity を止めておく（必要なら）
-            velocity_ = { 0.0f, 0.0f, 0.0f };
-            moveVec_ = { 0.0f, 0.0f, 0.0f };
-        }
-        else
-        {
-            // 近接しすぎて方向が取れない場合は軽く後ろへ押すだけ
-            knockbackVec_ = { -0.1f * KNOCKBACK_SPEED, 0.0f, -0.1f * KNOCKBACK_SPEED };
-            knockbackTimer_ = KNOCKBACK_DURATION * 0.3f;
-        }
+        // 追跡速度は一旦ゼロ（ノックバック優先）
+        velocity_ = { 0.0f, 0.0f, 0.0f };
     }
     // Body×Body の場合、敵側ではダメージ適用しない（重複防止）
 }

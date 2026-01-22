@@ -157,7 +157,6 @@ void DungeonManager::DungeonReset()
 		if (collider)
 		{
 			RemoveCollider(collider);
-			SAFE_DELETE(collider);
 		}
 	}
 	wallColliders_.clear();
