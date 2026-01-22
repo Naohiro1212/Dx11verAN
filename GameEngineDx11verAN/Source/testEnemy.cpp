@@ -11,7 +11,7 @@
 namespace
 {
     const float CHASE_SPEED = 25.0f;
-    const float VIEW_DISTANCE = 100.0f;
+    const float VIEW_DISTANCE = 75.0f;
 	const float VIEW_HALF_ANGLE_DEG = 750.0f;
     const float TURN_SPEED_DEG = 8.5f;
 
@@ -19,6 +19,7 @@ namespace
 	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };
 
 	const float BACK_TIME_LIMIT = 2.0f;
+	const float ATTACK_DISTANCE = 10.0f;
 
     // モデル切替の移動しきい値
     const float MOVE_EPS = 1e-2f;
@@ -26,14 +27,25 @@ namespace
     const float DEATH_TIMER_LIMIT = 3.0f;
 
     // ノックバック関連
-    const float KNOCKBACK_DURATION = 0.50f; // ノックバック継続時間（秒）
-    const float KNOCKBACK_SPEED = 200.0f;     // ノックバック速度（単位/秒）
+    const float KNOCKBACK_DURATION = 0.45f; // ノックバック継続時間（秒）
+    const float KNOCKBACK_SPEED = 150.0f;     // ノックバック速度（単位/秒）
     const float KNOCKBACK_DAMP = 0.92f;     // 毎フレーム減衰（必要なら調整）
 
+	// モデルのアニメーションフレーム範囲
+    const int ANIM_BASE_START = 0;
+	const int ANIM_IDLE_END = 427;
+	const int ANIM_WALK_END = 43;
+	const int ANIM_DEATH_END = 139;
+    const int ANIM_ATTACK_END = 34;
+	const float ANIM_BASE_SPEED = 0.7f;
+    const float ANIM_DEATH_SPEED = 0.6f;
+
+    // 初期位置とのずれの許容値
+    const float POSITION_EPS = 0.5f;
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), idleModel_(-1), walkModel_(-1), pCollider_(nullptr),
-isSpoted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr)
+isSpotted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr)
 {
     enemyWallColliders_.clear();
 }
@@ -44,21 +56,23 @@ testEnemy::~testEnemy()
 
 void testEnemy::Initialize()
 {
-	transform_.position_ = { 0.0f, 0.5f, 0.0f };
+	transform_.position_ = { 0.0f, 0.5f, 0.0f }; // 初期位置
     transform_.scale_ = ENEMY_SCALE;
 
 	// モデル読み込み
 	idleModel_ = Model::Load("Models/mutantIdle.fbx");
 	walkModel_ = Model::Load("Models/mutantWalk.fbx");
     deathModel_ = Model::Load("Models/mutantDeath.fbx");
+    attackModel_ = Model::Load("Models/mutantAttack.fbx");
     assert(idleModel_ != -1);
     assert(walkModel_ != -1);
     assert(deathModel_ != -1);
+    assert(attackModel_ != -1);
 
 	nowModel_ = idleModel_;
-    Model::SetAnimFrame(nowModel_,0, 427, 1.0f);
+    Model::SetAnimFrame(nowModel_,ANIM_BASE_START, ANIM_IDLE_END, ANIM_BASE_SPEED);
 
-	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 40.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
+	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 80.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
 	AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 
@@ -94,7 +108,7 @@ void testEnemy::Update()
         // 死亡初回フレームで当たり判定や移動を止める
         if (deathTimer_ == 0.0f)
         {
-            isSpoted_ = false;
+            isSpotted_ = false;
             velocity_ = { 0.0f, 0.0f, 0.0f };
             moveVec_ = { 0.0f, 0.0f, 0.0f };
             // コライダー無効化
@@ -161,7 +175,7 @@ void testEnemy::Update()
     // ここで velocity_ を moveVec_ に反映
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
-    if (isSpoted_)
+    if (isSpotted_)
     {
         backTimer_ += dt_;
         transform_.position_.x += moveVec_.x * dt_;
@@ -180,13 +194,28 @@ void testEnemy::Update()
         else               vDirToInit = XMVectorZero();
         XMStoreFloat3(&dirToInit, vDirToInit);
 
-        transform_.position_.x += dirToInit.x * CHASE_SPEED * dt_;
-        transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
+		// 初期位置へ戻る
+        // 初期位置の方向を向く
+		transform_.rotate_.y = atan2f(-dirToInit.x, -dirToInit.z) * (180.0f / XM_PI);
+
+        // 微小なずれを許容する
+        float distToInitSq = (initPos_.x - transform_.position_.x) * (initPos_.x - transform_.position_.x)
+            + (initPos_.z - transform_.position_.z) * (initPos_.z - transform_.position_.z);
+        if (distToInitSq > POSITION_EPS)
+        {
+            // まだ離れている場合のみ移動
+            transform_.position_.x += dirToInit.x * CHASE_SPEED * dt_;
+            transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
+        }
+        else
+        {
+            moveVec_ = { 0.0f, 0.0f, 0.0f };
+        }
     }
 
     if (backTimer_ > BACK_TIME_LIMIT)
     {
-        isSpoted_ = false;
+        isSpotted_ = false;
         backTimer_ = 0.0f;
     }
 
@@ -233,19 +262,18 @@ void testEnemy::OnCollision(GameObject* pTarget)
 
     const bool anyAttack = (myRole == Collider::Role::Body && targetRole == Collider::Role::Attack);
 
-    const bool isPlayer = (pTarget->GetObjectName() == "Player" || pTarget->GetObjectName() == "MagicSphere");
+    const bool isPlayer = (pTarget->GetObjectName() == "Player");
+	const bool isMagic = (pTarget->GetObjectName() == "MagicSphere");
 
-    if (anyAttack && isPlayer && damageCooldown_ <= 0.0f)
+    if (anyAttack && (isPlayer || isMagic) && damageCooldown_ <= 0.0f)
     {
         // ダメージ
         health_ -= player_->GetStrength();
         damageCooldown_ = DAMAGE_COOLDOWN_TIME;
 
         // ノックバック方向（攻撃発生源 → 敵 の反対方向）
-        // 可能なら攻撃発生源の位置を使う。Player は player_->GetPosition() がある前提。
-        XMFLOAT3 srcPos =
-            isPlayer ? player_->GetPosition()
-            : pTarget->GetPosition(); // MagicSphere に GetPosition がある前提。無ければ player_->GetPosition() に置き換え可。
+        // Playerの位置を使う
+        XMFLOAT3 srcPos = player_->GetPosition();
 
         XMFLOAT3 enemyPos = transform_.position_;
         XMFLOAT3 dir =
@@ -315,12 +343,12 @@ void testEnemy::LookAtPlayer()
 	dot = (std::max)(-1.0f, (std::min)(1.0f, dot)); // Clamp
 	float angleDiffDig_ = XMConvertToDegrees(acosf(dot));
 
-	isSpoted_ = (distSq_ <= viewDistSq_) && (angleDiffDig_ <= VIEW_HALF_ANGLE_DEG);
+	isSpotted_ = (distSq_ <= viewDistSq_) && (angleDiffDig_ <= VIEW_HALF_ANGLE_DEG);
 }
 
 void testEnemy::MoveToPlayer()
 {
-    if (!isSpoted_) return;
+    if (!isSpotted_) return;
 
     // プレイヤーと敵の位置
     XMFLOAT3 playerPos = player_->GetPosition();
@@ -369,6 +397,29 @@ void testEnemy::MoveToPlayer()
         : (std::max)(diff, -maxTurnPerFrame);
 
     transform_.rotate_.y += stepYaw;
+}
+
+void testEnemy::AttackPlayer()
+{
+    // プレイヤーと敵の位置
+	XMFLOAT3 playerPos = player_->GetPosition();
+	XMFLOAT3 enemyPos = transform_.position_;
+	
+    // 一定距離内なら、立ち止まって攻撃モーションを行う
+    XMFLOAT3 dir{
+        playerPos.x - enemyPos.x,
+        0.0f,
+        playerPos.z - enemyPos.z
+    };
+
+	float distSq = dir.x * dir.x + dir.z * dir.z;
+	float attackDistSq = ATTACK_DISTANCE * ATTACK_DISTANCE;
+
+	if (distSq <= attackDistSq)
+	{
+		velocity_ = { 0.0f, 0.0f, 0.0f };
+        isAttacking_ = true;
+	}
 }
 
 void testEnemy::SetPosition(const XMFLOAT3& pos)
@@ -423,6 +474,11 @@ void testEnemy::ChangeModel()
 		// 死亡モーションへ変更
         targetModel = deathModel_;
     }
+    else if (isAttacking_)
+    {
+		// 攻撃モーションへ変更
+		targetModel = attackModel_;
+    }
     else
     {
         // 今フレームの水平移動ベクトルで移動/停止判定
@@ -444,24 +500,28 @@ void testEnemy::ChangeModel()
 
         if (nowModel_ == idleModel_)
         {
-            Model::SetAnimFrame(nowModel_, 0, 427, 1.0f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_IDLE_END, ANIM_BASE_SPEED);
         }
         else if (nowModel_ == walkModel_)
         {
-            Model::SetAnimFrame(nowModel_, 0, 43, 1.0f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_WALK_END, ANIM_BASE_SPEED);
         }
         else if(nowModel_ == deathModel_)
         {
-            Model::SetAnimFrame(nowModel_, 0, 139, 0.8f);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_DEATH_END, ANIM_BASE_SPEED);
 		}
+        else if (nowModel_ == attackModel_)
+        {
+			Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_ATTACK_END, ANIM_BASE_SPEED);
+        }
     }
 
     if (nowModel_ == deathModel_)
     {
         const int cur = Model::GetAnimFrame(nowModel_);
-        if (cur >= 139)
+        if (cur >= ANIM_DEATH_END)
         {
-			Model::SetAnimFrame(nowModel_, 139, 139, 0.0f); // 最終フレームで停止
+			Model::SetAnimFrame(nowModel_, ANIM_DEATH_END, ANIM_DEATH_END, 0.0f); // 最終フレームで停止
         }
     }
 }

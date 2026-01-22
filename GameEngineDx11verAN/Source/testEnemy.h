@@ -39,6 +39,9 @@ public:
     //Playerに向かって移動する
     void MoveToPlayer();
 
+    //Playerに対して攻撃する
+    void AttackPlayer();
+
     void SetWallColliders(const std::vector<BoxCollider*>& colliders) { enemyWallColliders_ = colliders; }
 
     // セッター
@@ -65,7 +68,10 @@ private:
     XMFLOAT3 moveVec_;
 
     // プレイヤーを見つけたかどうかのフラグ
-    bool isSpoted_;
+    bool isSpotted_;
+
+    // プレイヤーを攻撃している状態かどうか
+    bool isAttacking_;
 
     // 最初に居た座標
 	XMFLOAT3 initPos_;
@@ -84,6 +90,7 @@ private:
     int idleModel_;
     int walkModel_;
     int deathModel_;
+    int attackModel_;
 
     // ノックバック用の変数
     XMFLOAT3 knockbackVec_;
