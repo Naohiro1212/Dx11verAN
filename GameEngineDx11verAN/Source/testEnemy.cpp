@@ -10,10 +10,10 @@
 
 namespace
 {
-    const float CHASE_SPEED = 10.0f;
+    const float CHASE_SPEED = 25.0f;
     const float VIEW_DISTANCE = 100.0f;
-	const float VIEW_HALF_ANGLE_DEG = 50.0f;
-    const float TURN_SPEED_DEG = 7.5f;
+	const float VIEW_HALF_ANGLE_DEG = 750.0f;
+    const float TURN_SPEED_DEG = 8.5f;
 
     const float WALL_EPS = 1e-3f;
 	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };

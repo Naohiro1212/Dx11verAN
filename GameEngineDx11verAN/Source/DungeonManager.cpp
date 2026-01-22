@@ -11,6 +11,8 @@
 #include "testEnemy.h"
 #include "Portal.h"
 
+#include "../Engine/Debug.h"
+
 namespace
 {
 	const size_t AREACOUNT_MIN = 4; // マップの区分け最小数
@@ -155,6 +157,7 @@ void DungeonManager::DungeonReset()
 		if (collider)
 		{
 			RemoveCollider(collider);
+			SAFE_DELETE(collider);
 		}
 	}
 	wallColliders_.clear();
@@ -211,25 +214,35 @@ void DungeonManager::DungeonReset()
 	}
 
 	// 壁のコライダー生成
-	for (size_t i = 0;i < MAPX_RLk; ++i)
+	wallColliders_.clear();
+	for (size_t j = 0;j < MAPX_RLk; ++j)
 	{
-		for (size_t j = 0;j < MAPY_RLk; ++j)
+		// 壁開始を探す
+		size_t i = 0;
+		while (i < MAPX_RLk)
 		{
-			if (maprl[i][j].mapData == MAPCHIP_WALL)
-			{
-				mapTransform_.position_ = {
-					static_cast<float>(i) * MAPTILE_SIZE, 0.0f,
-					static_cast<float>(j) * MAPTILE_SIZE };
-				mapTransform_.scale_ = MAPCHIP_SCALE;
-				BoxCollider* wallCollider_ = new BoxCollider(
-					{ mapTransform_.position_.x,
-					  mapTransform_.position_.y + (MAPCHIP_SCALE.y / 2.0f),
-					  mapTransform_.position_.z },
-					COLLIDER_SIZE);
-				AddCollider(wallCollider_);
-				wallCollider_->SetRole(Collider::Role::Static);
-				wallColliders_.push_back(wallCollider_);
-			}
+			// 壁開始を探す
+			while (i < MAPX_RLk && maprl[i][j].mapData != MAPCHIP_WALL) i++;
+			if (i >= MAPX_RLk) break;
+
+			// 連続区間の終端まで進む
+			size_t start = i;
+			while (i < MAPX_RLk && maprl[i][j].mapData == MAPCHIP_WALL) i++;
+			size_t end = i;
+
+			// コライダー生成
+			const float width = (end - start) * MAPTILE_SIZE;
+			const float centerX = ((start + end - 1) * 0.5f) * MAPTILE_SIZE;
+			const float centerZ = j * MAPTILE_SIZE;
+
+			BoxCollider* wallCollider_ = new BoxCollider(
+				{ centerX, /*高さセンタ*/ (COLLIDER_SIZE.y * 0.5f), centerZ },
+				{ width, COLLIDER_SIZE.y, COLLIDER_SIZE.z }  // 横幅をまとめる
+			);
+
+			AddCollider(wallCollider_);
+			wallCollider_->SetRole(Collider::Role::Static);
+			wallColliders_.push_back(wallCollider_);
 		}
 	}
 

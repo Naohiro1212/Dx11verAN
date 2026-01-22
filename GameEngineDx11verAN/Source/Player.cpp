@@ -64,7 +64,7 @@ void Player::Initialize()
     Audio::SetMasterVolume(0.1f);
 
 	assert(hitSEHandle_ != -1);
-    assert(slashSEHandle_ != -1);
+    assert(swingSEHandle_ != -1);
 	assert(moveSEHandle_ != -1);
 	assert(strafeSEHandle_ != -1);
 	assert(shootSEHandle_ != -1);
@@ -140,10 +140,44 @@ void Player::Update()
         ChangeModel();
     }
 
-    // 死亡タイマー
-    if (health_ <= 0.0f)
+    // 死亡判定
+    if (health_ <= 0.0f && !isDead_)
+    {
+        isDead_ = true;
+        deathTimer_ = 0.0f;
+        deathAnimStopped_ = false;
+
+        // 明示的に死亡アニメーションを開始
+        nowModel_ = deathModel_;
+        Model::SetAnimFrame(
+            nowModel_,
+            cnf_.ANIM_BASE_START,           // 再生開始
+            cnf_.ANIM_DEATH_END,            // 再生終端
+            cnf_.ANIM_DEATH_PLAY_SPEED      // 再生速度
+        );
+    }
+
+    if (isDead_)
     {
         deathTimer_ += dt_;
+        // アニメーションが終端に到達したらループさせず完全停止
+        if (!deathAnimStopped_)
+        {
+            const int cur = Model::GetAnimFrame(nowModel_);
+            if (cur >= cnf_.ANIM_DEATH_END)
+            {
+                // end で速度0にしてフレーム固定（以後ループしない）
+                Model::SetAnimFrame(
+                    nowModel_,
+                    cnf_.ANIM_DEATH_END,
+                    cnf_.ANIM_DEATH_END,
+                    0.0f
+                );
+                deathAnimStopped_ = true;
+            }
+        }
+        plvision_.Update(transform_.position_);
+        return;
     }
 
     if (isMovingNow_)
@@ -410,46 +444,62 @@ void Player::MoveInput()
 
 void Player::ChangeModel()
 {
+    // 1) すでに死亡モーション再生中で、終端に到達していたら固定して抜ける
+    if (nowModel_ == deathModel_)
+    {
+        const int cur = Model::GetAnimFrame(nowModel_);
+        if (cur >= cnf_.ANIM_DEATH_END)
+        {
+            // 終端に固定（以後進まないように速度0、start=end=end）
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
+            return;
+        }
+    }
+
     int prevModel = nowModel_;
     int targetModel = nowModel_;
 
-    // 体力が0になったら死亡モーション
+    // 2) 体力が0なら死亡モーションへ（切り替え時に再生開始）
     if (health_ <= 0.0f)
     {
-        // 死亡モーション実装予定
         targetModel = deathModel_;
-	}
+    }
     else
     {
-        if (!onGround_) {
+        if (!onGround_)
+        {
             targetModel = jumpModel_;
         }
-        else {
-            // 2) 地上のときだけ攻撃でロックしたいならここで抜ける
+        else 
+        {
             if (isAttacking_) return;
 
-            // 3) 地上の移動入力で分岐（整理版）
-            if (fwd_ > 0) {
+            if (fwd_ > 0)
+            {
                 if (str_ > 0)       targetModel = rightStrafeModel_;
                 else if (str_ < 0)  targetModel = leftStrafeModel_;
                 else                targetModel = walkModel_;
             }
-            else if (fwd_ < 0) {
+            else if (fwd_ < 0) 
+            {
                 targetModel = backStrafeModel_;
             }
-            else if (str_ > 0) {
+            else if (str_ > 0) 
+            {
                 targetModel = rightStrafeModel_;
             }
-            else if (str_ < 0) {
+            else if (str_ < 0) 
+            {
                 targetModel = leftStrafeModel_;
             }
-            else {
+            else
+            {
                 targetModel = idleModel_;
             }
         }
     }
 
-    // 4) 変更があるときだけ適用
+    // 3) 切り替え時だけフレーム設定
     if (prevModel != targetModel)
     {
         nowModel_ = targetModel;
@@ -466,31 +516,19 @@ void Player::ChangeModel()
         {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_BACK_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == idleModel_)
+        else if (nowModel_ == idleModel_) 
         {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
         }
         else if (nowModel_ == jumpModel_) 
         {
-            // ジャンプアニメーション（空中は常にこれ）
             float jumpAnimSpeed = cnf_.ANIM_BASE_SPEED * (JumpV0_ / (JumpV0_ + cnf_.GRAVITY)) + cnf_.ANIM_JUMP_BUFFER;
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_JUMP_END, jumpAnimSpeed);
         }
-        else if (nowModel_ == deathModel_)
+        else if (nowModel_ == deathModel_) 
         {
-            // 死亡アニメーション（1回だけ再生開始）
+            // 死亡アニメ再生開始（非ループ化は上の固定ロジックで担保）
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_PLAY_SPEED);
-        }
-    }
-
-    // ここで「死亡アニメーションが最後まで再生されたら最終フレームで停止」を実施
-    if (nowModel_ == deathModel_)
-    {
-        const int cur = Model::GetAnimFrame(nowModel_);
-        if (cur >= cnf_.ANIM_DEATH_END)
-        {
-            // 開始=end, 終了=end, 速度=0 にして完全停止
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
         }
     }
 }
@@ -655,7 +693,7 @@ void Player::MeleeAttack()
     }
 
     // 攻撃開始（開始時だけセット）
-    if (Input::IsMouseButtonDown(0) && onGround_)
+    if (Input::IsMouseButtonDown(0) && onGround_ && !isDead_)
     {
         // その場で向きベクトルを作る（magicDir_ に依存しない）
         float yawRad = XMConvertToRadians(transform_.rotate_.y);

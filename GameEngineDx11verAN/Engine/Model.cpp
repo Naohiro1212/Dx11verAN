@@ -292,4 +292,11 @@ namespace Model
 	{
 		return globalAnimPaused;
 	}
+	void SetAnimPause(int handle, bool isPaused)
+	{
+		if (isPaused)
+		{
+			_datas[handle]->animSpeed = 0.0f;
+		}
+	}
 }

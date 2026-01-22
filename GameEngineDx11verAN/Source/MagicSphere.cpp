@@ -80,7 +80,7 @@ void MagicSphere::OnCollision(GameObject* pTarget)
 	const auto targetRole = targetCol->GetRole();
 
 	const bool isAttack = (myRole == Collider::Role::Attack && targetRole == Collider::Role::Body);
-	const bool isEnemy = (pTarget->GetObjectName() == "testEnemy");
+	const bool isEnemy = (pTarget->GetObjectName() == "Enemy");
 
 	if (isAttack && isEnemy)
 	{

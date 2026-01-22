@@ -161,4 +161,8 @@ private:
 
 	// レベルアップエフェクト
 	LevelUpEffect* levelUpEffect_;
+
+	// 死亡判定
+	bool isDead_ = false;
+	bool deathAnimStopped_ = false;
 };

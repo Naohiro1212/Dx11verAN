@@ -26,6 +26,7 @@ namespace Model
 		//アニメーションのフレーム
 		float nowFrame, animSpeed;
 		int startFrame, endFrame;
+		bool loop; //ループするかどうか
 
 
 		//初期化
@@ -113,4 +114,7 @@ namespace Model
 	void SetGlobalAnimPause(bool isPaused);
 
 	bool IsGlobalAnimPaused();
+
+	// アニメーションの一時停止
+	void SetAnimPause(int handle, bool isPaused);
 };
