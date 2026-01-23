@@ -17,6 +17,7 @@
 #include "../Engine/RandomNum.h"
 #include "../Source/LevelUpEffect.h"
 #include "../Engine/Audio.h"
+#include "../Source/testEnemy.h"
 
 using namespace DirectX;
 
@@ -116,6 +117,44 @@ void Player::Update()
     // デルタタイム取得
     dt_ = GameTime::DeltaTime();
 
+    // 1) 死亡を最優先（ここで初期化は1回だけ）
+    if (health_ <= 0.0f)
+    {
+        if (!isDead_) {
+            isDead_ = true;
+            deathTimer_ = 0.0f;
+            deathAnimStopped_ = false;
+
+            // 攻撃の後始末（任意）
+            isAttacking_ = false;
+            if (attackCollider_) { RemoveCollider(attackCollider_); attackCollider_ = nullptr; }
+
+            nowModel_ = deathModel_;
+            // 初期化はこの1回だけ
+            Model::SetAnimFrame(
+                nowModel_,
+                cnf_.ANIM_BASE_START,
+                cnf_.ANIM_DEATH_END,
+                cnf_.ANIM_DEATH_PLAY_SPEED
+            );
+        }
+
+        // 死亡中の進行と停止固定
+        deathTimer_ += dt_;
+        if (!deathAnimStopped_) {
+            const int cur = Model::GetAnimFrame(nowModel_);
+			// 猶予を持ってアニメ終了で停止
+            if (cur >= cnf_.ANIM_DEATH_END - cnf_.ANIM_DEATH_BUFFER)
+            {
+                Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
+                deathAnimStopped_ = true;
+            }
+        }
+        Model::SetTransform(nowModel_, transform_);
+        plvision_.Update(transform_.position_);
+        return; // 以降の通常処理は走らせない
+    }
+
     // 攻撃モーション中は他の動作を行えない
     MeleeAttack();
 
@@ -138,46 +177,6 @@ void Player::Update()
         // 入力によるモデル切り替え
         // 切り替えたタイミングでアニメーションを最初から再生
         ChangeModel();
-    }
-
-    // 死亡判定
-    if (health_ <= 0.0f && !isDead_)
-    {
-        isDead_ = true;
-        deathTimer_ = 0.0f;
-        deathAnimStopped_ = false;
-
-        // 明示的に死亡アニメーションを開始
-        nowModel_ = deathModel_;
-        Model::SetAnimFrame(
-            nowModel_,
-            cnf_.ANIM_BASE_START,           // 再生開始
-            cnf_.ANIM_DEATH_END,            // 再生終端
-            cnf_.ANIM_DEATH_PLAY_SPEED      // 再生速度
-        );
-    }
-
-    if (isDead_)
-    {
-        deathTimer_ += dt_;
-        // アニメーションが終端に到達したらループさせず完全停止
-        if (!deathAnimStopped_)
-        {
-            const int cur = Model::GetAnimFrame(nowModel_);
-            if (cur >= cnf_.ANIM_DEATH_END)
-            {
-                // end で速度0にしてフレーム固定（以後ループしない）
-                Model::SetAnimFrame(
-                    nowModel_,
-                    cnf_.ANIM_DEATH_END,
-                    cnf_.ANIM_DEATH_END,
-                    0.0f
-                );
-                deathAnimStopped_ = true;
-            }
-        }
-        plvision_.Update(transform_.position_);
-        return;
     }
 
     if (isMovingNow_)
@@ -389,13 +388,17 @@ void Player::OnCollision(GameObject* pTarget)
         }
     }
 
-    // Body×Body の接触で敵とぶつかった場合の仮死亡処理（従来の挙動）
-    if (myRole == Collider::Role::Body && targetRole == Collider::Role::Body)
+    // Body×Body or Body×Attack の接触で敵とぶつかった場合のダメージ（従来の挙動）
+    if (myRole == Collider::Role::Body && (targetRole == Collider::Role::Body || targetRole == Collider::Role::Attack))
     {
         bool isEnemy = (pTarget->GetObjectName() == "Enemy");
         if (isEnemy && damageCooldown_ <= 0.0f)
         {
-            health_ -= 10.0f; // 体力減少
+            // 敵の攻撃力を持ってくる
+			auto* enemy = dynamic_cast<testEnemy*>(pTarget);
+            enemy->GetAttackPower();
+
+            health_ -= enemy->GetAttackPower();
             damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
 
             // PopupDamageオブジェクト生成
@@ -445,22 +448,16 @@ void Player::MoveInput()
 void Player::ChangeModel()
 {
     // 1) すでに死亡モーション再生中で、終端に到達していたら固定して抜ける
-    if (nowModel_ == deathModel_)
+    if (isDead_)
     {
-        const int cur = Model::GetAnimFrame(nowModel_);
-        if (cur >= cnf_.ANIM_DEATH_END)
-        {
-            // 終端に固定（以後進まないように速度0、start=end=end）
-            Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
-            return;
-        }
+        return;
     }
 
     int prevModel = nowModel_;
     int targetModel = nowModel_;
 
     // 2) 体力が0なら死亡モーションへ（切り替え時に再生開始）
-    if (health_ <= 0.0f)
+    if (isDead_)
     {
         targetModel = deathModel_;
     }

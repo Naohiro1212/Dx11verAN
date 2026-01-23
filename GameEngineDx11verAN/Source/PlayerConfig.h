@@ -43,6 +43,8 @@ struct PlayerConfig
     const int ANIM_BACK_END = 17;
     const int ANIM_JUMP_END = 60;
     const int ANIM_DEATH_END = 230;
+    // 死亡モーションの猶予の値
+    const int ANIM_DEATH_BUFFER = 5;
 	const float ANIM_JUMP_BUFFER = 0.12f; // ジャンプアニメーションの速度調整用
     const float ANIM_DEATH_PLAY_SPEED = 1.2f;
 

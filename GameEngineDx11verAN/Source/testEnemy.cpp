@@ -19,7 +19,7 @@ namespace
 	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };
 
 	const float BACK_TIME_LIMIT = 2.0f;
-	const float ATTACK_DISTANCE = 10.0f;
+	const float ATTACK_DISTANCE = 15.0f;
 
     // モデル切替の移動しきい値
     const float MOVE_EPS = 1e-2f;
@@ -42,6 +42,11 @@ namespace
 
     // 初期位置とのずれの許容値
     const float POSITION_EPS = 0.5f;
+
+    const float ATTACK_INTERVAL = 1.5f;
+
+    // 仮の攻撃力
+    const int ATTACK_POWER = 10;
 }
 
 testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), idleModel_(-1), walkModel_(-1), pCollider_(nullptr),
@@ -90,13 +95,19 @@ void testEnemy::Initialize()
     knockbackVec_ = { 0.0f, 0.0f, 0.0f };
     knockbackTimer_ = 0.0f;
 
+    attackCooldown_ = 0.0f;
+    lastAttackFrame_ = ANIM_BASE_START;
+
+    attackPower_ = ATTACK_POWER;
 }
 
 void testEnemy::Update()
 {
     float dt_ = GameTime::DeltaTime();
 
-    // ダメージクールタイム更新（抜けていた）
+    AttackPlayer();
+
+    // ダメージクールタイム更新
     if (damageCooldown_ > 0.0f)
     {
         damageCooldown_ -= dt_;
@@ -243,6 +254,11 @@ void testEnemy::Draw()
     {
         pCollider_->Draw(transform_.position_, transform_.rotate_);
     }
+
+    if (attackCollider_)
+    {
+		attackCollider_->Draw(transform_.position_, transform_.rotate_);
+    }
 }
 
 void testEnemy::Release()
@@ -348,7 +364,7 @@ void testEnemy::LookAtPlayer()
 
 void testEnemy::MoveToPlayer()
 {
-    if (!isSpotted_) return;
+    if (!isSpotted_ || isAttacking_) return;
 
     // プレイヤーと敵の位置
     XMFLOAT3 playerPos = player_->GetPosition();
@@ -401,10 +417,47 @@ void testEnemy::MoveToPlayer()
 
 void testEnemy::AttackPlayer()
 {
+	// プレイヤーが死んでいるなら何もしない
+    if (player_->IsDead()) return;
+
+    // 攻撃モーション中は他の動作を行えない
+    if (isAttacking_)
+    {
+        // その場で停止
+        velocity_ = { 0.0f, 0.0f, 0.0f };
+        moveVec_ = { 0.0f, 0.0f, 0.0f };
+
+		// 1週目の攻撃アニメが終了したら通常モーションへ戻す
+        int cur = Model::GetAnimFrame(attackModel_);
+        if(cur < lastAttackFrame_ || cur >= ANIM_ATTACK_END)
+        {
+            isAttacking_ = false;
+
+			// 攻撃用コライダー破棄
+            if (attackCollider_)
+            {
+                RemoveCollider(attackCollider_);
+                attackCollider_ = nullptr;
+            }
+            nowModel_ = idleModel_;
+			Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_IDLE_END, ANIM_BASE_SPEED);
+        }
+        else
+        {
+            lastAttackFrame_ = cur;
+        }
+
+		Model::SetTransform(nowModel_, transform_);
+        return;
+    }
+
+    // プレイヤーが取得できてないなら何もしない
+    if (!player_) return;
+
     // プレイヤーと敵の位置
-	XMFLOAT3 playerPos = player_->GetPosition();
-	XMFLOAT3 enemyPos = transform_.position_;
-	
+    XMFLOAT3 playerPos = player_->GetPosition();
+    XMFLOAT3 enemyPos = transform_.position_;
+
     // 一定距離内なら、立ち止まって攻撃モーションを行う
     XMFLOAT3 dir{
         playerPos.x - enemyPos.x,
@@ -412,15 +465,43 @@ void testEnemy::AttackPlayer()
         playerPos.z - enemyPos.z
     };
 
-	float distSq = dir.x * dir.x + dir.z * dir.z;
-	float attackDistSq = ATTACK_DISTANCE * ATTACK_DISTANCE;
+    float distSq = dir.x * dir.x + dir.z * dir.z;
+    float attackDistSq = ATTACK_DISTANCE * ATTACK_DISTANCE;
 
-	if (distSq <= attackDistSq)
-	{
-		velocity_ = { 0.0f, 0.0f, 0.0f };
+    if (distSq <= attackDistSq && attackCooldown_ <= 0.0f)
+    {
+        // 前方ベクトル（rotate_.y が度）
+        float yawRad = XMConvertToRadians(transform_.rotate_.y);
+        XMFLOAT3 forwardDir = { -sinf(yawRad), 0.0f, -cosf(yawRad) };
+
+        // ローカル基準オフセット（前方へ）
+        XMFLOAT3 localOffset = {
+			forwardDir.x* transform_.scale_.z * 80.0f,
+			transform_.scale_.y * 60.0f,
+			forwardDir.z* transform_.scale_.z * 80.0f
+        };
+
+        // 攻撃用コライダー生成
+		attackCollider_ = new BoxCollider(XMFLOAT3(0.0f, 10.0f, 0.0f), XMFLOAT3(transform_.scale_.x * 60.0f, transform_.scale_.y * 60.0f, transform_.scale_.z * 60.0f));
+        attackCollider_->SetCenter(localOffset);
+        attackCollider_->SetRole(Collider::Role::Attack);
+        AddCollider(attackCollider_);
+
+        // 状態初期化
         isAttacking_ = true;
-	}
+        attackCooldown_ = 0.0f;
+        lastAttackFrame_ = ANIM_BASE_START;
+
+        // アニメ開始
+        nowModel_ = attackModel_;
+        Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_ATTACK_END, ANIM_BASE_SPEED);
+        Model::SetTransform(nowModel_, transform_);
+
+
+        return;
+    }
 }
+
 
 void testEnemy::SetPosition(const XMFLOAT3& pos)
 {
@@ -474,13 +555,10 @@ void testEnemy::ChangeModel()
 		// 死亡モーションへ変更
         targetModel = deathModel_;
     }
-    else if (isAttacking_)
-    {
-		// 攻撃モーションへ変更
-		targetModel = attackModel_;
-    }
     else
     {
+        if (isAttacking_) return;
+
         // 今フレームの水平移動ベクトルで移動/停止判定
         float moveLenSq = moveVec_.x * moveVec_.x + moveVec_.z * moveVec_.z;
         if (moveLenSq > MOVE_EPS * MOVE_EPS)
@@ -510,10 +588,6 @@ void testEnemy::ChangeModel()
         {
             Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_DEATH_END, ANIM_BASE_SPEED);
 		}
-        else if (nowModel_ == attackModel_)
-        {
-			Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_ATTACK_END, ANIM_BASE_SPEED);
-        }
     }
 
     if (nowModel_ == deathModel_)

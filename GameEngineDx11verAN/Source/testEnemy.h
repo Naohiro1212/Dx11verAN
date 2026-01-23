@@ -46,6 +46,7 @@ public:
 
     // セッター
     void SetPosition(const XMFLOAT3& pos);
+	int GetAttackPower() { return attackPower_; }
 
     void ChangeModel();
 
@@ -60,6 +61,7 @@ private:
     Player* player_;
 
 	BoxCollider* pCollider_;
+	BoxCollider* attackCollider_;
     std::vector<BoxCollider*> enemyWallColliders_;
 
     // 敵の移動速度
@@ -95,4 +97,10 @@ private:
     // ノックバック用の変数
     XMFLOAT3 knockbackVec_;
     float knockbackTimer_;
+
+    float attackCooldown_;
+    int lastAttackFrame_;
+
+    // 攻撃力
+	int attackPower_;
 };
