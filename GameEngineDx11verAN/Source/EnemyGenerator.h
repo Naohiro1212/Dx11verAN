@@ -6,6 +6,8 @@ using namespace DirectX;
 class MapData_RL;
 struct DungeonMap_Info;
 
+// “G‚ğ¶¬‚·‚é‚½‚ß‚¾‚¯‚ÌƒNƒ‰ƒX
+
 class EnemyGenerator
 {
 public:

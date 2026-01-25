@@ -396,7 +396,6 @@ void Player::OnCollision(GameObject* pTarget)
         {
             // 敵の攻撃力を持ってくる
 			auto* enemy = dynamic_cast<testEnemy*>(pTarget);
-            enemy->GetAttackPower();
 
             health_ -= enemy->GetAttackPower();
             damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
@@ -407,7 +406,7 @@ void Player::OnCollision(GameObject* pTarget)
             if (popup_ && health_ > 0.0f)
             {
 				// popupのステータス設定
-                popup_->SetDamage(10);
+                popup_->SetDamage(enemy->GetAttackPower());
                 // popupの位置と回転をプレイヤーに合わせる予定（今は一旦位置のみ）
                 popup_->SetPosition(transform_.position_);
                 popup_->Initialize();

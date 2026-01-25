@@ -12,8 +12,8 @@ namespace
 {
     const float CHASE_SPEED = 25.0f;
     const float VIEW_DISTANCE = 75.0f;
-	const float VIEW_HALF_ANGLE_DEG = 750.0f;
-    const float TURN_SPEED_DEG = 8.5f;
+	const float VIEW_HALF_ANGLE_DEG = 85.0f;
+    const float TURN_SPEED_DEG = 65.0f;
 
     const float WALL_EPS = 1e-3f;
 	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };
@@ -49,14 +49,25 @@ namespace
     const int ATTACK_POWER = 10;
 }
 
-testEnemy::testEnemy(GameObject* parent) :GameObject(parent, "Enemy"), idleModel_(-1), walkModel_(-1), pCollider_(nullptr),
-isSpotted_(false), velocity_{ 0.0f,0.0f,0.0f }, player_(nullptr), deathEffect_(nullptr)
+testEnemy::testEnemy(GameObject* parent)
+    :GameObject(parent, "Enemy"), 
+    idleModel_(-1),
+    walkModel_(-1),
+    pCollider_(nullptr),
+	attackCollider_(nullptr),
+    isSpotted_(false),
+	isAttacking_(false),
+    velocity_{ 0.0f,0.0f,0.0f }, 
+    player_(nullptr),
+    deathEffect_(nullptr)
 {
     enemyWallColliders_.clear();
 }
 
 testEnemy::~testEnemy()
 {
+    pCollider_ = nullptr;
+	attackCollider_ = nullptr;
 }
 
 void testEnemy::Initialize()
@@ -112,6 +123,13 @@ void testEnemy::Update()
     {
         damageCooldown_ -= dt_;
         if (damageCooldown_ < 0.0f) damageCooldown_ = 0.0f;
+    }
+
+    // 攻撃クールタイム更新
+    if (attackCooldown_ > 0.0f)
+    {
+        attackCooldown_ -= dt_;
+		if (attackCooldown_ < 0.0f) attackCooldown_ = 0.0f;
     }
 
     if (health_ <= 0.0f)
@@ -405,7 +423,8 @@ void testEnemy::MoveToPlayer()
     while (diff < -180.0f) diff += 360.0f;
 
     // 毎秒の最大回転角 → 毎フレームに変換
-    float maxTurnPerFrame = TURN_SPEED_DEG;
+	const float dt_ = GameTime::DeltaTime();
+    float maxTurnPerFrame = TURN_SPEED_DEG * dt_;
 
     // 実際に回す角度をクランプ
     float stepYaw = (diff > 0.0f)
@@ -417,8 +436,11 @@ void testEnemy::MoveToPlayer()
 
 void testEnemy::AttackPlayer()
 {
-	// プレイヤーが死んでいるなら何もしない
+	// プレイヤーor敵が死んでいるなら何もしない
     if (player_->IsDead()) return;
+
+    // ノックバック中でも何もしない
+    if(knockbackTimer_ > 0.0f) return;
 
     // 攻撃モーション中は他の動作を行えない
     if (isAttacking_)
@@ -468,7 +490,8 @@ void testEnemy::AttackPlayer()
     float distSq = dir.x * dir.x + dir.z * dir.z;
     float attackDistSq = ATTACK_DISTANCE * ATTACK_DISTANCE;
 
-    if (distSq <= attackDistSq && attackCooldown_ <= 0.0f)
+    // 一定距離内かつ、クールタイム終了・体力があるなら攻撃開始
+    if (distSq <= attackDistSq && attackCooldown_ <= 0.0f && health_ > 0.0f)
     {
         // 前方ベクトル（rotate_.y が度）
         float yawRad = XMConvertToRadians(transform_.rotate_.y);
@@ -489,7 +512,7 @@ void testEnemy::AttackPlayer()
 
         // 状態初期化
         isAttacking_ = true;
-        attackCooldown_ = 0.0f;
+        attackCooldown_ = ATTACK_INTERVAL;
         lastAttackFrame_ = ANIM_BASE_START;
 
         // アニメ開始
@@ -586,7 +609,7 @@ void testEnemy::ChangeModel()
         }
         else if(nowModel_ == deathModel_)
         {
-            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_DEATH_END, ANIM_BASE_SPEED);
+            Model::SetAnimFrame(nowModel_, ANIM_BASE_START, ANIM_DEATH_END, ANIM_DEATH_SPEED);
 		}
     }
 

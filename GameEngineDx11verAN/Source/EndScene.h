@@ -1,5 +1,6 @@
 #pragma once
 #include "../Engine/GameObject.h"
+#include <chrono>
 
 class Button;
 class Text;
@@ -32,4 +33,13 @@ private:
 
 	// クリアタイマー
 	Text* pClearTimeText_;
+
+	// BGM
+	int bgmHandle_;
+	int clickSoundHandle_;
+
+	// 遅延実行用タイマー
+	bool pendingStart_;
+	std::chrono::steady_clock::time_point startTriggerTime_;
+	std::chrono::milliseconds startDelay_;
 };

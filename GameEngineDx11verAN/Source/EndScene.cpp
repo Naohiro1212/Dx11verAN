@@ -7,6 +7,7 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/ScoreManager.h"
 #include "../Engine/Timer.h"
+#include "../Engine/Audio.h"
 #include <string>
 
 EndScene::EndScene(GameObject* parent) : GameObject(parent, "EndScene"), EndImage_(-1), pButton_(nullptr), bgTransform_()
@@ -25,8 +26,19 @@ void EndScene::Initialize()
 	// ボタン初期化
 	pButton_ = Instantiate<Button>(this);
 	pButton_->SetCenter(true);
-	pButton_->SetButtonImage(Image::Load("colormap.png"));
+	pButton_->SetButtonImage(Image::Load("BackTitleButton.png"));
 	pButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + 200.0f);
+
+	// BGM読み込みと再生
+	bgmHandle_ = Audio::Load("Audio/BGM_Title.wav", true);
+	assert(bgmHandle_ >= 0);
+	Audio::SetVolume(bgmHandle_, 0.02f);
+	Audio::Play(bgmHandle_);
+
+	// クリック音読み込み
+	clickSoundHandle_ = Audio::Load("Audio/click.wav");
+	assert(clickSoundHandle_ >= 0);
+	Audio::SetVolume(clickSoundHandle_, 0.5f);
 
 	pScoreText_ = new Text();
 	pScoreText_->Initialize();
@@ -43,11 +55,25 @@ void EndScene::Update()
 	pButton_->Update();
 	bool onButton = pButton_->GetOnButton();
 
-	if(onButton)
+	if (onButton && Input::IsMouseButtonDown(0) && !pendingStart_)
 	{
-		if (Input::IsMouseButtonDown(0))
+		Audio::Play(clickSoundHandle_);
+		pendingStart_ = true;
+		startTriggerTime_ = std::chrono::steady_clock::now();
+	}
+
+	// 予約された処理の実行
+	auto now = std::chrono::steady_clock::now();
+
+	if (pendingStart_)
+	{
+		if(now - startTriggerTime_ >= startDelay_)
 		{
-			SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
+			pendingStart_ = false;
+			// BGM停止
+			Audio::Stop(bgmHandle_);
+			// シーン切り替え
+			SceneManager* pSceneManager = dynamic_cast<SceneManager*>(FindObject("SceneManager"));
 			pSceneManager->ChangeScene(SCENE_ID_TITLE);
 		}
 	}
