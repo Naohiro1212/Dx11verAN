@@ -13,6 +13,7 @@ cbuffer global
 	float4x4	g_matWVP;			// ワールド・ビュー・プロジェクションの合成行列
 	float4x4	g_matNormalTrans;	// 法線の変換行列（回転行列と拡大の逆行列）
 	float4x4	g_matWorld;			// ワールド変換行列
+    float4x4 g_matLightViewProj; // ライトのビュー・プロジェクション行列
 	float4		g_vecLightDir;		// ライトの方向ベクトル
 	float4		g_vecDiffuse;		// ディフューズカラー（マテリアルの色）
 	float4		g_vecAmbient;		// アンビエントカラー（影の色）
@@ -27,10 +28,10 @@ cbuffer global
 //───────────────────────────────────────
 struct VS_OUT
 {
-	float4 pos    : SV_POSITION;	//位置
-	float4 normal : TEXCOORD2;		//法線
-	float2 uv	  : TEXCOORD0;		//UV座標
-	float4 eye	  : TEXCOORD1;		//視線
+	float4 pos			: SV_POSITION;		//位置
+	float4 normal		: TEXCOORD2;		//法線
+	float2 uv			: TEXCOORD0;		//UV座標
+	float4 eye			: TEXCOORD1;		//視線
 };
 
 //───────────────────────────────────────
