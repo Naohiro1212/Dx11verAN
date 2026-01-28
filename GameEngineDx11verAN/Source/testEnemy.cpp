@@ -27,9 +27,9 @@ namespace
     const float DEATH_TIMER_LIMIT = 3.0f;
 
     // ノックバック関連
-    const float KNOCKBACK_DURATION = 0.45f; // ノックバック継続時間（秒）
-    const float KNOCKBACK_SPEED = 150.0f;     // ノックバック速度（単位/秒）
-    const float KNOCKBACK_DAMP = 0.92f;     // 毎フレーム減衰（必要なら調整）
+    const float KNOCKBACK_DURATION = 0.35f; // ノックバック継続時間（秒）
+    const float KNOCKBACK_SPEED = 120.0f;     // ノックバック速度（単位/秒）
+    const float KNOCKBACK_DAMP = 0.85f;     // 毎フレーム減衰（必要なら調整）
 
 	// モデルのアニメーションフレーム範囲
     const int ANIM_BASE_START = 0;
