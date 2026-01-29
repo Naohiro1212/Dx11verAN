@@ -279,9 +279,9 @@ void Player::Update()
 
     // ダンジョンの壁との当たり判定
     // ダンジョン再生成時に壁コライダーリストを更新する
-    for (auto* wall_ : wallColliders_)
+    for (auto* wallCollider_ : wallColliders_)
     {
-		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wall_);
+		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
 		if (res.overlapped)
 		{
 			transform_.position_.x += res.push.x + (res.push.x > 0 ? cnf_.WALL_EPS : (res.push.x < 0 ? -cnf_.WALL_EPS : 0.0f));
@@ -339,12 +339,9 @@ void Player::Draw()
 	Model::Draw(nowModel_);
     //pCollider_->Draw(transform_.position_, transform_.rotate_);
 
-
     if (attackCollider_)
     {
-#ifdef _DEBUG
         attackCollider_->Draw(transform_.position_, transform_.rotate_);
-#endif
     }
 }
 

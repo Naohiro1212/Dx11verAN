@@ -13,7 +13,7 @@ namespace
     const float CHASE_SPEED = 25.0f;
     const float VIEW_DISTANCE = 75.0f;
 	const float VIEW_HALF_ANGLE_DEG = 85.0f;
-    const float TURN_SPEED_DEG = 85.0f;
+    const float TURN_SPEED_DEG = 65.0f;
 
     const float WALL_EPS = 1e-3f;
 	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };
@@ -270,16 +270,12 @@ void testEnemy::Draw()
 	Model::Draw(nowModel_);
     if (pCollider_)
     {
-#ifdef _DEBUG
         pCollider_->Draw(transform_.position_, transform_.rotate_);
-#endif 
     }
 
     if (attackCollider_)
     {
-#ifdef _DEBUG
 		attackCollider_->Draw(transform_.position_, transform_.rotate_);
-#endif
     }
 }
 

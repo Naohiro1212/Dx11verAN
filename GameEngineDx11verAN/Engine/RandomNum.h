@@ -25,15 +25,6 @@ public:
         return dist(mt);
     }
 
-	int GetRandF(float min, float max) {
-		if (min > max)
-		{
-			std::swap(min, max);
-		}
-		std::uniform_real_distribution<float> dist(min, max);
-		return dist(mt);
-	}
-
 private:
     std::random_device rd;
     std::mt19937 mt;
