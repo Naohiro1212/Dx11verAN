@@ -19,7 +19,6 @@ struct VERTEX
 	XMFLOAT3 uv;
 };
 
-
 //常にカメラの方を向く四角形ポリゴン
 class BillBoard
 {
