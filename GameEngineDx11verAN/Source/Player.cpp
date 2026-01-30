@@ -109,7 +109,7 @@ void Player::Initialize()
 	health_ = cnf_.MAX_HEALTH;
 
 	// ダメージを受けたときの無敵時間用タイマー初期化
-    damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
+    damageCooldown_ = 0.0f;
 }
 
 void Player::Update()
