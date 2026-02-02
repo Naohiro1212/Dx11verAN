@@ -27,6 +27,7 @@ namespace
 	const float MAPTILE_SIZE = 30.0f;
 	const XMFLOAT3 COLLIDER_SIZE = { 40.0f, 30.0f, 33.0f };
 	const float WALL_DRAW_DISTANCE = 500.0f * 500.0f; // •Ç‚Ì•`‰æ‹——£i‹——£‚Ì2æ‚ÅŠÇ—j
+	const int MAX_FLOOR = 3;
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -40,8 +41,10 @@ DungeonManager::DungeonManager(GameObject* _parent)
 		ROOMLENGTH_MIN_X,
 		ROOMLENGTH_MIN_Y,
 		ROOMLENGTH_RAND_X,
-		ROOMLENGTH_RAND_Y
+		ROOMLENGTH_RAND_Y,
 	};
+
+	rdn_ = new RandomNum();
 }
 
 DungeonManager::~DungeonManager()
@@ -151,6 +154,12 @@ void DungeonManager::DungeonReset()
 	// ŠK”‚ði‚ß‚é
 	nowFloor_++;
 
+	// ŠK”‚ªˆê’èˆÈã‚ð’´‚¦‚½‚ç‘ŠúƒŠƒ^[ƒ“
+	if (nowFloor_ > MAX_FLOOR)
+	{
+		return;
+	}
+
 	// Šù‘¶‚ÌƒRƒ‰ƒCƒ_[‚ðíœ
 	for (auto* collider : wallColliders_)
 	{
@@ -203,6 +212,8 @@ void DungeonManager::DungeonReset()
 
 	// “G‚ÌˆÊ’uŽæ“¾E“G¶¬
 	enemyPositions_.clear();
+	int enemyCount = rdn_->GetRand(1, nowFloor_); // ŠK”‚É‰ž‚¶‚Ä“G‚Ì”‚ðƒ‰ƒ“ƒ_ƒ€‚ÉŒˆ’è
+	dungeonMapInfo_->enemyCount = enemyCount; // ŠK”‚É‰ž‚¶‚Ä“G‚Ì”‚ð‘‚â‚·
 	enemyGenerator_->GenerateEnemies(dungeonMapInfo_, maprl, enemyPositions_);
 
 	for (size_t i = 0; i < enemyPositions_.size(); ++i)
