@@ -8,7 +8,9 @@ enum SCENE_ID
 	SCENE_ID_TITLE = 0,
 	SCENE_ID_INFO,
 	SCENE_ID_TEST,
-	SCENE_ID_END
+	SCENE_ID_END,
+	SCENE_ID_GAMEOVER,
+	SCENE_ID_MAX
 };
 
 //-----------------------------------------------------------

@@ -51,6 +51,9 @@
     <Filter Include="リソース ファイル\Scenes\InfoScene">
       <UniqueIdentifier>{8ac653c1-671c-462b-8af2-29718b2475fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソース ファイル\Scenes\GameOverScene">
+      <UniqueIdentifier>{97bbfc66-0d81-46fe-8b11-61346afd7d50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Main.cpp">
@@ -202,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="Source\LevelUpEffect.cpp">
       <Filter>リソース ファイル\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GameOverScene.cpp">
+      <Filter>リソース ファイル\Scenes\GameOverScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -363,6 +369,9 @@
     </ClInclude>
     <ClInclude Include="Source\LevelUpEffect.h">
       <Filter>リソース ファイル\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GameOverScene.h">
+      <Filter>リソース ファイル\Scenes\GameOverScene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@
 #include "../Source/TitleScene.h"
 #include "../Source/EndScene.h"
 #include "../Source/InfoScene.h"
+#include "../Source/GameOverScene.h"
 #include "Model.h"
 #include "Image.h"
 #include "Audio.h"
@@ -50,6 +51,7 @@ void SceneManager::Update()
 		case SCENE_ID_TEST: Instantiate<TestScene>(this); break;
 		case SCENE_ID_END: Instantiate<EndScene>(this); break;
 		case SCENE_ID_INFO: Instantiate<InfoScene>(this); break;
+		case SCENE_ID_GAMEOVER: Instantiate<GameOverScene>(this); break;
 		}
 		Audio::Initialize();
 		currentSceneID_ = nextSceneID_;
