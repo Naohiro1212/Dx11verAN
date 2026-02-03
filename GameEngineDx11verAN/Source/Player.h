@@ -4,8 +4,10 @@
 #include "PlayerConfig.h"
 #include <vector>
 
+class BillBoard;
 class BoxCollider;
 class LevelUpEffect;
+class Plane;
 
 class Player : public GameObject
 {
@@ -165,4 +167,9 @@ private:
 	// 死亡判定
 	bool isDead_ = false;
 	bool deathAnimStopped_ = false;
+
+	// 影のビルボード
+	BillBoard* shadowBillboard_;
+	// 地面判定用平面
+	Plane* pPlane_;
 };

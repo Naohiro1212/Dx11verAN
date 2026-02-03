@@ -18,6 +18,7 @@
 #include "../Source/LevelUpEffect.h"
 #include "../Engine/Audio.h"
 #include "../Source/testEnemy.h"
+#include "../Engine/BillBoard.h"
 
 using namespace DirectX;
 
@@ -110,6 +111,14 @@ void Player::Initialize()
 
 	// ダメージを受けたときの無敵時間用タイマー初期化
     damageCooldown_ = 0.0f;
+
+    // プレイヤーの下の丸影
+    shadowBillboard_ = new BillBoard();
+    shadowBillboard_->Load("circle_W.png");
+	assert(shadowBillboard_ != nullptr);
+
+    pPlane_ = static_cast<Plane*>(FindObject("plane"));
+    assert(pPlane_ != nullptr);
 }
 
 void Player::Update()
@@ -343,10 +352,29 @@ void Player::Draw()
     //{
     //    attackCollider_->Draw(transform_.position_, transform_.rotate_);
     //}
+
+    Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
+    Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
+
+    // 丸影の描画
+    float yawRad_ = XMConvertToRadians(transform_.rotate_.y);
+    XMFLOAT3 shadowPos_ = XMFLOAT3(transform_.position_.x, pPlane_->GetPlanePos().y, transform_.position_.z);
+    XMMATRIX S = XMMatrixScaling(10.0f, 20.0f, 16.0f);
+	// 90度回転して地面に平行に
+	XMMATRIX R = XMMatrixRotationX(XM_PIDIV2) * XMMatrixRotationY(yawRad_);
+    // プレイヤーの正面に合わせて描画
+	XMMATRIX T = XMMatrixTranslation(shadowPos_.x, shadowPos_.y + 0.1f, shadowPos_.z);
+
+	XMMATRIX world = S * R * T;
+	shadowBillboard_->Draw(world, XMFLOAT4(0.05f, 0.05f, 0.05f,0.5f));
+
+    Direct3D::SetShader(Direct3D::SHADER_3D);
+    Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 }
 
 void Player::Release()
 {
+    shadowBillboard_->Release();
 }
 
 void Player::OnCollision(GameObject* pTarget)
@@ -542,14 +570,11 @@ void Player::UpdateGravity()
     float nextY = transform_.position_.y + velocityY_ * dt_ - 0.5f * g * dt_ * dt_;
 
     // レイを上方オフセット位置から下向きに飛ばして地面を探す
-    Plane* pPlane = static_cast<Plane*>(FindObject("plane"));
-    assert(pPlane != nullptr);
-
     RayCastData hitData;
     hitData.start = transform_.position_;
     hitData.start.y += cnf_.PROBE_UP_OFFSET;
     hitData.dir = XMFLOAT3(0.0f, -10.0f, 0.0f);
-    Model::RayCast(pPlane->GetPlaneHandle(), hitData);
+    Model::RayCast(pPlane_->GetPlaneHandle(), hitData);
 
     bool landedThisFrame = false;
 

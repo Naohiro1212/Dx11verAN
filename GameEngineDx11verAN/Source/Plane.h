@@ -25,6 +25,7 @@ public:
 
 	// 当たり判定用のゲッター
 	const int GetPlaneHandle() const { return planeHandle_; }
+	const XMFLOAT3& GetPlanePos() const { return transform_.position_; }
 
 private:
 	int planeHandle_;

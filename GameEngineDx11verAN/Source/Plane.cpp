@@ -4,7 +4,7 @@
 namespace
 {
 	const XMFLOAT3 PLANE_SCALE = { 30.0f, 1.0f, 30.0f };
-	const XMFLOAT3 PLANE_POSITION = { 0.0f, -5.0f, 0.0f };
+	const XMFLOAT3 PLANE_POSITION = { 0.0f, -1.0f, 0.0f };
 }
 
 Plane::Plane(GameObject* parent) : GameObject(parent, "plane"), planeHandle_(-1)

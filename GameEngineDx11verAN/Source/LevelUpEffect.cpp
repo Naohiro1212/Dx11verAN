@@ -51,8 +51,11 @@ void LevelUpEffect::Update()
 	timer_ += dt_;
 	if (timer_ >= DURATION)
 	{
-		VFX::End(hEmit_);
-		hEmit_ = -1;
+		if (hEmit_ != -1) 
+		{
+			VFX::End(hEmit_);
+			hEmit_ = -1;
+		}
 		KillMe();
 	}
 }

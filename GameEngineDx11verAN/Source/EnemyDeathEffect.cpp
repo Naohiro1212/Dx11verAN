@@ -3,7 +3,7 @@
 
 namespace
 {
-	const float DURATION = 2.0f;
+	const float DURATION = 1.5f;
 }
 
 EnemyDeathEffect::EnemyDeathEffect(GameObject* parent, XMFLOAT3 pos) : GameObject(parent, "EnemyDeathEffect"), 

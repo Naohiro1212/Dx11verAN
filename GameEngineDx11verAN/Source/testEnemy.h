@@ -5,6 +5,7 @@
 
 class BoxCollider;
 class Player;
+class Plane;
 class EnemyDeathEffect;
 
 //仮の敵を管理するクラス
@@ -103,4 +104,8 @@ private:
 
     // 攻撃力
 	int attackPower_;
+
+    // 影のビルボード
+    BillBoard* shadowBillboard_;
+    Plane* pPlane_;
 };

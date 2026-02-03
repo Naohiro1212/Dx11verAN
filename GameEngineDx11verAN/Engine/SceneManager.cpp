@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "Image.h"
 #include "Audio.h"
+#include "VFX.h"
 
 
 //コンストラクタ
@@ -37,6 +38,7 @@ void SceneManager::Update()
 		Audio::Release();
 		Model::AllRelease();
 		Image::AllRelease();
+		VFX::Release();
 
 		//画像システムを再初期化
 		Image::Initialize();

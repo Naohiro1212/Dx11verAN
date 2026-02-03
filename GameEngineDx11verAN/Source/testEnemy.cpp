@@ -7,6 +7,7 @@
 #include "../Source/Player.h"
 #include "../Engine/GameTime.h"
 #include "../Source/EnemyDeathEffect.h"
+#include "../Source/Plane.h"
 
 namespace
 {
@@ -110,6 +111,14 @@ void testEnemy::Initialize()
     lastAttackFrame_ = ANIM_BASE_START;
 
     attackPower_ = ATTACK_POWER;
+
+    // 敵の下の丸影
+    shadowBillboard_ = new BillBoard();
+	shadowBillboard_->Load("circle_W.png");
+	assert(shadowBillboard_ != nullptr);
+	
+	pPlane_ = static_cast<Plane*>(FindObject("plane"));
+    assert(pPlane_ != nullptr);
 }
 
 void testEnemy::Update()
@@ -277,6 +286,26 @@ void testEnemy::Draw()
   //  {
 		//attackCollider_->Draw(transform_.position_, transform_.rotate_);
   //  }
+
+	// シェーダー・ブレンドモード切替
+    Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
+	Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
+
+    // 丸影の描画
+	float yawRad_ = XMConvertToRadians(transform_.rotate_.y);
+	XMFLOAT3 shadowPos_ = XMFLOAT3(transform_.position_.x, pPlane_->GetPlanePos().y, transform_.position_.z);
+	XMMATRIX S = XMMatrixScaling(10.0f, 20.0f, 16.0f);
+	// 90度回転して地面に平行に
+	XMMATRIX R = XMMatrixRotationX(XM_PIDIV2) * XMMatrixRotationY(yawRad_);
+	// プレイヤーの正面に合わせて描画
+	XMMATRIX T = XMMatrixTranslation(shadowPos_.x, shadowPos_.y + 0.1f, shadowPos_.z);
+
+	XMMATRIX world = S * R * T;
+    shadowBillboard_->Draw(world, XMFLOAT4(0.05f, 0.05f, 0.05f, 0.5f));
+
+	// シェーダー・ブレンドモード戻す
+	Direct3D::SetShader(Direct3D::SHADER_3D);
+	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 }
 
 void testEnemy::Release()
@@ -394,6 +423,29 @@ void testEnemy::MoveToPlayer()
         0.0f,
         playerPos.z - enemyPos.z
     };
+
+    // 距離の2乗を計算
+    float distSq = dir.x * dir.x + dir.z * dir.z;
+	float attackDistSq = ATTACK_DISTANCE * ATTACK_DISTANCE;
+
+    // 攻撃範囲内なら移動しない
+    if (distSq <= attackDistSq)
+    {
+        velocity_ = { 0,0,0 };
+		// 向きはプレイヤー方向へ
+		float targetYawDeg = XMConvertToDegrees(atan2f(dir.x, dir.z)) + 180.0f;
+		float currentYawDeg = transform_.rotate_.y;
+		float diff = targetYawDeg - currentYawDeg;
+		while (diff > 180.0f)  diff -= 360.0f;
+		while (diff < -180.0f) diff += 360.0f;
+		const float dt_ = GameTime::DeltaTime();
+		float maxTurnPerFrame = TURN_SPEED_DEG * dt_;
+        float stepYaw = (diff > 0.0f)
+            ? (std::min)(diff, maxTurnPerFrame)
+            : (std::max)(diff, -maxTurnPerFrame);
+        transform_.rotate_.y += stepYaw;
+        return;
+    }
 
     // 正規化（ゼロ長チェック）
     XMVECTOR vDir = XMLoadFloat3(&dir);
