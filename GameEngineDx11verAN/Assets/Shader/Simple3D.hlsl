@@ -92,8 +92,7 @@ float4 PS(VS_OUT inData) : SV_Target
 	else
 	{
 		//マテリアルの色
-	//	diffuse = g_vecDiffuse;
-        diffuse = float4(1, 1, 1, 1);
+        diffuse = g_vecDiffuse;
     }
 
 	//環境光（アンビエント）

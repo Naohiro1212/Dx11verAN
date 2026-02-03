@@ -268,15 +268,15 @@ void testEnemy::Update()
 void testEnemy::Draw()
 {
 	Model::Draw(nowModel_);
-    if (pCollider_)
-    {
-        pCollider_->Draw(transform_.position_, transform_.rotate_);
-    }
+  //  if (pCollider_)
+  //  {
+  //      pCollider_->Draw(transform_.position_, transform_.rotate_);
+  //  }
 
-    if (attackCollider_)
-    {
-		attackCollider_->Draw(transform_.position_, transform_.rotate_);
-    }
+  //  if (attackCollider_)
+  //  {
+		//attackCollider_->Draw(transform_.position_, transform_.rotate_);
+  //  }
 }
 
 void testEnemy::Release()

@@ -1,5 +1,6 @@
 #pragma once
 #include "../Engine/GameObject.h"
+#include "../Engine/VFX.h"
 
 class SphereCollider;
 
@@ -25,5 +26,7 @@ private:
 	int magicModel_;
 	float AttackTimer_;
 
+	EmitterData effectData_;
+	int hEmit_;
 	SphereCollider* pCollider_;
 };

@@ -339,10 +339,10 @@ void Player::Draw()
 	Model::Draw(nowModel_);
     //pCollider_->Draw(transform_.position_, transform_.rotate_);
 
-    if (attackCollider_)
-    {
-        attackCollider_->Draw(transform_.position_, transform_.rotate_);
-    }
+    //if (attackCollider_)
+    //{
+    //    attackCollider_->Draw(transform_.position_, transform_.rotate_);
+    //}
 }
 
 void Player::Release()

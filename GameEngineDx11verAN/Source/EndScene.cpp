@@ -10,7 +10,16 @@
 #include "../Engine/Audio.h"
 #include <string>
 
-EndScene::EndScene(GameObject* parent) : GameObject(parent, "EndScene"), EndImage_(-1), pButton_(nullptr), bgTransform_()
+EndScene::EndScene(GameObject* parent)
+    : GameObject(parent, "EndScene"),
+      EndImage_(-1),
+      pButton_(nullptr),
+      bgTransform_(),
+      bgmHandle_(-1),
+      clickSoundHandle_(-1),
+      pendingStart_(false),
+      startTriggerTime_(),
+      startDelay_(std::chrono::milliseconds(600))
 {
 }
 

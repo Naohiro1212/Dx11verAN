@@ -102,6 +102,8 @@ namespace VFX
 	//引数：emitter	エミッター情報
 	void CreateParticle(std::list<VFX::Emitter*>::iterator& emitter);
 
+	//エミッタの位置を設定
+	void SetEmitterPosition(int handle, XMFLOAT3 position);
 
 	//更新
 	void Update();

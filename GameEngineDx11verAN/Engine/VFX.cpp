@@ -187,6 +187,18 @@ void VFX::CreateParticle(std::list<VFX::Emitter*>::iterator& emitter)
     }
 }
 
+void VFX::SetEmitterPosition(int handle, XMFLOAT3 position)
+{
+    for (auto& e : emitterList_)
+    {
+        if (e->handle == handle)
+        {
+            e->data.position = position;
+            break;
+        }
+    }
+}
+
 //パーティクル描画
 void VFX::Draw()
 {
