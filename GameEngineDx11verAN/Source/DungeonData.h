@@ -26,6 +26,9 @@ struct DungeonMap_Info
 	std::vector<std::vector<size_t>> mapRoom; // マップの部屋情報[部屋ID][X終点,Y終点,X始点,Y始点]
 	std::vector<std::vector<size_t>> mapRoad; // マップの通路情報[部屋ID(前)][つながる先の部屋ID(後), (0.X座標, 1.Y座標), (前)側の通路の位置 , (後)側の通路の位置]
 	std::vector<size_t> mapRoomPlayer; // マップのプレイヤーの開始位置[部屋ID]
+
+	// 敵を生成する数
+	size_t enemyCount;
 };
 
 // RogueLikeMapの事を指す

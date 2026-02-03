@@ -10,6 +10,7 @@ class Portal;
 class DungeonGenerator;
 class EnemyGenerator;
 class BoxCollider;
+class RandomNum;
 
 class DungeonManager 
 	: public GameObject
@@ -78,4 +79,6 @@ private:
 
 	bool resetDungeon_;
 	bool nearPortal_;
+
+	RandomNum* rdn_;
 };

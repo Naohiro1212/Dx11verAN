@@ -11,6 +11,7 @@ namespace
 
 EnemyGenerator::EnemyGenerator()
 {
+	rdn_ = new RandomNum();
 }
 
 void EnemyGenerator::GenerateEnemies(DungeonMap_Info* const _dng, std::vector<std::vector<MapData_RL>>& _maprl, std::vector<XMFLOAT3>& _spawn)
@@ -28,13 +29,25 @@ void EnemyGenerator::GenerateEnemies(DungeonMap_Info* const _dng, std::vector<st
 			continue;
 		}
 
-		// 部屋の中心座標を計算
-		float centerX = static_cast<float>(_dng->mapRoom[i][2] + _dng->mapRoom[i][0]) / 2.0f;
-		float centerY = 0.0f; // Y座標は固定
-		float centerZ = static_cast<float>(_dng->mapRoom[i][3] + _dng->mapRoom[i][1]) / 2.0f;
+		// 部屋の範囲
+		int minX = _dng->mapRoom[i][0];
+		int maxX = _dng->mapRoom[i][2];
+		int minZ = _dng->mapRoom[i][1];
+		int maxZ = _dng->mapRoom[i][3];
 
-		// 座標を敵のスポーン位置として登録
-		_spawn.push_back(XMFLOAT3(centerX * MAPTILE_SIZE, centerY, centerZ * MAPTILE_SIZE));
+		// エリアにいる敵の数だけループ
+		for (int j = 0;j < _dng->enemyCount; ++j)
+		{
+			// ランダムな位置を生成
+			int randX = rdn_->GetRand(minX, maxX);
+			int randZ = rdn_->GetRand(minZ, maxZ);
+
+			float posX = randX * MAPTILE_SIZE;
+			float posY = 0.0f;
+			float posZ = randZ * MAPTILE_SIZE;
+
+			_spawn.push_back(XMFLOAT3(posX, posY, posZ));
+		}
 	}
 }
 
