@@ -12,7 +12,7 @@ namespace
 	const float COLLILDER_RADIUS = 2.5f;
 }
 
-MagicSphere::MagicSphere(GameObject* parent) : GameObject(parent, "MagicSphere"), magicModel_(-1), AttackTimer_(0.0f)
+MagicSphere::MagicSphere(GameObject* parent) : GameObject(parent, "MagicSphere"), magicModel_(-1), attackTimer_(0.0f)
 {
 }
 
@@ -63,7 +63,7 @@ void MagicSphere::Initialize()
 void MagicSphere::Update()
 {
 	float dt_ = GameTime::DeltaTime();
-	AttackTimer_ += dt_;
+	attackTimer_ += dt_;
 
 	float yawRad = DirectX::XMConvertToRadians(transform_.rotate_.y);
 	float vx = -sinf(yawRad);
@@ -81,7 +81,7 @@ void MagicSphere::Update()
 	}
 
 	//ˆê’èŽžŠÔŒo‰ß‚ÅÁ‚¦‚é
-	if (AttackTimer_ >= ATTACK_DURATION)
+	if (attackTimer_ >= ATTACK_DURATION)
 	{
 		VFX::End(hEmit_);
 		KillMe();

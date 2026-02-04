@@ -13,10 +13,10 @@ public:
 	void Release() override;
 
 	// ÉXÉRÉAëÄçÏ
-	void AddScore(int delta);
-	int GetScore() const { return score_; }
-	void Reset();
+	static void AddScore(int delta);
+	static int GetScore() { return score_; }
+	static void Reset();
 
 private:
-	int score_;
+	static int score_;
 };

@@ -8,6 +8,7 @@
 #include "../Engine/GameTime.h"
 #include "../Source/EnemyDeathEffect.h"
 #include "../Source/Plane.h"
+#include "../Engine/ScoreManager.h"
 
 namespace
 {
@@ -48,6 +49,8 @@ namespace
 
     // ‰¼‚ÌUŒ‚—Í
     const int ATTACK_POWER = 10;
+
+    const float SCORE = 100.0f;
 }
 
 testEnemy::testEnemy(GameObject* parent)
@@ -165,6 +168,7 @@ void testEnemy::Update()
         if (deathTimer_ >= DEATH_TIMER_LIMIT)
         {
             deathEffect_ = Instantiate<EnemyDeathEffect>(GetParent(), transform_.position_);
+            ScoreManager::AddScore(SCORE);
             DropJewel(3);
             KillMe();
         }

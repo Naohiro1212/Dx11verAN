@@ -1,5 +1,8 @@
 #include "ScoreManager.h"
 
+// Ã“Iƒƒ“ƒo•Ï”‚Ì’è‹`
+int ScoreManager::score_ = 0;
+
 ScoreManager::ScoreManager(GameObject* parent) : GameObject(parent, "ScoreManager")
 {
 }

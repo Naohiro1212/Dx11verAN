@@ -24,7 +24,7 @@ public:
 
 private:
 	int magicModel_;
-	float AttackTimer_;
+	float attackTimer_;
 
 	EmitterData effectData_;
 	int hEmit_;
