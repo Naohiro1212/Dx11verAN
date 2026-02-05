@@ -3,6 +3,7 @@
 #include "../Engine/Button.h"
 #include "../Engine/Input.h"
 #include "../Engine/SceneManager.h"
+#include "../Source/CursorManager.h"
 #include "../Engine/Text.h"
 #include "../Engine/Audio.h"
 
@@ -83,6 +84,9 @@ void InfoScene::Draw()
 		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150, Direct3D::screenHeight_ - 130, "Press to Right Click to Back Page!");
 		pInfoText_->Draw(Direct3D::screenWidth_ / 2 - 150, Direct3D::screenHeight_ - 100, "Press to Left Click to Go Dungeon!");
 	}
+
+	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
+	pCursorManager->Draw();
 }
 
 void InfoScene::Release()

@@ -1,22 +1,29 @@
 #include "PopUpDamage.h"
-#include "../Engine/Model.h"
+#include "../Engine/Image.h"
 #include "../Engine/GameTime.h"
+#include "../Engine/Billboard.h"
+#include "../Engine/Camera.h"
 
 namespace
 {
 	const float DISPLAY_DURATION = 3.0f; // ダメージ表示時間
-	const float DIGIT_OFFSET_X = 5.0f;   // 桁間隔のX方向オフセット
+	const float DIGIT_OFFSET_X = 2.5f;   // 桁間隔のX方向オフセット
 }
 
-PopUpDamage::PopUpDamage(GameObject* parent)
+PopUpDamage::PopUpDamage(GameObject* parent) : GameObject(parent, "PopUpDamage")
 {
 }
 
 void PopUpDamage::Initialize()
 {
-	LoadDigitModels();
+	for (int i = 0; i < 10; ++i)
+	{
+		digitBillboards_[i] = new BillBoard();
+		std::string fileName = "digit" + std::to_string(i) + ".png";
+		digitBillboards_[i]->Load(fileName);
+	}
+
 	displayTime_ = 0.0f;
-	transform_.scale_ = XMFLOAT3(0.1f, 0.1f, 0.1f);
 }
 
 void PopUpDamage::Update()
@@ -37,59 +44,71 @@ void PopUpDamage::Update()
 
 void PopUpDamage::Draw()
 {
-	// transform_ は Update で現在位置が設定されているので、それを元に桁描画する。
-	int firstDigit_ = damage_ / 10;
-	int secondDigit_ = damage_ % 10;
-	DirectX::XMFLOAT3 basePosition = transform_.position_;
-	// 頭上に表示するため、Y座標を少し上げる
-
-	// 元の transform_ を直接書き換えないよう、一時 Transform を使って描画する
-	Transform tempTransform = transform_; // Transform 型は GameObject から利用可能
-
-	if (firstDigit_ > 0)
+	if (damageType_ == DamageType::FromEnemy)
 	{
-		// 2桁表示：左（十の位）、右（一の位）
-		DirectX::XMFLOAT3 firstDigitPos = XMFLOAT3(basePosition.x, basePosition.y + 20.0f, basePosition.z);
-		firstDigitPos.x -= DIGIT_OFFSET_X;
-		tempTransform.position_ = firstDigitPos;
-		Model::SetTransform(digitModels_[firstDigit_], tempTransform);
-		Model::Draw(digitModels_[firstDigit_]);
-
-		DirectX::XMFLOAT3 secondDigitPos = XMFLOAT3(basePosition.x, basePosition.y + 20.0f, basePosition.z);
-		secondDigitPos.x += DIGIT_OFFSET_X;
-		tempTransform.position_ = secondDigitPos;
-		Model::SetTransform(digitModels_[secondDigit_], tempTransform);
-		Model::Draw(digitModels_[secondDigit_]);
+		color_ = XMFLOAT4(1.0f, 0.2f, 0.2f, 1.0f); // 赤系
 	}
-	else
+	else // DamageType::ToEnemy
 	{
-		// 1桁表示：中央
-		tempTransform.position_ = basePosition;
-		Model::SetTransform(digitModels_[secondDigit_], tempTransform);
-		Model::Draw(digitModels_[secondDigit_]);
+		color_ = XMFLOAT4(0.2f, 0.6f, 1.0f, 1.0f); // 青系
 	}
+
+    Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
+
+    int firstDigit = damage_ / 10;
+    int secondDigit = damage_ % 10;
+
+    XMFLOAT3 basePos = transform_.position_;
+    basePos.y += 20.0f;  // 頭上オフセット
+
+    XMMATRIX matScale_ = XMMatrixScaling(2.5f, 2.5f, 1.0f);
+    XMMATRIX matBill_ = Camera::GetBillboardMatrix();
+
+    if (firstDigit > 0)
+    {
+        // 十の位：ローカルで左へ
+        {
+            float localX = -DIGIT_OFFSET_X;   // ローカル左
+            XMMATRIX matLocalTrans_ = XMMatrixTranslation(localX, 0.0f, 0.0f);
+
+            XMMATRIX matWorld_ =
+                matScale_
+                * matLocalTrans_                // ローカルで「左」にずらす
+                * matBill_                      // カメラを向く回転
+                * XMMatrixTranslation(basePos.x, basePos.y, basePos.z);
+
+            digitBillboards_[firstDigit]->Draw(matWorld_, color_);
+        }
+
+        // 一の位：ローカルで右へ
+        {
+            float localX = DIGIT_OFFSET_X;   // ローカル右
+            XMMATRIX matLocalTrans_ = XMMatrixTranslation(localX, 0.0f, 0.0f);
+
+            XMMATRIX matWorld_ =
+                matScale_
+                * matLocalTrans_
+                * matBill_
+                * XMMatrixTranslation(basePos.x, basePos.y, basePos.z);
+
+            digitBillboards_[secondDigit]->Draw(matWorld_, color_);
+        }
+    }
+    else
+    {
+        // 1桁：中央（ローカルオフセットなし）
+        XMMATRIX matWorld_ =
+            matScale_
+            * matBill_
+            * XMMatrixTranslation(basePos.x, basePos.y, basePos.z);
+
+        digitBillboards_[secondDigit]->Draw(matWorld_, color_);
+    }
+
+    Direct3D::SetShader(Direct3D::SHADER_3D);
+    Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 }
 
 void PopUpDamage::Release()
 {
-}
-
-void PopUpDamage::PreLoadDigitModels()
-{
-	if (!digitModels_.empty())
-	{
-		return;
-	}
-	for (int i = 0; i <= 9; ++i)
-	{
-		std::string modelPath = "digit" + std::to_string(i) + ".fbx";
-		int modelHandle = Model::Load(modelPath.c_str());
-		digitModels_.push_back(modelHandle);
-	}
-}
-
-// 既存の LoadDigitModels はそのままでも構いません（互換性のために残す）
-void PopUpDamage::LoadDigitModels()
-{
-	PreLoadDigitModels();
 }

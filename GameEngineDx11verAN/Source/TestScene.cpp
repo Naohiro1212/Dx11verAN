@@ -13,6 +13,7 @@
 #include "../Source/PopUpDamage.h" 
 #include "../Source/ObjectiveText.h"
 #include "../Engine/Audio.h"
+#include "../Source/CursorManager.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -44,9 +45,6 @@ void TestScene::Initialize()
 
     Timer::Initialize();
     Timer::Start();
-
-    // ポップアップダメージのモデル読み込み
-    PopUpDamage::PreLoadDigitModels();
 
 	objectiveText_ = Instantiate<ObjectiveText>(this);
 
@@ -80,7 +78,7 @@ void TestScene::Update()
     if(player_->GetDeathTimer() >= 5.0f)
     {
         SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
-        pSceneManager->ChangeScene(SCENE_ID_END);
+        pSceneManager->ChangeScene(SCENE_ID_GAMEOVER);
 	}
 
     // ポーズパネルで再開ボタンが押されたらポーズ解除
@@ -119,6 +117,15 @@ void TestScene::Update()
 //描画
 void TestScene::Draw()
 {
+	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
+    if (isPaused_)
+    {
+        pCursorManager->Visible();
+    }
+    else
+    {
+		pCursorManager->Invisible();
+    }
 }
 
 //開放

@@ -8,6 +8,7 @@
 #include "../Engine/ScoreManager.h"
 #include "../Engine/Timer.h"
 #include "../Engine/Audio.h"
+#include "../Source/CursorManager.h"
 #include <string>
 #include <algorithm>
 
@@ -34,6 +35,11 @@ namespace
 
 	const float BGM_VOLUME = 0.02f; // BGM音量
 	const float CLICK_SOUND_VOLUME = 0.5f; // クリック音量
+
+	const int SCORE_RANK_S = 2100;
+	const int SCORE_RANK_A = 1200;
+
+	const float RANK_LABEL_OFFSET_X = 150.0f;
 }
 
 EndScene::EndScene(GameObject* parent)
@@ -124,6 +130,10 @@ void EndScene::Update()
 
 void EndScene::Draw()
 {  
+	// カーソル描画
+	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
+	pCursorManager->Draw();
+
 	// 画面を覆うスケール計算（cover）
 	RECT rect = Image::GetRect(EndImage_);
 	float w = (float)(rect.right - rect.left);
@@ -151,6 +161,19 @@ void EndScene::Draw()
 
 	pScoreText_->Draw(scoreLabelX, scoreLabelY, "SCORE:");
 	pScoreText_->Draw(scoreValueX, scoreValueY, score);
+
+	if (score >= SCORE_RANK_S)
+	{
+		pScoreText_->Draw(scoreValueX + RANK_LABEL_OFFSET_X, scoreValueY, "RANK:S");
+	}
+	else if (score >= SCORE_RANK_A)
+	{
+		pScoreText_->Draw(scoreValueX + RANK_LABEL_OFFSET_X, scoreValueY, "RANK:A");
+	}
+	else
+	{
+		pScoreText_->Draw(scoreValueX + RANK_LABEL_OFFSET_X, scoreValueY, "RANK:B");
+	}
 
 	// クリアタイム表示
 	std::string timeStr = Timer::ToString();

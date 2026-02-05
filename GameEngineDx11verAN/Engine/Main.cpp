@@ -73,6 +73,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RootObject* pRootObject = new RootObject;
 	pRootObject->Initialize();
 
+	//カーソル非表示
+	ShowCursor(FALSE); 
 
 	//メッセージループ（何か起きるのを待つ）
 	MSG msg;

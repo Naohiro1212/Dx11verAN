@@ -35,6 +35,16 @@ void Camera::Update()
 //Å“_‚ğİ’è
 void Camera::SetTarget(XMFLOAT3 target) { _target = target; }
 
+void Camera::SetViewMatrix(const DirectX::XMMATRIX& view)
+{
+	_view = view;
+}
+
+void Camera::SetProjectionMatrix(const DirectX::XMMATRIX& proj)
+{
+	_proj = proj;
+}
+
 //ˆÊ’u‚ğİ’è
 void Camera::SetPosition(XMFLOAT3 position) { _position = position; }
 

@@ -201,6 +201,7 @@
     <ClCompile Include="Engine\Timer.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
+    <ClCompile Include="Source\CursorManager.cpp" />
     <ClCompile Include="Source\EndScene.cpp" />
     <ClCompile Include="Source\EnemyDeathEffect.cpp" />
     <ClCompile Include="Source\GameOverScene.cpp" />
@@ -257,6 +258,7 @@
     <ClInclude Include="Engine\Timer.h" />
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\VFX.h" />
+    <ClInclude Include="Source\CursorManager.h" />
     <ClInclude Include="Source\EndScene.h" />
     <ClInclude Include="Source\EnemyDeathEffect.h" />
     <ClInclude Include="Source\GameOverScene.h" />

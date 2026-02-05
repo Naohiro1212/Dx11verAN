@@ -5,6 +5,7 @@
 #include "../Engine/Debug.h"
 #include "../Engine/Button.h"
 #include "../Engine/Audio.h"
+#include "../Source/CursorManager.h"
 
 namespace
 {
@@ -116,6 +117,9 @@ void TitleScene::Draw()
 	float scaleY = Direct3D::screenHeight_ / h;
 	float scale = max(scaleX, scaleY);
 	Image::SetSizePixels(titleImage_, w * scale, h * scale);
+
+	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
+	pCursorManager->Draw();
 
 	// 中心に配置（center = true）
 	Image::SetPositionPixels(titleImage_, Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f, true);

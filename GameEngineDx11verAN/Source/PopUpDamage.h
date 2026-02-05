@@ -2,6 +2,14 @@
 #include "../Engine/GameObject.h"
 #include <vector>
 
+class BillBoard;
+
+enum class DamageType
+{
+	FromEnemy,
+	ToEnemy
+};
+
 class PopUpDamage : public GameObject
 {
 public:
@@ -19,14 +27,16 @@ public:
 
 	void SetDamage(int damage) { damage_ = damage; }
 
-	void LoadDigitModels();
+	void SetDamageType(DamageType type) { damageType_ = type; }
 
-	static void PreLoadDigitModels();
-
+	DamageType damageType_;
 private:
-	inline static std::vector<int> digitModels_;
+	BillBoard* digitBillboards_[10]; // 0～9
 	int damage_;
 
 	// 表示する時間
 	float displayTime_;
+
+	// 敵からダメージを受けたか、与えたかのフラグ
+	XMFLOAT4 color_;
 };

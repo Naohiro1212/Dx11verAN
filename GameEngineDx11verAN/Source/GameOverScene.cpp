@@ -5,6 +5,7 @@
 #include "../Engine/Audio.h"
 #include "../Engine/Timer.h"
 #include "../Engine/Input.h"
+#include "../Source/CursorManager.h"
 
 GameOverScene::GameOverScene(GameObject* parent)
 	: GameObject(parent, "GameOverScene"),
@@ -78,6 +79,10 @@ void GameOverScene::Update()
 
 void GameOverScene::Draw()
 {
+	// カーソル描画
+	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
+	pCursorManager->Draw();
+
 	// 画面を覆うスケール計算（cover）
 	RECT rect = Image::GetRect(gameOverImage_);
 	float w = (float)(rect.right - rect.left);

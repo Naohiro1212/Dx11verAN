@@ -5,6 +5,7 @@
 #include "../Source/EndScene.h"
 #include "../Source/InfoScene.h"
 #include "../Source/GameOverScene.h"
+#include "../Source/CursorManager.h"
 #include "Model.h"
 #include "Image.h"
 #include "Audio.h"
@@ -24,6 +25,7 @@ void SceneManager::Initialize()
 	currentSceneID_ = SCENE_ID_TITLE;
 	nextSceneID_ = currentSceneID_;
 	Instantiate<TitleScene>(this);
+	Instantiate<CursorManager>(this);
 }
 
 //çXêV
@@ -53,6 +55,7 @@ void SceneManager::Update()
 		case SCENE_ID_INFO: Instantiate<InfoScene>(this); break;
 		case SCENE_ID_GAMEOVER: Instantiate<GameOverScene>(this); break;
 		}
+		Instantiate<CursorManager>(this);
 		Audio::Initialize();
 		currentSceneID_ = nextSceneID_;
 	}
