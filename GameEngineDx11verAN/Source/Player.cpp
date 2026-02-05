@@ -62,6 +62,7 @@ void Player::Initialize()
 	shootSEHandle_ = Audio::Load("Audio/shootmagic.wav", false, 15);
 	jumpSEHandle_ = Audio::Load("Audio/jump.wav");
     ongroundSEHandle_ = Audio::Load("Audio/onGround.wav");
+	levelUpSEHandle_ = Audio::Load("Audio/levelup.wav");
 
     Audio::SetMasterVolume(0.1f);
 
@@ -802,7 +803,7 @@ void Player::LevelUp()
         strength_ += 5.0f;
 		// レベルアップエフェクト生成
 		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
-
+        Audio::Play(levelUpSEHandle_);
     }
 }
 

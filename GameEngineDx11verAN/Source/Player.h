@@ -163,6 +163,7 @@ private:
 
 	// レベルアップエフェクト
 	LevelUpEffect* levelUpEffect_;
+	int levelUpSEHandle_;
 
 	// 死亡判定
 	bool isDead_ = false;
