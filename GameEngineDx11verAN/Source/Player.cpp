@@ -62,7 +62,7 @@ void Player::Initialize()
 	shootSEHandle_ = Audio::Load("Audio/shootmagic.wav", false, 15);
 	jumpSEHandle_ = Audio::Load("Audio/jump.wav");
     ongroundSEHandle_ = Audio::Load("Audio/onGround.wav");
-	levelUpSEHandle_ = Audio::Load("Audio/levelup.wav");
+	//levelUpSEHandle_ = Audio::Load("Audio/levelup.wav");
 
     Audio::SetMasterVolume(0.1f);
 
@@ -130,7 +130,8 @@ void Player::Update()
     // 1) 死亡を最優先（ここで初期化は1回だけ）
     if (health_ <= 0.0f)
     {
-        if (!isDead_) {
+        if (!isDead_)
+        {
             isDead_ = true;
             deathTimer_ = 0.0f;
             deathAnimStopped_ = false;
@@ -151,7 +152,8 @@ void Player::Update()
 
         // 死亡中の進行と停止固定
         deathTimer_ += dt_;
-        if (!deathAnimStopped_) {
+        if (!deathAnimStopped_)
+        {
             const int cur = Model::GetAnimFrame(nowModel_);
 			// 猶予を持ってアニメ終了で停止
             if (cur >= cnf_.ANIM_DEATH_END - cnf_.ANIM_DEATH_BUFFER)
@@ -342,17 +344,18 @@ void Player::Update()
 
 void Player::Draw()
 {
-    // 一旦テストでコライダーの描画消す　敵も自機も
-
     // 現在のモデルを描画
 	Model::SetTransform(nowModel_, transform_);
 	Model::Draw(nowModel_);
-    //pCollider_->Draw(transform_.position_, transform_.rotate_);
 
-    //if (attackCollider_)
-    //{
-    //    attackCollider_->Draw(transform_.position_, transform_.rotate_);
-    //}
+#ifdef _DEBUG
+    pCollider_->Draw(transform_.position_, transform_.rotate_);
+
+    if (attackCollider_)
+    {
+        attackCollider_->Draw(transform_.position_, transform_.rotate_);
+    }
+#endif
 
     Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
     Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
@@ -397,7 +400,6 @@ void Player::OnCollision(GameObject* pTarget)
     if (pTarget->GetObjectName() == "Jewel" && !pTarget->IsDead())
     {
         exp_ += 20; // 経験値加算
-        // もし Jewel を消したいなら pTarget->KillMe();
     }
 
     // 近接攻撃のヒット判定（自分のAttack -> 相手Body が "Enemy"）
@@ -426,7 +428,9 @@ void Player::OnCollision(GameObject* pTarget)
             // 敵の攻撃力を持ってくる
             auto* enemy = dynamic_cast<testEnemy*>(pTarget);
 
-            health_ -= enemy->GetAttackPower();
+            int attackPower_;
+            attackPower_ = enemy->GetAttackPower();
+            health_ -= attackPower_;
             damageCooldown_ = cnf_.DAMAGE_INVINCIBLE_TIME;
 
             // PopupDamageオブジェクト生成
@@ -436,8 +440,8 @@ void Player::OnCollision(GameObject* pTarget)
             {
 				popup_->SetDamageType(DamageType::FromEnemy);
 				// popupのステータス設定
-                popup_->SetDamage(enemy->GetAttackPower());
-                // popupの位置と回転をプレイヤーに合わせる予定（今は一旦位置のみ）
+                popup_->SetDamage(attackPower_);
+                // popupの位置と回転をプレイヤーに合わせる
                 popup_->SetPosition(transform_.position_);
                 popup_->Initialize();
             }

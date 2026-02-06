@@ -30,6 +30,7 @@ private:
 
 	// ゲージ画像ハンドル
 	int gaugeImage_;
+	int frameImage_;
 	float posX_;
 	float posY_;
 };

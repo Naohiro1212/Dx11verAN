@@ -7,6 +7,7 @@ namespace
 {
 	const float GAUGE_POS_X = 100.0f; // マナゲージのX位置
 	const float GAUGE_POS_Y = 150.0f;  // マナゲージのY位置
+	const float GAUGE_FRAME_OFFSET = 5.0f; // 枠のオフセット
 }
 
 ManaGauge::ManaGauge(GameObject* parent) : GameObject(parent), mana_(0.0f), maxMana_(0.0f), gaugeImage_(-1)
@@ -16,7 +17,9 @@ ManaGauge::ManaGauge(GameObject* parent) : GameObject(parent), mana_(0.0f), maxM
 void ManaGauge::Initialize()
 {
 	gaugeImage_ = Image::Load("manaGauge.png");
+	frameImage_ = Image::Load("gaugeFrame.png");
 	assert(gaugeImage_ != -1);
+	assert(frameImage_ != -1);
 
 	posX_ = GAUGE_POS_X; // 画面左上から少し右にオフセット
 	posY_ = GAUGE_POS_Y;  // 画面左上から少し下にオフセット
@@ -29,13 +32,20 @@ void ManaGauge::Initialize()
 
 void ManaGauge::Update()
 {
+	// サイズをリセット
 	RECT rect = Image::GetRect(gaugeImage_);
 	// mana/maxmana の0～１にする
 	Image::ResetRect(gaugeImage_);
+	rect = Image::GetRect(frameImage_);
+	Image::ResetRect(frameImage_);
 }
 
 void ManaGauge::Draw()
 {
+	// まずフレームを描画
+	Image::SetPositionPixels(frameImage_, posX_ - GAUGE_FRAME_OFFSET, posY_ - GAUGE_FRAME_OFFSET, false);
+	Image::Draw(frameImage_);
+
 	// マナ量に応じた割合を計算（安全に）
 	if (maxMana_ <= 1e-6f)
 	{

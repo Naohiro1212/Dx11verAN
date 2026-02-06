@@ -9,6 +9,7 @@
 #include "../Source/EnemyDeathEffect.h"
 #include "../Source/Plane.h"
 #include "../Engine/ScoreManager.h"
+#include "../Source/PopUpDamage.h"
 
 namespace
 {
@@ -335,8 +336,23 @@ void testEnemy::OnCollision(GameObject* pTarget)
     if (anyAttack && (isPlayer || isMagic) && damageCooldown_ <= 0.0f)
     {
         // ダメージ
-        health_ -= player_->GetStrength();
+        int attackPower_;
+        attackPower_ = player_->GetStrength();
+        health_ -= attackPower_;
         damageCooldown_ = DAMAGE_COOLDOWN_TIME;
+
+        // PopupDamageオブジェクト生成
+		PopUpDamage* popup_ = Instantiate<PopUpDamage>(GetParent());
+        assert(popup_ != nullptr);
+        if (popup_ && health_ > 0.0f)
+        {
+			popup_->SetDamageType(DamageType::ToEnemy);
+            // popupのステータス設定
+			popup_->SetDamage(attackPower_);
+            // popupの位置を回転をプレイヤーに合わせる
+			popup_->SetPosition(transform_.position_);
+			popup_->Initialize();
+        }
 
         // ノックバック方向（攻撃発生源 → 敵 の反対方向）
         // Playerの位置を使う
@@ -580,7 +596,6 @@ void testEnemy::AttackPlayer()
         return;
     }
 }
-
 
 void testEnemy::SetPosition(const XMFLOAT3& pos)
 {

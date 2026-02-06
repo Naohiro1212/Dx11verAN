@@ -7,6 +7,7 @@ namespace
 {
 	const float GAUGE_POS_X = 100.0f; // ヘルスゲージのX位置
 	const float GAUGE_POS_Y = 50.0f;  // ヘルスゲージのY位置
+	const float GAUGE_FRAME_OFFSET = 5.0f; // 枠のオフセット
 }
 
 HealthGauge::HealthGauge(GameObject* parent) : GameObject(parent), health_(0.0f), maxHealth_(0.0f), gaugeImage_(-1)
@@ -16,7 +17,9 @@ HealthGauge::HealthGauge(GameObject* parent) : GameObject(parent), health_(0.0f)
 void HealthGauge::Initialize()
 {
 	gaugeImage_ = Image::Load("healthGauge.png");
+	frameImage_ = Image::Load("gaugeFrame.png");
 	assert(gaugeImage_ != -1);
+	assert(frameImage_ != -1);
 	posX_ = GAUGE_POS_X; // 画面左上から少し右にオフセット
 	posY_ = GAUGE_POS_Y;  // 画面左上から少し下にオフセット
 	SetDrawOrder(1);
@@ -26,13 +29,21 @@ void HealthGauge::Initialize()
 
 void HealthGauge::Update()
 {
+	// サイズをリセット
 	RECT rect = Image::GetRect(gaugeImage_);
 	// health/maxhealth の0～１にする
 	Image::ResetRect(gaugeImage_);
+	rect = Image::GetRect(frameImage_);
+	Image::ResetRect(frameImage_);
+
 }
 
 void HealthGauge::Draw()
 {
+	// まずフレームを描画
+	Image::SetPositionPixels(frameImage_, posX_ - GAUGE_FRAME_OFFSET, posY_ - GAUGE_FRAME_OFFSET, false);
+	Image::Draw(frameImage_);
+
 	// マナ量に応じた割合を計算
 	if (maxHealth_ <= 1e-6f)
 	{
