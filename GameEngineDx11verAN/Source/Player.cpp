@@ -14,6 +14,7 @@
 #include "../Source/Plane.h"
 #include "../Source/DungeonManager.h"
 #include "PopUpDamage.h"
+#include "PopUpLevelUp.h"
 #include "../Engine/RandomNum.h"
 #include "../Source/LevelUpEffect.h"
 #include "../Engine/Audio.h"
@@ -22,7 +23,20 @@
 
 using namespace DirectX;
 
-Player::Player(GameObject* parent) : GameObject(parent, "Player")
+Player::Player(GameObject* parent) : GameObject(parent, "Player"), 
+    dt_(0.0f),
+    hitSEHandle_(-1),
+    jumpSEHandle_(-1),
+    levelUpEffect_(nullptr),
+	levelUpSEHandle_(-1),
+	moveSEHandle_(-1),
+    ongroundSEHandle_(-1),
+    pPlane_(nullptr),
+    plvision_(),
+    shadowBillboard_(nullptr),
+	shootSEHandle_(-1),
+	strafeSEHandle_(-1),
+	swingSEHandle_(-1)
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
@@ -807,7 +821,18 @@ void Player::LevelUp()
         strength_ += 5.0f;
 		// レベルアップエフェクト生成
 		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
-        Audio::Play(levelUpSEHandle_);
+        
+        // レベルアップポップアップ生成
+		PopUpLevelUp* popup_ = Instantiate<PopUpLevelUp>(GetParent());
+		assert(popup_ != nullptr);
+		if (popup_)
+		{
+			popup_->SetPosition(transform_.position_);
+			popup_->Initialize();
+		}
+
+		// レベルアップ音再生
+        //Audio::Play(levelUpSEHandle_);
     }
 }
 
