@@ -222,6 +222,7 @@
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\PlayerCamera.cpp" />
     <ClCompile Include="Source\PopUpDamage.cpp" />
+    <ClCompile Include="Source\PopUpLevelUp.cpp" />
     <ClCompile Include="Source\Portal.cpp" />
     <ClCompile Include="Source\testEnemy.cpp" />
     <ClCompile Include="Source\TestScene.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="Source\PlayerCamera.h" />
     <ClInclude Include="Source\PlayerConfig.h" />
     <ClInclude Include="Source\PopUpDamage.h" />
+    <ClInclude Include="Source\PopUpLevelUp.h" />
     <ClInclude Include="Source\Portal.h" />
     <ClInclude Include="Source\testEnemy.h" />
     <ClInclude Include="Source\TestScene.h" />

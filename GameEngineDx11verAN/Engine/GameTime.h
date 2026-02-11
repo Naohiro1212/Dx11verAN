@@ -7,4 +7,4 @@ namespace GameTime
 	void Update();
 
 	float DeltaTime();
-};
+}
