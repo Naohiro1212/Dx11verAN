@@ -805,6 +805,7 @@ void Player::LevelUp()
     {
         exp_ = 0.0f;
         strength_ += 5.0f;
+        level_++;
 		// レベルアップエフェクト生成
 		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
         Audio::Play(levelUpSEHandle_);

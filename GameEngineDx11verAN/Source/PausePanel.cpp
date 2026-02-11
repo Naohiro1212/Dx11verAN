@@ -4,9 +4,18 @@
 #include <assert.h>
 #include "../Engine/Button.h"
 #include "../Engine/Input.h"
+#include "../Source/Player.h"
+#include "../Engine/Text.h"
 
-PausePanel::PausePanel(GameObject* parent) : GameObject(parent), panelImage_(-1), nowPaused_(false),
-resumeButton_(nullptr), BackTitleButton_(nullptr), onBTButton_(false), onResumeButton_(false)
+PausePanel::PausePanel(GameObject* parent) :
+	GameObject(parent),
+	panelImage_(-1),
+	nowPaused_(false),
+	resumeButton_(nullptr),
+	BackTitleButton_(nullptr),
+	onBTButton_(false),
+	onResumeButton_(false),
+	player_(nullptr)
 {
 }
 
@@ -36,6 +45,12 @@ void PausePanel::Initialize()
 	BackTitleButton_->SetCenter(true);
 	BackTitleButton_->SetButtonImage(Image::Load("BackTitleButton.png"));
 	BackTitleButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + 120.0f);
+
+	// レベルテキスト初期化
+	player_ = dynamic_cast<Player*>(FindObject("Player"));
+	levelText_ = new Text();
+	levelText_->Initialize();
+	levelText_->SetScale(1.7f);
 
 	nowPaused_ = false;
 
@@ -67,7 +82,7 @@ void PausePanel::Update()
 			Input::ConsumeMouseButtons();
 		}
 	}
-
+	playerLevel_ = player_->GetLevel();
 }
 
 void PausePanel::Draw()
@@ -77,6 +92,8 @@ void PausePanel::Draw()
 		Image::Draw(panelImage_);
 		resumeButton_->Visible();
 		BackTitleButton_->Visible();
+		levelText_->Draw(Direct3D::screenWidth_ * 0.5f - 100.0f, Direct3D::screenHeight_ * 0.5f - 180.0f, "LEVEL:");
+		levelText_->Draw(Direct3D::screenWidth_ * 0.5f + 100.0f, Direct3D::screenHeight_ * 0.5f - 180.0f, playerLevel_);
 	}
 	else
 	{

@@ -38,5 +38,11 @@ public:
 
 	//‰ğ•ú
 	void Release();
+
+	void SetScale(float scale) { scale_ = scale; }
+
+private:
+	// •`‰æ‚·‚éÛ‚ÌƒXƒP[ƒ‹
+	float scale_;
 };
 

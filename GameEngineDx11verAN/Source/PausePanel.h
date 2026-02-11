@@ -1,7 +1,9 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class Player;
 class Button;
+class Text;
 
 class PausePanel : public GameObject
 {
@@ -37,4 +39,9 @@ private:
 	Button* BackTitleButton_;
 	Transform btButtonTransform_;
 	bool onBTButton_;
+
+	// Œ»İƒŒƒxƒ‹‚ğ•\¦‚·‚é•Ï”
+	Player* player_;
+	int playerLevel_;
+	Text* levelText_;
 };

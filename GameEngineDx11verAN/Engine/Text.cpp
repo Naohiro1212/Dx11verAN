@@ -2,7 +2,7 @@
 #include "Direct3D.h"
 #include "Text.h"
 
-Text::Text() : hPict_(-1), width_(16), height_(32), fileName_("char.png"), rowLength_(16)
+Text::Text() : hPict_(-1), width_(16), height_(32), fileName_("char.png"), rowLength_(16), scale_(1.0f)
 {
 }
 
@@ -62,8 +62,12 @@ void Text::Draw(int x, int y, const char* str)
 		Transform transform;
 		transform.position_.x = px;
 		transform.position_.y = py;
-		Image::SetTransform(hPict_, transform);
 
+		// スケール設定
+		transform.scale_.x = scale_;
+		transform.scale_.y = scale_;
+
+		Image::SetTransform(hPict_, transform);
 		//表示する範囲
 		Image::SetRect(hPict_, width_ * x, height_ * y, width_, height_);
 
@@ -71,7 +75,7 @@ void Text::Draw(int x, int y, const char* str)
 		Image::Draw(hPict_);
 
 		//次の位置にずらす
-		px += width_ / (float)(Direct3D::screenWidth_ / 2.0f);
+		px += width_ / (float)(Direct3D::screenWidth_ / 2.0f) * scale_;
 	}
 }
 

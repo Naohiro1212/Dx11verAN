@@ -46,6 +46,9 @@ public:
 
 	// UŒ‚—Íæ“¾
 	float GetStrength() const { return strength_; }
+	
+	// Œ»İƒŒƒxƒ‹æ“¾
+	float GetLevel() const {return level_; }
 
 private:
 	//// ŠÖ”ŒQ
@@ -133,6 +136,7 @@ private:
 	float health_ = 0.0f;
 	float mana_ = 0.0f;
 	float exp_ = 0.0f;
+	int level_ = 1;
 	float deathTimer_ = 0.0f;
 
 	//// “ü—Íˆ—‚â“–‚½‚è”»’èŠÖ˜A‚Ì•Ï”
