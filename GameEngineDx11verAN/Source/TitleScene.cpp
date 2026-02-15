@@ -13,6 +13,12 @@ namespace
 	const float START_BUTTON_POS_Y = 740.0f;
 	const float END_BUTTON_POS_X = 960.0f;
 	const float END_BUTTON_POS_Y = 890.0f;
+
+	const float BGM_VOLUME = 0.02f; // BGM音量
+	const float CLICK_SOUND_VOLUME = 0.5f; // クリック音量
+
+	const float HALF_WINDOW_WIDTH = 0.5f;
+	const int DELAY_CHANGE_SCENE = 600; // シーン切り替えの遅延時間（ミリ秒）
 }
 
 TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), 
@@ -20,8 +26,8 @@ startButton_(nullptr),
 endButton_(nullptr),
 titleImage_(-1),
 clickSoundHandle_(-1),
-startDelay_(600),
-endDelay_(600)
+startDelay_(std::chrono::milliseconds(DELAY_CHANGE_SCENE)),
+endDelay_(std::chrono::milliseconds(DELAY_CHANGE_SCENE))
 {
 }
 
@@ -46,13 +52,13 @@ void TitleScene::Initialize()
 	// BGM読み込みと再生
 	bgmHandle_ = Audio::Load("Audio/BGM_Title.wav", true);
 	assert(bgmHandle_ >= 0);
-	Audio::SetVolume(bgmHandle_, 0.02f);
+	Audio::SetVolume(bgmHandle_, BGM_VOLUME);
 	Audio::Play(bgmHandle_);
 
 	// クリック音読み込み
 	clickSoundHandle_ = Audio::Load("Audio/click.wav");
 	assert(clickSoundHandle_ >= 0);
-	Audio::SetVolume(clickSoundHandle_, 0.5f);
+	Audio::SetVolume(clickSoundHandle_, CLICK_SOUND_VOLUME);
 }
 
 void TitleScene::Update()
@@ -122,7 +128,7 @@ void TitleScene::Draw()
 	pCursorManager->Draw();
 
 	// 中心に配置（center = true）
-	Image::SetPositionPixels(titleImage_, Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f, true);
+	Image::SetPositionPixels(titleImage_, Direct3D::screenWidth_ * HALF_WINDOW_WIDTH, Direct3D::screenHeight_ * HALF_WINDOW_WIDTH, true);
 
 	// 描画
 	Image::Draw(titleImage_);

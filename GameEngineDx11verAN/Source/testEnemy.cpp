@@ -52,6 +52,15 @@ namespace
     const int ATTACK_POWER = 10;
 
     const float SCORE = 100.0f;
+
+	const XMFLOAT3 COLLIDER_POS = { 0.0f, 10.0f, 0.0f };
+	const XMFLOAT3 COLLIDER_SCALE = { ENEMY_SCALE.x * 80.0f, ENEMY_SCALE.y * 170.0f, ENEMY_SCALE.z * 40.0f };
+
+    const float BASE_HEALTH = 50.0f;
+
+    // 影の定数
+	const XMFLOAT3 SHADOW_SCALE = XMFLOAT3(10.0f, 20.0f, 16.0f);
+	const XMFLOAT4 SHADOW_COLOR = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.5f);
 }
 
 testEnemy::testEnemy(GameObject* parent)
@@ -77,7 +86,7 @@ testEnemy::~testEnemy()
 
 void testEnemy::Initialize()
 {
-	transform_.position_ = { 0.0f, 0.5f, 0.0f }; // 初期位置
+	transform_.position_ = { 0.0f, 0.0f, 0.0f }; // 初期位置
     transform_.scale_ = ENEMY_SCALE;
 
 	// モデル読み込み
@@ -93,7 +102,7 @@ void testEnemy::Initialize()
 	nowModel_ = idleModel_;
     Model::SetAnimFrame(nowModel_,ANIM_BASE_START, ANIM_IDLE_END, ANIM_BASE_SPEED);
 
-	pCollider_ = new BoxCollider(XMFLOAT3(0.0f,10.0f,0.0f), XMFLOAT3(transform_.scale_.x * 80.0f, transform_.scale_.y * 170.0f, transform_.scale_.z * 40.0f));
+	pCollider_ = new BoxCollider(COLLIDER_POS, COLLIDER_SCALE);
 	AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 
@@ -103,7 +112,7 @@ void testEnemy::Initialize()
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     backTimer_ = 0.0f;
-    health_ = 50.0f;
+    health_ = BASE_HEALTH;
 	damageCooldown_ = 0.0f;
 	deathTimer_ = 0.0f;
 
@@ -282,15 +291,17 @@ void testEnemy::Update()
 void testEnemy::Draw()
 {
 	Model::Draw(nowModel_);
-  //  if (pCollider_)
-  //  {
-  //      pCollider_->Draw(transform_.position_, transform_.rotate_);
-  //  }
+#ifdef _DEBUG
+    if (pCollider_)
+    {
+        pCollider_->Draw(transform_.position_, transform_.rotate_);
+    }
 
-  //  if (attackCollider_)
-  //  {
-		//attackCollider_->Draw(transform_.position_, transform_.rotate_);
-  //  }
+    if (attackCollider_)
+    {
+		attackCollider_->Draw(transform_.position_, transform_.rotate_);
+    }
+#endif
 
 	// シェーダー・ブレンドモード切替
     Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
@@ -299,14 +310,14 @@ void testEnemy::Draw()
     // 丸影の描画
 	float yawRad_ = XMConvertToRadians(transform_.rotate_.y);
 	XMFLOAT3 shadowPos_ = XMFLOAT3(transform_.position_.x, pPlane_->GetPlanePos().y, transform_.position_.z);
-	XMMATRIX S = XMMatrixScaling(10.0f, 20.0f, 16.0f);
+	XMMATRIX S = XMMatrixScaling(SHADOW_SCALE.x, SHADOW_SCALE.y, SHADOW_SCALE.z);
 	// 90度回転して地面に平行に
 	XMMATRIX R = XMMatrixRotationX(XM_PIDIV2) * XMMatrixRotationY(yawRad_);
 	// プレイヤーの正面に合わせて描画
 	XMMATRIX T = XMMatrixTranslation(shadowPos_.x, shadowPos_.y + 0.1f, shadowPos_.z);
 
 	XMMATRIX world = S * R * T;
-    shadowBillboard_->Draw(world, XMFLOAT4(0.05f, 0.05f, 0.05f, 0.5f));
+    shadowBillboard_->Draw(world, SHADOW_COLOR);
 
 	// シェーダー・ブレンドモード戻す
 	Direct3D::SetShader(Direct3D::SHADER_3D);

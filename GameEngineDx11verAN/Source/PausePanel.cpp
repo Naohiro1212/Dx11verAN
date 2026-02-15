@@ -7,6 +7,18 @@
 #include "../Source/Player.h"
 #include "../Engine/Text.h"
 
+namespace
+{
+	const float HALF_WINDOW_WIDTH = 0.5f;
+	const float RESUME_BUTTON_OFFSET_Y = -50.0f;
+	const float BACK_TITLE_BUTTON_OFFSET_Y = 120.0f;
+
+	const float LEVEL_TEXT_OFFSET_X = 100.0f;
+	const float LEVEL_TEXT_OFFSET_Y = -180.0f;
+
+	const float LEVEL_TEXT_SCALE = 1.7f;
+}
+
 PausePanel::PausePanel(GameObject* parent) :
 	GameObject(parent),
 	panelImage_(-1),
@@ -33,24 +45,27 @@ void PausePanel::Initialize()
 	float h = (float)(rect.bottom - rect.top);
 
 	// center=true にすることで SetPositionPixels に x,y を画面中心として渡せる
-	Image::SetPositionPixels(panelImage_, Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f, true);
+	Image::SetPositionPixels(panelImage_, Direct3D::screenWidth_ * HALF_WINDOW_WIDTH, 
+		Direct3D::screenHeight_ * HALF_WINDOW_WIDTH, true);
 
 	// ボタン初期化
 	resumeButton_ = Instantiate<Button>(this);
 	resumeButton_->SetCenter(true);
 	resumeButton_->SetButtonImage(Image::Load("ResumeButton.png"));
-	resumeButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f - 50.0f);
+	resumeButton_->SetButtonPosition(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH, 
+		Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + RESUME_BUTTON_OFFSET_Y);
 
 	BackTitleButton_ = Instantiate<Button>(this);
 	BackTitleButton_->SetCenter(true);
 	BackTitleButton_->SetButtonImage(Image::Load("BackTitleButton.png"));
-	BackTitleButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + 120.0f);
+	BackTitleButton_->SetButtonPosition(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH, 
+		Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + BACK_TITLE_BUTTON_OFFSET_Y);
 
 	// レベルテキスト初期化
 	player_ = dynamic_cast<Player*>(FindObject("Player"));
 	levelText_ = new Text();
 	levelText_->Initialize();
-	levelText_->SetScale(1.7f);
+	levelText_->SetScale(LEVEL_TEXT_SCALE);
 
 	nowPaused_ = false;
 
@@ -92,8 +107,13 @@ void PausePanel::Draw()
 		Image::Draw(panelImage_);
 		resumeButton_->Visible();
 		BackTitleButton_->Visible();
-		levelText_->Draw(Direct3D::screenWidth_ * 0.5f - 100.0f, Direct3D::screenHeight_ * 0.5f - 180.0f, "LEVEL:");
-		levelText_->Draw(Direct3D::screenWidth_ * 0.5f + 100.0f, Direct3D::screenHeight_ * 0.5f - 180.0f, playerLevel_);
+
+		// レベル表示
+		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH - LEVEL_TEXT_OFFSET_X, 
+			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_Y, "LEVEL:");
+
+		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_X, 
+			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_Y, playerLevel_);
 	}
 	else
 	{

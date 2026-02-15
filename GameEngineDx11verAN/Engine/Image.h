@@ -28,7 +28,7 @@ namespace Image
 		Transform transform;
 
 		//コンストラクタ
-		ImageData() : pSprite(nullptr)
+		ImageData() : pSprite(nullptr), rect{ 0,0,0,0 }, alpha(1.0f)
 		{
 			fileName = "";
 			alpha = 1.0f;

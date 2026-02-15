@@ -16,8 +16,15 @@
 #include "../Source/CursorManager.h"
 
 //コンストラクタ
-TestScene::TestScene(GameObject * parent)
-	: GameObject(parent, "TestScene"), isPaused_(false), objectiveText_(nullptr), bgmHandle_(-1)
+TestScene::TestScene(GameObject * parent): 
+    GameObject(parent, "TestScene"), 
+    isPaused_(false), 
+    objectiveText_(nullptr), 
+    bgmHandle_(-1),
+    dungeonManager_(nullptr),
+    healthGauge_(nullptr),
+	manaGauge_(nullptr),
+	player_(nullptr)
 {
 }
 

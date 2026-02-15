@@ -78,7 +78,7 @@ void Player::Initialize()
     ongroundSEHandle_ = Audio::Load("Audio/onGround.wav");
 	//levelUpSEHandle_ = Audio::Load("Audio/levelup.wav");
 
-    Audio::SetMasterVolume(0.1f);
+    Audio::SetMasterVolume(cnf_.MASTER_VOLUME);
 
 	assert(hitSEHandle_ != -1);
     assert(swingSEHandle_ != -1);
@@ -98,7 +98,7 @@ void Player::Initialize()
 	Camera::SetPosition(transform_.position_.x, transform_.position_.y + cnf_.CAMERA_INIT_POS_Y, transform_.position_.z - cnf_.CAMERA_INIT_POS_Z);
 
     // ジャンプの初速度
-    JumpV0_ = sqrtf(2.0f * cnf_.GRAVITY * cnf_.JUMP_HEIGHT);
+    JumpV0_ = sqrtf(cnf_.JUMP_V0_CONSTANT);
     velocityY_ = 0.0f;
 
     // ジャンプ初期化
@@ -261,7 +261,7 @@ void Player::Update()
         if (justLeftGround)
         {
             // 空中に出た瞬間に現在の移動方向をロック（無入力ならゼロ）
-            if (XMVectorGetX(XMVector3LengthSq(vInput)) > 1e-6f && wasMoving_)
+            if (XMVectorGetX(XMVector3LengthSq(vInput)) > cnf_.EPSILON && wasMoving_)
             {
                 vAirMove_ = XMVector3Normalize(vInput);
             }
@@ -279,14 +279,14 @@ void Player::Update()
         // 地上にいるときは入力に応じて移動
         vMove = vInput;
         // wasMoving_ の更新（無入力判定）
-        wasMoving_ = (XMVectorGetX(XMVector3LengthSq(vInput)) > 1e-6f);
+        wasMoving_ = (XMVectorGetX(XMVector3LengthSq(vInput)) > cnf_.EPSILON);
     }
 
     // 次フレーム用に接地状態を保持
     prevOnGround_ = onGround_;
 
     // 正規化
-    if (XMVector3LengthSq(vMove).m128_f32[0] > 1e-5f)
+    if (XMVector3LengthSq(vMove).m128_f32[0] > cnf_.EPSILON)
     {
         vMove = XMVector3Normalize(vMove);
     }
@@ -297,8 +297,8 @@ void Player::Update()
 	// 接地状態でSHIFTキーでダッシュ（速度2倍）
     if (Input::IsKey(DIK_LSHIFT) && onGround_)
     {
-		moveVec.x *= 2.0f;
-		moveVec.z *= 2.0f;
+		moveVec.x *= cnf_.DASH_MULTIPLIER;
+		moveVec.z *= cnf_.DASH_MULTIPLIER;
     }
     transform_.position_.x += moveVec.x * cnf_.PLAYER_SPEED * dt_;
     transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
@@ -312,7 +312,7 @@ void Player::Update()
 		{
 			transform_.position_.x += res.push.x + (res.push.x > 0 ? cnf_.WALL_EPS : (res.push.x < 0 ? -cnf_.WALL_EPS : 0.0f));
 			transform_.position_.z += res.push.z + (res.push.z > 0 ? cnf_.WALL_EPS : (res.push.z < 0 ? -cnf_.WALL_EPS : 0.0f));
-			if (fabsf(res.normal.y) < 0.4f)
+			if (fabsf(res.normal.y) < cnf_.WALL_SLIDE_MAX_NORMAL_Y)
 			{
 				moveVec = SlideAlongWall(moveVec, res.normal);
 			}
@@ -377,14 +377,14 @@ void Player::Draw()
     // 丸影の描画
     float yawRad_ = XMConvertToRadians(transform_.rotate_.y);
     XMFLOAT3 shadowPos_ = XMFLOAT3(transform_.position_.x, pPlane_->GetPlanePos().y, transform_.position_.z);
-    XMMATRIX S = XMMatrixScaling(10.0f, 20.0f, 16.0f);
+    XMMATRIX S = XMMatrixScaling(cnf_.SHADOW_SCALE.x, cnf_.SHADOW_SCALE.y, cnf_.SHADOW_SCALE.z);
 	// 90度回転して地面に平行に
 	XMMATRIX R = XMMatrixRotationX(XM_PIDIV2) * XMMatrixRotationY(yawRad_);
     // プレイヤーの正面に合わせて描画
-	XMMATRIX T = XMMatrixTranslation(shadowPos_.x, shadowPos_.y + 0.1f, shadowPos_.z);
+	XMMATRIX T = XMMatrixTranslation(shadowPos_.x, shadowPos_.y + cnf_.SHADOW_OFFSET_Y, shadowPos_.z);
 
 	XMMATRIX world = S * R * T;
-	shadowBillboard_->Draw(world, XMFLOAT4(0.05f, 0.05f, 0.05f,0.5f));
+	shadowBillboard_->Draw(world, cnf_.SHADOW_COLOR);
 
     Direct3D::SetShader(Direct3D::SHADER_3D);
     Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
@@ -413,7 +413,7 @@ void Player::OnCollision(GameObject* pTarget)
     // 宝石取得時
     if (pTarget->GetObjectName() == "Jewel" && !pTarget->IsDead())
     {
-        exp_ += 20; // 経験値加算
+        exp_ += cnf_.JEWEL_EXP; // 経験値加算
     }
 
     // 近接攻撃のヒット判定（自分のAttack -> 相手Body が "Enemy"）
@@ -579,8 +579,8 @@ void Player::ChangeModel()
 
 void Player::UpdateGravity()
 {
-    const float ENTER_EPS = cnf_.GROUND_EPS;         // 例: 0.02f
-    const float EXIT_EPS = cnf_.GROUND_EPS * 2.0f;  // 例: 0.04f
+    const float ENTER_EPS = cnf_.ENTER_GROUND_EPS; 
+    const float EXIT_EPS = cnf_.EXIT_GROUND_EPS;  
 
     // 重力（上昇/下降で倍率を切り替え）
     float g = cnf_.GRAVITY * (velocityY_ < 0.0f ? cnf_.GRAVITY_MULTIPLIER : 1.0f);
@@ -593,7 +593,7 @@ void Player::UpdateGravity()
     RayCastData hitData;
     hitData.start = transform_.position_;
     hitData.start.y += cnf_.PROBE_UP_OFFSET;
-    hitData.dir = XMFLOAT3(0.0f, -10.0f, 0.0f);
+    hitData.dir = cnf_.RAY_DIR;
     Model::RayCast(pPlane_->GetPlaneHandle(), hitData);
 
     bool landedThisFrame = false;
@@ -818,7 +818,7 @@ void Player::LevelUp()
     if (exp_ >= 100.0f)
     {
         exp_ = 0.0f;
-        strength_ += 5.0f;
+        strength_ += cnf_.LEVELUP_STRENGTH;
         level_++;
 		// レベルアップエフェクト生成
 		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);

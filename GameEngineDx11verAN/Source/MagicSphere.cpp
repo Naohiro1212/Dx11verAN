@@ -5,11 +5,37 @@
 
 namespace
 {
-	const float MAGIC_SPEED = 100.0f;
-	const float ATTACK_DURATION = 5.0f;
-	const float MAGIC_SCALE = 1.2f;
+	const float	   MAGIC_SPEED = 100.0f;
+	const float	   ATTACK_DURATION = 5.0f;
+	const float    MAGIC_SCALE = 1.2f;
 
-	const float COLLILDER_RADIUS = 2.5f;
+	const float    COLLILDER_RADIUS = 2.5f;
+
+	// エフェクト用定数
+	const XMFLOAT3 MAGIC_SPHERE_EFFECT_POS_RND = XMFLOAT3(0.12f, 0.12f, 0.12f);
+
+	const XMFLOAT3 MAGIC_SPHERE_EFFECT_DIRECTION = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	const XMFLOAT3 MAGIC_SPHERE_EFFECT_DIRECTION_RND = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	const float    MAGIC_SPHERE_EFFECT_SPEED = 0.01f;
+	const float    MAGIC_SPHERE_EFFECT_SPEED_RND = 0.1f;
+	const float    MAGIC_SPHERE_EFFECT_ACCEL = 1.0f;
+	const float    MAGIC_SPHERE_EFFECT_GRAVITY = 0.0f;
+
+	const XMFLOAT4 MAGIC_SPHERE_EFFECT_COLOR = XMFLOAT4(0.85f, 0.95f, 1.0f, 0.35f);
+	const XMFLOAT4 MAGIC_SPHERE_EFFECT_DELTA_COLOR = XMFLOAT4(-0.001f, -0.001f, -0.001f, -0.003f);
+
+	const XMFLOAT3 MAGIC_SPHERE_EFFECT_ROTATE = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	const XMFLOAT3 MAGIC_SPHERE_EFFECT_ROTATE_RND = XMFLOAT3(0.0f, 15.0f, 0.0f);
+	const XMFLOAT3 MAGIC_SPHERE_EFFECT_SPIN = XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+	const XMFLOAT2 MAGIC_SPHERE_EFFECT_SIZE = XMFLOAT2(1.2f, 1.2f);
+	const XMFLOAT2 MAGIC_SPHERE_EFFECT_SIZE_RND = XMFLOAT2(0.2f, 0.2f);
+	const XMFLOAT2 MAGIC_SPHERE_EFFECT_SCALE = XMFLOAT2(1.005f, 1.005f);
+
+	const int      MAGIC_SPHERE_EFFECT_LIFETIME = 40;
+	const int      MAGIC_SPHERE_EFFECT_DELAY = 3;
+	const int      MAGIC_SPHERE_EFFECT_NUMBER = 2;
 }
 
 MagicSphere::MagicSphere(GameObject* parent) : GameObject(parent, "MagicSphere"), magicModel_(-1), attackTimer_(0.0f)
@@ -36,25 +62,25 @@ void MagicSphere::Initialize()
 
 	// 魔法のスフィアにエフェクトを追加
 	effectData_.textureFileName = "Effects/flashC_B.png";
-	effectData_.position = transform_.position_;
-	effectData_.positionRnd = XMFLOAT3(0.12f, 0.12f, 0.12f);
-	effectData_.direction = XMFLOAT3(0, 0, 0);      // その場で揺らぐ
-	effectData_.directionRnd = XMFLOAT3(0, 0, 0);
-	effectData_.speed = 0.01f;
-	effectData_.speedRnd = 0.1f;
-	effectData_.accel = 1.0f;
-	effectData_.gravity = 0.0f;
-	effectData_.color = XMFLOAT4(0.85f, 0.95f, 1.0f, 0.35f);   // 少し青白
-	effectData_.deltaColor = XMFLOAT4(-0.001f, -0.001f, -0.001f, -0.003f);
-	effectData_.rotate = XMFLOAT3(0, 0, 0);
-	effectData_.rotateRnd = XMFLOAT3(0.0f, 15.0f, 0.0f);
-	effectData_.spin = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	effectData_.size = XMFLOAT2(1.2f, 1.2f);
-	effectData_.sizeRnd = XMFLOAT2(0.2f, 0.2f);
-	effectData_.scale = XMFLOAT2(1.005f, 1.005f);   // ゆっくり膨らむ
-	effectData_.lifeTime = 40;
-	effectData_.delay = 3;                          // 継続的に発生
-	effectData_.number = 2;
+	effectData_.position     =	transform_.position_;
+	effectData_.positionRnd  =	MAGIC_SPHERE_EFFECT_POS_RND;
+	effectData_.direction    =	MAGIC_SPHERE_EFFECT_DIRECTION;      // その場で揺らぐ
+	effectData_.directionRnd =	MAGIC_SPHERE_EFFECT_DIRECTION_RND;
+	effectData_.speed		 =	MAGIC_SPHERE_EFFECT_SPEED;
+	effectData_.speedRnd	 =	MAGIC_SPHERE_EFFECT_SPEED_RND;
+	effectData_.accel        =	MAGIC_SPHERE_EFFECT_ACCEL;
+	effectData_.gravity      =	MAGIC_SPHERE_EFFECT_GRAVITY;
+	effectData_.color		 =	MAGIC_SPHERE_EFFECT_COLOR;   // 少し青白
+	effectData_.deltaColor   =	MAGIC_SPHERE_EFFECT_DELTA_COLOR;
+	effectData_.rotate		 =	MAGIC_SPHERE_EFFECT_ROTATE;
+	effectData_.rotateRnd	 =	MAGIC_SPHERE_EFFECT_ROTATE_RND;
+	effectData_.spin		 =	MAGIC_SPHERE_EFFECT_SPIN;
+	effectData_.size		 =	MAGIC_SPHERE_EFFECT_SIZE;
+	effectData_.sizeRnd      =	MAGIC_SPHERE_EFFECT_SIZE_RND;
+	effectData_.scale        =	MAGIC_SPHERE_EFFECT_SCALE;   // ゆっくり膨らむ
+	effectData_.lifeTime     =	MAGIC_SPHERE_EFFECT_LIFETIME;
+	effectData_.delay        =	MAGIC_SPHERE_EFFECT_DELAY;                          // 継続的に発生
+	effectData_.number       =	MAGIC_SPHERE_EFFECT_NUMBER;
 	effectData_.isBillBoard = true;
 
 	hEmit_ = VFX::Start(effectData_);

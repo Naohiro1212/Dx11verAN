@@ -79,7 +79,9 @@ struct PlayerConfig
 
     // レイキャスト用の変数
     const float PROBE_UP_OFFSET = 1.0f;
-    const float GROUND_EPS = 0.015f;
+    const float ENTER_GROUND_EPS = 0.015f;
+    const float EXIT_GROUND_EPS = 0.03f;
+	const XMFLOAT3 RAY_DIR = XMFLOAT3(0.0f, -10.0f, 0.0f);
 
     // 壁当たり判定関連
     const float WALL_EPS = 1e-3f;
@@ -99,4 +101,32 @@ struct PlayerConfig
 
     // 効果音が鳴るまでのディレイ
 	const float SLASH_SOUND_DELAY = 0.5f;
+
+    // Audioのマスターボリューム
+	const float MASTER_VOLUME = 0.1f;
+
+	// ジャンプの初速度を求めるための定数
+	const float JUMP_V0_CONSTANT = 2.0f * GRAVITY * JUMP_HEIGHT;
+
+    // 閾値のための極小値
+    const float EPSILON = 1e-6f;
+
+	// ダッシュの速度倍率
+	const float DASH_MULTIPLIER = 1.8f;
+
+	// 壁との当たり判定の値
+	// cos(66度) = 0.4f なので、これより小さいときはほぼ垂直な壁とみなす
+    const float WALL_SLIDE_MAX_NORMAL_Y = 0.4f;
+
+    // 影のスケール
+    const XMFLOAT3 SHADOW_SCALE = XMFLOAT3(10.0f, 20.0f, 16.0f);
+    // 影のyオフセット
+	const float SHADOW_OFFSET_Y = 0.1f;
+	const XMFLOAT4 SHADOW_COLOR = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.5f);
+
+    // ジュエル1個あたりの経験値
+	const int JEWEL_EXP = 20; 
+
+	// レベルアップで上昇するステータスの値
+    const float LEVELUP_STRENGTH = 5.0f;
 };

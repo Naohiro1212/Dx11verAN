@@ -40,6 +40,9 @@ namespace
 	const int SCORE_RANK_A = 1200;
 
 	const float RANK_LABEL_OFFSET_X = 150.0f;
+
+	const float HALF_WINDOW_WIDTH = 0.5f;
+	const int DELAY_CHANGE_SCENE = 600; // シーン切り替えの遅延時間（ミリ秒）
 }
 
 EndScene::EndScene(GameObject* parent)
@@ -51,7 +54,7 @@ EndScene::EndScene(GameObject* parent)
       clickSoundHandle_(-1),
       pendingStart_(false),
       startTriggerTime_(),
-      startDelay_(std::chrono::milliseconds(600))
+      startDelay_(std::chrono::milliseconds(DELAY_CHANGE_SCENE))
 {
 }
 
@@ -68,7 +71,7 @@ void EndScene::Initialize()
 	pButton_ = Instantiate<Button>(this);
 	pButton_->SetCenter(true);
 	pButton_->SetButtonImage(Image::Load("BackTitleButton.png"));
-	pButton_->SetButtonPosition(Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f + BUTTON_Y_OFFSET);
+	pButton_->SetButtonPosition(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH, Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + BUTTON_Y_OFFSET);
 
 	// BGM読み込みと再生
 	bgmHandle_ = Audio::Load("Audio/BGM_Title.wav", true);
@@ -144,7 +147,7 @@ void EndScene::Draw()
 	Image::SetSizePixels(EndImage_, w * scale, h * scale);
 
 	// 中心に配置（center = true）
-	Image::SetPositionPixels(EndImage_, Direct3D::screenWidth_ * 0.5f, Direct3D::screenHeight_ * 0.5f, true);
+	Image::SetPositionPixels(EndImage_, Direct3D::screenWidth_ * HALF_WINDOW_WIDTH, Direct3D::screenHeight_ * HALF_WINDOW_WIDTH, true);
 
 	// 描画
 	Image::Draw(EndImage_);
@@ -154,10 +157,10 @@ void EndScene::Draw()
 	int score = pScoreManager->GetScore();
 
 	// ラベルと値の位置（中心基準の相対オフセット）
-	const float scoreLabelX = Direct3D::screenWidth_ * 0.5f + SCORE_LABEL_OFFSET_X;
-	const float scoreLabelY = Direct3D::screenHeight_ * 0.5f + SCORE_LABEL_OFFSET_Y;
-	const float scoreValueX = Direct3D::screenWidth_ * 0.5f + SCORE_VALUE_OFFSET_X;
-	const float scoreValueY = Direct3D::screenHeight_ * 0.5f + SCORE_VALUE_OFFSET_Y;
+	const float scoreLabelX = Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + SCORE_LABEL_OFFSET_X;
+	const float scoreLabelY = Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + SCORE_LABEL_OFFSET_Y;
+	const float scoreValueX = Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + SCORE_VALUE_OFFSET_X;
+	const float scoreValueY = Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + SCORE_VALUE_OFFSET_Y;
 
 	pScoreText_->Draw(scoreLabelX, scoreLabelY, "SCORE:");
 	pScoreText_->Draw(scoreValueX, scoreValueY, score);
@@ -177,10 +180,10 @@ void EndScene::Draw()
 
 	// クリアタイム表示
 	std::string timeStr = Timer::ToString();
-	const float timeLabelX = Direct3D::screenWidth_ * 0.5f + TIME_LABEL_OFFSET_X;
-	const float timeLabelY = Direct3D::screenHeight_ * 0.5f + TIME_LABEL_OFFSET_Y;
-	const float timeValueX = Direct3D::screenWidth_ * 0.5f + TIME_VALUE_OFFSET_X;
-	const float timeValueY = Direct3D::screenHeight_ * 0.5f + TIME_VALUE_OFFSET_Y;
+	const float timeLabelX = Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + TIME_LABEL_OFFSET_X;
+	const float timeLabelY = Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + TIME_LABEL_OFFSET_Y;
+	const float timeValueX = Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + TIME_VALUE_OFFSET_X;
+	const float timeValueY = Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + TIME_VALUE_OFFSET_Y;
 
 	pClearTimeText_->Draw(timeLabelX, timeLabelY, "CLEAR TIME:");
 	pClearTimeText_->Draw(timeValueX, timeValueY, timeStr.c_str());
