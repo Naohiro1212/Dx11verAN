@@ -18,6 +18,9 @@ namespace
 	const float VIEW_HALF_ANGLE_DEG = 85.0f;
     const float TURN_SPEED_DEG = 105.0f;
 
+    // 徘徊するときの速度
+    const float PATROL_SPEED = 11.0f;
+
     const float WALL_EPS = 1e-3f;
 	const XMFLOAT3 ENEMY_SCALE = { 0.1f, 0.1f, 0.1f };
 
@@ -61,6 +64,16 @@ namespace
     // 影の定数
 	const XMFLOAT3 SHADOW_SCALE = XMFLOAT3(10.0f, 20.0f, 16.0f);
 	const XMFLOAT4 SHADOW_COLOR = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.5f);
+
+    // 徘徊関連
+    // 徘徊するときに回転する角度
+	const float PATROL_RADIUS = 120.0f;
+
+    // 回転する頻度
+	const float PATROL_INTERVAL = 3.0f;
+
+    const float PATROL_MOVE_DURATION = 5.0f;   // 動く時間
+    const float PATROL_WAIT_DURATION = 10.0f;  // 待機時間
 }
 
 testEnemy::testEnemy(GameObject* parent)
@@ -71,6 +84,7 @@ testEnemy::testEnemy(GameObject* parent)
 	attackCollider_(nullptr),
     isSpotted_(false),
 	isAttacking_(false),
+    isPatrolMove_(false),
     velocity_{ 0.0f,0.0f,0.0f }, 
     player_(nullptr),
     deathEffect_(nullptr)
@@ -124,6 +138,9 @@ void testEnemy::Initialize()
     lastAttackFrame_ = ANIM_BASE_START;
 
     attackPower_ = ATTACK_POWER;
+
+    // 徘徊タイマー初期化
+    patrolTimer_ = 0.0f;
 
     // 敵の下の丸影
     shadowBillboard_ = new BillBoard();
@@ -203,6 +220,8 @@ void testEnemy::Update()
         moveVec_ = knockbackVec_;
 
         // 壁ずり・貫通解消
+        // 徘徊中は壁にぶつかるたびに回転させ移動方向を変える
+        // 追跡中のみかべずりを行わせる
         for (auto* wallCollider_ : enemyWallColliders_)
         {
             PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
@@ -210,7 +229,15 @@ void testEnemy::Update()
             {
                 transform_.position_.x += res.push.x + (res.push.x > 0 ? WALL_EPS : (res.push.x < 0 ? -WALL_EPS : 0.0f));
                 transform_.position_.z += res.push.z + (res.push.z > 0 ? WALL_EPS : (res.push.z < 0 ? -WALL_EPS : 0.0f));
-                moveVec_ = SlideAlongWall(moveVec_, res.normal);
+                if (isSpotted_)
+                {
+					moveVec_ = SlideAlongWall(moveVec_, res.normal);
+                }
+				else if (isReturning_)
+				{
+					// 徘徊中は壁にぶつかるたびに回転させ移動方向を変える
+					transform_.rotate_.y += PATROL_RADIUS;
+				}
             }
         }
 
@@ -227,6 +254,7 @@ void testEnemy::Update()
     // ここで velocity_ を moveVec_ に反映
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
+	// プレイヤーを見つけている間は追跡、見失っているときは初期位置に戻る→徘徊
     if (isSpotted_)
     {
         backTimer_ += dt_;
@@ -235,33 +263,83 @@ void testEnemy::Update()
     }
     else
     {
-        XMFLOAT3 dirToInit{
-            initPos_.x - transform_.position_.x,
-            0.0f,
-            initPos_.z - transform_.position_.z
-        };
-        XMVECTOR vDirToInit = XMLoadFloat3(&dirToInit);
-        float lenSq = XMVectorGetX(XMVector3LengthSq(vDirToInit));
-        if (lenSq > 1e-6f) vDirToInit = XMVector3Normalize(vDirToInit);
-        else               vDirToInit = XMVectorZero();
-        XMStoreFloat3(&dirToInit, vDirToInit);
-
-		// 初期位置へ戻る
-        // 初期位置の方向を向く
-		transform_.rotate_.y = atan2f(-dirToInit.x, -dirToInit.z) * (180.0f / XM_PI);
-
-        // 微小なずれを許容する
-        float distToInitSq = (initPos_.x - transform_.position_.x) * (initPos_.x - transform_.position_.x)
-            + (initPos_.z - transform_.position_.z) * (initPos_.z - transform_.position_.z);
-        if (distToInitSq > POSITION_EPS)
+		// プレイヤーを見失っているときは、まず初期位置に戻る
+        if(!isReturning_)
         {
-            // まだ離れている場合のみ移動
-            transform_.position_.x += dirToInit.x * CHASE_SPEED * dt_;
-            transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
+            XMFLOAT3 dirToInit{
+                       initPos_.x - transform_.position_.x,
+                       0.0f,
+                       initPos_.z - transform_.position_.z
+            };
+            XMVECTOR vDirToInit = XMLoadFloat3(&dirToInit);
+            float lenSq = XMVectorGetX(XMVector3LengthSq(vDirToInit));
+            if (lenSq > 1e-6f) vDirToInit = XMVector3Normalize(vDirToInit);
+            else               vDirToInit = XMVectorZero();
+            XMStoreFloat3(&dirToInit, vDirToInit);
+
+            // 初期位置へ戻る
+            // 初期位置の方向を向く
+            transform_.rotate_.y = atan2f(-dirToInit.x, -dirToInit.z) * (180.0f / XM_PI);
+
+            // 微小なずれを許容する
+            float distToInitSq = (initPos_.x - transform_.position_.x) * (initPos_.x - transform_.position_.x)
+                + (initPos_.z - transform_.position_.z) * (initPos_.z - transform_.position_.z);
+            if (distToInitSq > POSITION_EPS)
+            {
+                // まだ離れている場合のみ移動
+                transform_.position_.x += dirToInit.x * CHASE_SPEED * dt_;
+                transform_.position_.z += dirToInit.z * CHASE_SPEED * dt_;
+				moveVec_ = { dirToInit.x * CHASE_SPEED, 0.0f, dirToInit.z * CHASE_SPEED };
+            }
+            else
+            {
+				// 初期位置に戻ったので、徘徊状態に移行
+                isReturning_ = true;
+				patrolTimer_ = 0.0f;
+                moveVec_ = { 0.0f, 0.0f, 0.0f };
+            }
         }
+		// 初期位置に戻った後は、徘徊モード
         else
         {
-            moveVec_ = { 0.0f, 0.0f, 0.0f };
+            patrolTimer_ += dt_;
+
+            if (isPatrolMove_)
+            {
+                // ---- 動いている時間（5秒） ----
+                float yawRad = XMConvertToRadians(transform_.rotate_.y);
+                XMFLOAT3 forward = {
+                    -sinf(yawRad),
+                     0.0f,
+                    -cosf(yawRad)
+                };
+
+                transform_.position_.x += forward.x * PATROL_SPEED * dt_;
+                transform_.position_.z += forward.z * PATROL_SPEED * dt_;
+                moveVec_ = { forward.x * PATROL_SPEED, 0.0f, forward.z * PATROL_SPEED };
+
+                // 5秒経ったら停止モードへ
+                if (patrolTimer_ >= PATROL_MOVE_DURATION)
+                {
+                    isPatrolMove_ = false;
+                    patrolTimer_ = 0.0f;
+                    moveVec_ = { 0.0f, 0.0f, 0.0f };
+
+                    transform_.rotate_.y += PATROL_RADIUS;
+                }
+            }
+            else
+            {
+                // ---- 待機時間（15秒） ----
+                moveVec_ = { 0.0f, 0.0f, 0.0f };
+
+                if (patrolTimer_ >= PATROL_WAIT_DURATION)
+                {
+                    // 15秒待ったら、また5秒だけ動くモードへ
+                    isPatrolMove_ = true;
+                    patrolTimer_ = 0.0f;
+                }
+            }
         }
     }
 

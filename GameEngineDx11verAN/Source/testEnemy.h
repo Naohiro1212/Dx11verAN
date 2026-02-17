@@ -73,6 +73,9 @@ private:
     // プレイヤーを見つけたかどうかのフラグ
     bool isSpotted_;
 
+    // 開始地点に戻った後に徘徊するためのフラグ
+    bool isReturning_;
+
     // プレイヤーを攻撃している状態かどうか
     bool isAttacking_;
 
@@ -108,4 +111,8 @@ private:
     // 影のビルボード
     BillBoard* shadowBillboard_;
     Plane* pPlane_;
+
+    // 何秒に一回徘徊するかのタイマー
+    float patrolTimer_;
+    bool isPatrolMove_;
 };
