@@ -129,7 +129,7 @@ void Player::Initialize()
 
     // ƒvƒŒƒCƒ„[‚Ì‰º‚ÌŠÛ‰e
     shadowBillboard_ = new BillBoard();
-    shadowBillboard_->Load("circle_W.png");
+    shadowBillboard_->Load("circle_B.png");
 	assert(shadowBillboard_ != nullptr);
 
     pPlane_ = static_cast<Plane*>(FindObject("plane"));
@@ -372,7 +372,7 @@ void Player::Draw()
 #endif
 
     Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
-    Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
+    Direct3D::SetBlendMode(Direct3D::BLEND_ALPHA);
 
     // ŠÛ‰e‚Ì•`‰æ
     float yawRad_ = XMConvertToRadians(transform_.rotate_.y);

@@ -9,16 +9,17 @@
 
 namespace
 {
-	const float START_BUTTON_POS_X = 960.0f;
-	const float START_BUTTON_POS_Y = 740.0f;
-	const float END_BUTTON_POS_X = 960.0f;
-	const float END_BUTTON_POS_Y = 890.0f;
+	// ボタン位置は「画面中央からのオフセット」で管理
+	// （16:9 でも 4:3 でも大体同じ見た目になる）
+	const float START_BUTTON_OFFSET_Y = 80.0f;
+	const float END_BUTTON_OFFSET_Y = 250.0f;
 
-	const float BGM_VOLUME = 0.02f; // BGM音量
-	const float CLICK_SOUND_VOLUME = 0.5f; // クリック音量
 
-	const float HALF_WINDOW_WIDTH = 0.5f;
-	const int DELAY_CHANGE_SCENE = 600; // シーン切り替えの遅延時間（ミリ秒）
+	const float BGM_VOLUME = 0.02f;
+	const float CLICK_SOUND_VOLUME = 0.5f;
+
+	const float HALF_WINDOW = 0.5f;
+	const int   DELAY_CHANGE_SCENE = 600;
 }
 
 TitleScene::TitleScene(GameObject* parent) : GameObject(parent, "TitleScene"), 
@@ -37,11 +38,10 @@ void TitleScene::Initialize()
 	startButton_ = Instantiate<Button>(this);
 	startButton_->SetCenter(true);
 	startButton_->SetButtonImage(Image::Load("startButton01.png"));
-	startButton_->SetButtonPosition(START_BUTTON_POS_X, START_BUTTON_POS_Y);
+
 	endButton_ = Instantiate<Button>(this);
 	endButton_->SetCenter(true);
 	endButton_->SetButtonImage(Image::Load("endButton02.png"));
-	endButton_->SetButtonPosition(END_BUTTON_POS_X, END_BUTTON_POS_Y);
 
 	// 背景画像読み込み
 	titleImage_ = Image::Load("Title.jpg");
@@ -63,6 +63,9 @@ void TitleScene::Initialize()
 
 void TitleScene::Update()
 {
+	// 毎フレームレイアウト更新する
+	UpdateLayout();
+
 	XMFLOAT3 mousePos = Input::GetMousePosition();
 
 	startButton_->Update();
@@ -127,13 +130,44 @@ void TitleScene::Draw()
 	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
 	pCursorManager->Draw();
 
-	// 中心に配置（center = true）
-	Image::SetPositionPixels(titleImage_, Direct3D::screenWidth_ * HALF_WINDOW_WIDTH, Direct3D::screenHeight_ * HALF_WINDOW_WIDTH, true);
-
 	// 描画
 	Image::Draw(titleImage_);
 }
 
 void TitleScene::Release()
 {
+}
+
+
+void TitleScene::UpdateLayout()
+{
+	const float screenW = Direct3D::screenWidth_;
+	const float screenH = Direct3D::screenHeight_;
+
+	// ===== 背景イメージを画面全体にフィット（cover） =====
+	RECT rect = Image::GetRect(titleImage_);
+	float w = static_cast<float>(rect.right - rect.left);
+	float h = static_cast<float>(rect.bottom - rect.top);
+
+	float scaleX = screenW / w;
+	float scaleY = screenH / h;
+	float scale = (std::max)(scaleX, scaleY);
+
+	Image::SetSizePixels(titleImage_, w * scale, h * scale);
+	Image::SetPositionPixels(
+		titleImage_,
+		screenW * HALF_WINDOW,
+		screenH * HALF_WINDOW,
+		true  // center
+	);
+
+	// ===== ボタンの位置を画面中央基準で決定 =====
+	const float centerX = screenW * HALF_WINDOW;
+	const float centerY = screenH * HALF_WINDOW;
+
+	// Startボタン：画面中央より少し下
+	startButton_->SetButtonPosition(centerX, centerY + START_BUTTON_OFFSET_Y);
+
+	// Endボタン：Startのさらに下
+	endButton_->SetButtonPosition(centerX, centerY + END_BUTTON_OFFSET_Y);
 }

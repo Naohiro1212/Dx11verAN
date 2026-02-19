@@ -44,4 +44,7 @@ private:
 	Player* player_;
 	int playerLevel_;
 	Text* levelText_;
+
+	// プレイヤーの現在攻撃力を表示する変数
+	int playerStrength_;
 };

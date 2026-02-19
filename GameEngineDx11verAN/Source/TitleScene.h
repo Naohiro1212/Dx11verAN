@@ -22,6 +22,7 @@ public:
 	void Release() override;
 
 private:
+	void UpdateLayout(); // 画面サイズに応じてレイアウトを更新する関数
 
 	// 仮ボタン
 	Button* startButton_;

@@ -5,8 +5,8 @@
 
 namespace
 {
-	const float GAUGE_POS_X = 100.0f; // ヘルスゲージのX位置
-	const float GAUGE_POS_Y = 50.0f;  // ヘルスゲージのY位置
+	const float GAUGE_POS_X = 0.05f; // ヘルスゲージのX位置の割合（画面幅に対する割合）
+	const float GAUGE_POS_Y = 0.045f;  // ヘルスゲージのY位置の割合（画面高さに対する割合）
 	const float GAUGE_FRAME_OFFSET = 5.0f; // 枠のオフセット
 }
 
@@ -20,8 +20,8 @@ void HealthGauge::Initialize()
 	frameImage_ = Image::Load("gaugeFrame.png");
 	assert(gaugeImage_ != -1);
 	assert(frameImage_ != -1);
-	posX_ = GAUGE_POS_X; // 画面左上から少し右にオフセット
-	posY_ = GAUGE_POS_Y;  // 画面左上から少し下にオフセット
+	posX_ = Direct3D::screenWidth_ * GAUGE_POS_X; // 画面左上から少し右にオフセット
+	posY_ = Direct3D::screenHeight_ * GAUGE_POS_Y;  // 画面左上から少し下にオフセット
 	SetDrawOrder(1);
 	// UIなのでポーズ時も描画されるようにする
 	SetIsUIObject(true);
@@ -29,13 +29,16 @@ void HealthGauge::Initialize()
 
 void HealthGauge::Update()
 {
+	// 画面サイズが変わった時に位置を再計算する
+	posX_ = Direct3D::screenWidth_ * GAUGE_POS_X; // 画面左上から少し右にオフセット
+	posY_ = Direct3D::screenHeight_ * GAUGE_POS_Y;  // 画面左上から少し下にオフセット
+
 	// サイズをリセット
 	RECT rect = Image::GetRect(gaugeImage_);
 	// health/maxhealth の0～１にする
 	Image::ResetRect(gaugeImage_);
 	rect = Image::GetRect(frameImage_);
 	Image::ResetRect(frameImage_);
-
 }
 
 void HealthGauge::Draw()

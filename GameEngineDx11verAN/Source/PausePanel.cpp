@@ -13,8 +13,11 @@ namespace
 	const float RESUME_BUTTON_OFFSET_Y = -50.0f;
 	const float BACK_TITLE_BUTTON_OFFSET_Y = 120.0f;
 
-	const float LEVEL_TEXT_OFFSET_X = 100.0f;
+	const float TEXT_OFFSET_X = 700.0f;
 	const float LEVEL_TEXT_OFFSET_Y = -180.0f;
+
+	const float STRENGTH_TEXT_OFFSET_Y = -130.0f;
+	const float CENTER_OFFSET_X = 300.0f;
 
 	const float LEVEL_TEXT_SCALE = 1.7f;
 }
@@ -22,6 +25,8 @@ namespace
 PausePanel::PausePanel(GameObject* parent) :
 	GameObject(parent),
 	panelImage_(-1),
+	playerLevel_(1),
+	playerStrength_(1),
 	nowPaused_(false),
 	resumeButton_(nullptr),
 	BackTitleButton_(nullptr),
@@ -87,6 +92,14 @@ void PausePanel::Update()
 	BackTitleButton_->Update();
 	onBTButton_ = BackTitleButton_->GetOnButton();
 
+	// ウィンドウサイズが変わった時に、パネルとボタンの位置を再計算して中央に配置する
+	Image::SetPositionPixels(panelImage_, Direct3D::screenWidth_ * HALF_WINDOW_WIDTH,
+		Direct3D::screenHeight_ * HALF_WINDOW_WIDTH, true);
+	resumeButton_->SetButtonPosition(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH,
+		Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + RESUME_BUTTON_OFFSET_Y);
+	BackTitleButton_->SetButtonPosition(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH,
+		Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + BACK_TITLE_BUTTON_OFFSET_Y);
+
 	// パネルが表示されている状態で、再開ボタンがクリックされたらクリックを消費して再開する
 	if (nowPaused_)
 	{
@@ -98,6 +111,7 @@ void PausePanel::Update()
 		}
 	}
 	playerLevel_ = player_->GetLevel();
+	playerStrength_ = player_->GetStrength();
 }
 
 void PausePanel::Draw()
@@ -108,12 +122,21 @@ void PausePanel::Draw()
 		resumeButton_->Visible();
 		BackTitleButton_->Visible();
 
+		// 画面中央を原点とした位置にテキストを描画するため、テキストの x 座標は中央からのオフセットで指定する
+
 		// レベル表示
-		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH - LEVEL_TEXT_OFFSET_X, 
+		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + TEXT_OFFSET_X - CENTER_OFFSET_X,
 			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_Y, "LEVEL:");
 
-		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_X, 
+		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + TEXT_OFFSET_X, 
 			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_Y, playerLevel_);
+
+		// 攻撃力表示
+		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + TEXT_OFFSET_X - CENTER_OFFSET_X,
+			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + STRENGTH_TEXT_OFFSET_Y, "STRENGTH:");
+
+		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + TEXT_OFFSET_X,
+			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + STRENGTH_TEXT_OFFSET_Y, playerStrength_);
 	}
 	else
 	{
