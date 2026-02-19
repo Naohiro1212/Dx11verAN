@@ -5,8 +5,8 @@
 
 namespace
 {
-	const float GAUGE_POS_X = 0.05f; // マナゲージのX位置
-	const float GAUGE_POS_Y = 0.15f;  // マナゲージのY位置
+	const float GAUGE_POS_X = 0.05f; // マナゲージのX位置の割合（画面幅に対する割合）
+	const float GAUGE_POS_Y = 0.15f;  // マナゲージのY位置の割合（画面高さに対する割合）
 	const float GAUGE_FRAME_OFFSET = 5.0f; // 枠のオフセット
 }
 
