@@ -24,14 +24,14 @@ namespace
 
 	// テキスト描画位置オフセット（中心からの相対位置）
 	const float SCORE_LABEL_OFFSET_X = -200.0f;
-	const float SCORE_LABEL_OFFSET_Y = -130.0f;
+	const float SCORE_LABEL_OFFSET_Y = -160.0f;
 	const float SCORE_VALUE_OFFSET_X = 70.0f;
-	const float SCORE_VALUE_OFFSET_Y = -130.0f;
+	const float SCORE_VALUE_OFFSET_Y = -160.0f;
 
 	const float TIME_LABEL_OFFSET_X = -200.0f;
-	const float TIME_LABEL_OFFSET_Y = -80.0f;
+	const float TIME_LABEL_OFFSET_Y = -110.0f;
 	const float TIME_VALUE_OFFSET_X = 70.0f;
-	const float TIME_VALUE_OFFSET_Y = -80.0f;
+	const float TIME_VALUE_OFFSET_Y = -110.0f;
 
 	const float BGM_VOLUME = 0.02f; // BGM音量
 	const float CLICK_SOUND_VOLUME = 0.5f; // クリック音量
