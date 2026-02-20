@@ -10,8 +10,8 @@
 namespace
 {
 	const float HALF_WINDOW_WIDTH = 0.5f;
-	const float RESUME_BUTTON_OFFSET_Y = -50.0f;
-	const float BACK_TITLE_BUTTON_OFFSET_Y = 120.0f;
+	const int RESUME_BUTTON_OFFSET_Y = -50;
+	const int BACK_TITLE_BUTTON_OFFSET_Y = 120;
 
 	const float TEXT_OFFSET_X = 700.0f;
 	const float LEVEL_TEXT_OFFSET_Y = -180.0f;
