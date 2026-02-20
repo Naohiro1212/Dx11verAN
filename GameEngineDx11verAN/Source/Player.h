@@ -38,17 +38,17 @@ public:
 	float GetMaxMana() const { return cnf_.MAX_MANA; }
 
 	// 体力取得
-	float GetHealth() const { return health_; }
-	float GetMaxHealth() const { return cnf_.MAX_HEALTH; }
+	int GetHealth() const { return health_; }
+	int GetMaxHealth() const { return cnf_.MAX_HEALTH; }
 
 	// デスタイマー取得
 	float GetDeathTimer() const { return deathTimer_; }
 
 	// 攻撃力取得
-	float GetStrength() const { return strength_; }
+	int GetStrength() const { return strength_; }
 	
 	// 現在レベル取得
-	float GetLevel() const {return level_; }
+	int GetLevel() const {return level_; }
 
 private:
 	//// 関数群
@@ -128,7 +128,7 @@ private:
 	bool slashSoundPlayed_ = false;
 	float damageCooldown_ = 0.0f;
 	float strength_ = 10.0f;
-	float lastSlashFrame_ = 0.0f;
+	int lastSlashFrame_ = 0;
 	XMFLOAT3 magicDir_ = { 0.0f, 0.0f, 0.0f };
 	BoxCollider* attackCollider_ = nullptr;
 

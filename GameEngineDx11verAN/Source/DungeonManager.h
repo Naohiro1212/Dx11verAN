@@ -16,8 +16,6 @@ class DungeonManager
 	: public GameObject
 {
 public:
-	static const int MAX_FLOOR = 2;
-
 	DungeonManager(GameObject* _parent);
 	~DungeonManager();
 	void Initialize() override;
@@ -36,6 +34,7 @@ public:
 
 	// Œ»İ‚ÌŠK”æ“¾
 	int GetNowFloor() const { return nowFloor_; }
+	int GetMaxFloor() const;
 	int GetEnemyCount() const { return static_cast<int>(enemies_.size()); }
 
 	bool GetResetDungeon() const { return resetDungeon_; }

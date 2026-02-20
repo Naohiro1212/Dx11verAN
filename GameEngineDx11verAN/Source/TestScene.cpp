@@ -15,6 +15,12 @@
 #include "../Engine/Audio.h"
 #include "../Source/CursorManager.h"
 
+namespace
+{
+    const float VOLUME = 0.15f;
+	const float DEATH_TIMER_LIMIT = 5.0f;
+}
+
 //コンストラクタ
 TestScene::TestScene(GameObject * parent): 
     GameObject(parent, "TestScene"), 
@@ -58,7 +64,7 @@ void TestScene::Initialize()
     // BGM再生
     bgmHandle_ = Audio::Load("Audio/Dungeon.wav", true, 1);
 	assert(bgmHandle_ != -1);
-    Audio::SetVolume(bgmHandle_, 0.15f);
+    Audio::SetVolume(bgmHandle_, VOLUME);
     Audio::Play(bgmHandle_);
 }
 
@@ -74,15 +80,15 @@ void TestScene::Update()
         isPaused_ = !isPaused_;
     }
 
-    // ダンジョンが3階層になったらシーン移動
-    if (dungeonManager_->GetNowFloor() >= DungeonManager::MAX_FLOOR)
+    // ダンジョンが3階層以上になったらシーン移動
+    if (dungeonManager_->GetNowFloor() >= 2)
     {
         SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
         pSceneManager->ChangeScene(SCENE_ID_END);
     }
     
 	// プレイヤーが死亡したらエンドシーンへ   
-    if(player_->GetDeathTimer() >= 5.0f)
+    if(player_->GetDeathTimer() >= DEATH_TIMER_LIMIT)
     {
         SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
         pSceneManager->ChangeScene(SCENE_ID_GAMEOVER);
