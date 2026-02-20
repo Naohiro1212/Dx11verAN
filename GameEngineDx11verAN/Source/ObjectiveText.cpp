@@ -6,11 +6,11 @@
 
 namespace
 {
-	const float TEXTPOS_X = 100.0f;
-	const float TEXTPOS_Y = 250.0f; // 体力バーの下
+	const int TEXTPOS_X = 100;
+	const int TEXTPOS_Y = 250; // 体力バーの下
 
-    const float NEXTAREA_TEXTPOS_X = 100.0f;
-	const float NEXTAREA_TEXTPOS_Y = 300.0f;
+    const int NEXTAREA_TEXTPOS_X = 100;
+	const int NEXTAREA_TEXTPOS_Y = 300;
 }
 
 ObjectiveText::ObjectiveText(GameObject* parent) : GameObject(parent), objectiveText_(nullptr), dungeonManager_(nullptr)

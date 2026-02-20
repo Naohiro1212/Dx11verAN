@@ -14,10 +14,10 @@ Jewel::~Jewel()
 void Jewel::Initialize()
 {
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
-	transform_.scale_ = { 0.5f, 0.5f, 0.5f };
+	transform_.scale_ = { 1.2f,1.2f, 1.2f };
 
 	// ‰¼‚É” ƒ‚ƒfƒ‹‚ðŽg‚¤
-	modelHandle_ = Model::Load("Models/Box.fbx");
+	modelHandle_ = Model::Load("Models/expsphere.fbx");
 	assert(modelHandle_ != -1);
 	
 	pCollider_ = new SphereCollider(transform_.position_, 3.0f);

@@ -10,12 +10,11 @@
 namespace
 {
 	const float HALF_WINDOW_WIDTH = 0.5f;
-	const float RESUME_BUTTON_OFFSET_Y = -50.0f;
-	const float BACK_TITLE_BUTTON_OFFSET_Y = 120.0f;
+	const int RESUME_BUTTON_OFFSET_Y = -50;
+	const int BACK_TITLE_BUTTON_OFFSET_Y = 120;
 
-	const float LEVEL_TEXT_OFFSET_X = 100.0f;
-	const float LEVEL_TEXT_OFFSET_Y = -180.0f;
-
+	const int LEVEL_TEXT_OFFSET_X = 100;
+	const int LEVEL_TEXT_OFFSET_Y = -180;
 	const float LEVEL_TEXT_SCALE = 1.7f;
 }
 
@@ -108,12 +107,21 @@ void PausePanel::Draw()
 		resumeButton_->Visible();
 		BackTitleButton_->Visible();
 
-		// レベル表示
-		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH - LEVEL_TEXT_OFFSET_X, 
-			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_Y, "LEVEL:");
+		const float centerX = Direct3D::screenWidth_ * HALF_WINDOW_WIDTH;
+		const float centerY = Direct3D::screenHeight_ * HALF_WINDOW_WIDTH;
 
-		levelText_->Draw(Direct3D::screenWidth_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_X, 
-			Direct3D::screenHeight_ * HALF_WINDOW_WIDTH + LEVEL_TEXT_OFFSET_Y, playerLevel_);
+		const int baseX = static_cast<int>(centerX);
+		const int baseY = static_cast<int>(centerY);
+
+		// 「LEVEL:」の描画
+		levelText_->Draw(baseX - LEVEL_TEXT_OFFSET_X,
+			baseY + LEVEL_TEXT_OFFSET_Y,
+			"LEVEL:");
+
+		// レベル数値の描画
+		levelText_->Draw(baseX + LEVEL_TEXT_OFFSET_X,
+			baseY + LEVEL_TEXT_OFFSET_Y,
+			playerLevel_);
 	}
 	else
 	{

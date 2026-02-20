@@ -47,7 +47,7 @@ public:
 
     // セッター
     void SetPosition(const XMFLOAT3& pos);
-	int GetAttackPower() { return attackPower_; }
+    int GetAttackPower() { return attackPower_; }
 
     void ChangeModel();
 
@@ -56,13 +56,13 @@ private:
     void DropJewel(int numJewels);
 
     // 壁ずり処理
-	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
+    XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
     // プレイヤーの位置を取得するためのポインタ
     Player* player_;
 
-	BoxCollider* pCollider_;
-	BoxCollider* attackCollider_;
+    BoxCollider* pCollider_;
+    BoxCollider* attackCollider_;
     std::vector<BoxCollider*> enemyWallColliders_;
 
     // 敵の移動速度
@@ -80,7 +80,7 @@ private:
     bool isAttacking_;
 
     // 最初に居た座標
-	XMFLOAT3 initPos_;
+    XMFLOAT3 initPos_;
     float backTimer_;
 
     // 体力
@@ -106,7 +106,7 @@ private:
     int lastAttackFrame_;
 
     // 攻撃力
-	int attackPower_;
+    int attackPower_;
 
     // 影のビルボード
     BillBoard* shadowBillboard_;
