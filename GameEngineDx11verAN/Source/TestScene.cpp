@@ -74,8 +74,8 @@ void TestScene::Update()
         isPaused_ = !isPaused_;
     }
 
-    // ƒ_ƒ“ƒWƒ‡ƒ“‚ª3ŠK‘w‚É‚È‚Á‚½‚çƒV[ƒ“ˆÚ“®
-    if (dungeonManager_->GetNowFloor() >= DungeonManager::MAX_FLOOR)
+    // ƒ_ƒ“ƒWƒ‡ƒ“‚ª3ŠK‘wˆÈã‚É‚È‚Á‚½‚çƒV[ƒ“ˆÚ“®
+    if (dungeonManager_->GetNowFloor() >= 2)
     {
         SceneManager* pSceneManager = dynamic_cast<SceneManager*>(GetParent());
         pSceneManager->ChangeScene(SCENE_ID_END);

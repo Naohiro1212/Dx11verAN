@@ -27,6 +27,7 @@ namespace
 	const float MAPTILE_SIZE = 30.0f;
 	const XMFLOAT3 COLLIDER_SIZE = { 40.0f, 30.0f, 33.0f };
 	const float WALL_DRAW_DISTANCE = 500.0f * 500.0f; // •Ç‚Ì•`‰æ‹——£i‹——£‚Ì2æ‚ÅŠÇ—j
+	const int MAX_FLOOR = 3;
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -154,7 +155,7 @@ void DungeonManager::DungeonReset()
 	nowFloor_++;
 
 	// ŠK”‚ªˆê’èˆÈã‚ð’´‚¦‚½‚ç‘ŠúƒŠƒ^[ƒ“
-	if (nowFloor_ >= MAX_FLOOR)
+	if (nowFloor_ > MAX_FLOOR)
 	{
 		return;
 	}
