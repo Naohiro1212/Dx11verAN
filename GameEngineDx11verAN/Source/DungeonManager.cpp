@@ -28,6 +28,10 @@ namespace
 	const XMFLOAT3 COLLIDER_SIZE = { 40.0f, 30.0f, 33.0f };
 	const float WALL_DRAW_DISTANCE = 500.0f * 500.0f; // 壁の描画距離（距離の2乗で管理）
 	const int MAX_FLOOR = 3;
+	const float PLAYER_START_HEIGHT = 10.0f; // プレイヤーの開始高さ
+	const float PORTAL_HEIGHT = 10.0f;
+	const float CENTER_OFFSET = 0.5f;
+	const float PLAYER_TO_PORTAL_DISTANCE = 30.0f; // プレイヤーとポータルの距離がこの値以下で再生成可能
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
