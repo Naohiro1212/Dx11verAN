@@ -72,6 +72,18 @@ void InfoScene::Update()
 
 void InfoScene::Draw()
 {
+	// 画面を覆うスケール計算（cover）
+	for (int i = 0;i < 2;i++)
+	{
+		RECT rect = Image::GetRect(InfoImages_[i]);
+		float w = (float)(rect.right - rect.left);
+		float h = (float)(rect.bottom - rect.top);
+		float scaleX = Direct3D::screenWidth_ / w;
+		float scaleY = Direct3D::screenHeight_ / h;
+		float scale = max(scaleX, scaleY);
+		Image::SetSizePixels(InfoImages_[i], w * scale, h * scale);
+	};
+
 	// 情報ページ画像描画
 	Image::Draw(InfoImages_[currentPage]);
 

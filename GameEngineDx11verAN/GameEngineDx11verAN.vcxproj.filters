@@ -215,6 +215,9 @@
     <ClCompile Include="Source\PopUpLevelUp.cpp">
       <Filter>リソース ファイル\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Source\PlayerMovement.cpp">
+      <Filter>リソース ファイル\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -383,6 +386,9 @@
       <Filter>リソース ファイル\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\PopUpLevelUp.h">
+      <Filter>リソース ファイル\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlayerMovement.h">
       <Filter>リソース ファイル\Player</Filter>
     </ClInclude>
   </ItemGroup>

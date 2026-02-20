@@ -88,10 +88,10 @@ struct PlayerConfig
 
     // 魔力ゲージ関連
     const float MAX_MANA = 100.0f;
-	const float MANA_RECOVERY_RATE = 10.0f; // 1秒
+	const float MANA_RECOVERY_RATE = 7.0f; // 1秒
     
 	// 最低マナ10（魔法発射に必要）
-	const float MAGIC_MANA_COST = 10.0f;   
+	const float MAGIC_MANA_COST = 25.0f;   
 
     // 体力関係
 	const float MAX_HEALTH = 100.0f;
@@ -122,7 +122,7 @@ struct PlayerConfig
     const XMFLOAT3 SHADOW_SCALE = XMFLOAT3(10.0f, 20.0f, 16.0f);
     // 影のyオフセット
 	const float SHADOW_OFFSET_Y = 0.1f;
-	const XMFLOAT4 SHADOW_COLOR = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.5f);
+    const XMFLOAT4 SHADOW_COLOR = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.4f); // 黒＋40%透明
 
     // ジュエル1個あたりの経験値
 	const int JEWEL_EXP = 20; 

@@ -63,11 +63,11 @@ namespace
 
     // 影の定数
 	const XMFLOAT3 SHADOW_SCALE = XMFLOAT3(10.0f, 20.0f, 16.0f);
-	const XMFLOAT4 SHADOW_COLOR = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.5f);
+    const XMFLOAT4 SHADOW_COLOR = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.4f); // 黒＋40%透明
 
     // 徘徊関連
     // 徘徊するときに回転する角度
-	const float PATROL_RADIUS = 120.0f;
+	const float PATROL_RADIUS = 130.0f;
 
     // 回転する頻度
 	const float PATROL_INTERVAL = 3.0f;
@@ -144,7 +144,7 @@ void testEnemy::Initialize()
 
     // 敵の下の丸影
     shadowBillboard_ = new BillBoard();
-	shadowBillboard_->Load("circle_W.png");
+	shadowBillboard_->Load("circle_B.png");
 	assert(shadowBillboard_ != nullptr);
 	
 	pPlane_ = static_cast<Plane*>(FindObject("plane"));
@@ -383,7 +383,7 @@ void testEnemy::Draw()
 
 	// シェーダー・ブレンドモード切替
     Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
-	Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
+	Direct3D::SetBlendMode(Direct3D::BLEND_ALPHA);
 
     // 丸影の描画
 	float yawRad_ = XMConvertToRadians(transform_.rotate_.y);
@@ -433,7 +433,7 @@ void testEnemy::OnCollision(GameObject* pTarget)
         // PopupDamageオブジェクト生成
 		PopUpDamage* popup_ = Instantiate<PopUpDamage>(GetParent());
         assert(popup_ != nullptr);
-        if (popup_ && health_ > 0.0f)
+        if (popup_)
         {
 			popup_->SetDamageType(DamageType::ToEnemy);
             // popupのステータス設定

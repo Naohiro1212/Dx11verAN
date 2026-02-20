@@ -16,6 +16,8 @@ class DungeonManager
 	: public GameObject
 {
 public:
+	static const int MAX_FLOOR = 2;
+
 	DungeonManager(GameObject* _parent);
 	~DungeonManager();
 	void Initialize() override;

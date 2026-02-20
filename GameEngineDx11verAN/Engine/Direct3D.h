@@ -52,7 +52,7 @@ namespace Direct3D
 	//■ブレンドモード
 	enum BLEND_MODE
 	{
-		BLEND_DEFAULT, BLEND_ADD, BLEND_MAX
+		BLEND_DEFAULT, BLEND_ADD, BLEND_ALPHA, BLEND_MAX
 	};
 
 

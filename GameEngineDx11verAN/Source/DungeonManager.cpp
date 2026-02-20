@@ -27,11 +27,6 @@ namespace
 	const float MAPTILE_SIZE = 30.0f;
 	const XMFLOAT3 COLLIDER_SIZE = { 40.0f, 30.0f, 33.0f };
 	const float WALL_DRAW_DISTANCE = 500.0f * 500.0f; // 壁の描画距離（距離の2乗で管理）
-	const int MAX_FLOOR = 4;
-	const float CENTER_OFFSET = 0.5f;
-	const float PORTAL_HEIGHT = 5.0f;
-	const float PLAYER_START_HEIGHT = 10.0f;
-	const float PLAYER_TO_PORTAL_DISTANCE = 30.0f;
 }
 
 DungeonManager::DungeonManager(GameObject* _parent)
@@ -159,7 +154,7 @@ void DungeonManager::DungeonReset()
 	nowFloor_++;
 
 	// 階数が一定以上を超えたら早期リターン
-	if (nowFloor_ > MAX_FLOOR)
+	if (nowFloor_ >= MAX_FLOOR)
 	{
 		return;
 	}
@@ -192,7 +187,7 @@ void DungeonManager::DungeonReset()
 
 	// 最初の部屋にプレイヤー開始位置を指定
 	playerStartPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[0][2] + dungeonMapInfo_->mapRoom[0][0]) / 2) * MAPTILE_SIZE;
-	playerStartPos_.y = PLAYER_START_HEIGHT;
+	playerStartPos_.y = 10.0f;
 	playerStartPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[0][3] + dungeonMapInfo_->mapRoom[0][1]) / 2) * MAPTILE_SIZE;
 
 	// プレイヤーの位置適用
@@ -204,7 +199,7 @@ void DungeonManager::DungeonReset()
 	// ポータル位置設定（最後の部屋の中央）
 	portalPos_.x = static_cast<float>((dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][2]
 		+ dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][0]) / 2) * MAPTILE_SIZE;
-	portalPos_.y = PORTAL_HEIGHT;
+	portalPos_.y = 10.0f;
 	portalPos_.z = static_cast<float>((dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][3]
 		+ dungeonMapInfo_->mapRoom[dungeonMapInfo_->mapDivCount - 1][1]) / 2) * MAPTILE_SIZE;
 
@@ -246,11 +241,11 @@ void DungeonManager::DungeonReset()
 
 			// コライダー生成
 			const float width = (end - start) * MAPTILE_SIZE;
-			const float centerX = ((start + end - 1) * CENTER_OFFSET) * MAPTILE_SIZE;
+			const float centerX = ((start + end - 1) * 0.5f) * MAPTILE_SIZE;
 			const float centerZ = j * MAPTILE_SIZE;
 
 			BoxCollider* wallCollider_ = new BoxCollider(
-				{ centerX, /*高さセンタ*/ (COLLIDER_SIZE.y * CENTER_OFFSET), centerZ },
+				{ centerX, /*高さセンタ*/ (COLLIDER_SIZE.y * 0.5f), centerZ },
 				{ width, COLLIDER_SIZE.y, COLLIDER_SIZE.z }  // 横幅をまとめる
 			);
 
@@ -284,7 +279,7 @@ void DungeonManager::StageClearCheck()
 		float dx = playerPos.x - portalPos.x;
 		float dz = playerPos.z - portalPos.z;
 		float distSq = dx * dx + dz * dz;
-		if (distSq <= PLAYER_TO_PORTAL_DISTANCE * PLAYER_TO_PORTAL_DISTANCE)
+		if (distSq <= 30.0f * 30.0f)
 		{
 			nearPortal_ = true;
 			// Eキーで再生成
@@ -308,9 +303,4 @@ void DungeonManager::StageClearCheck()
 XMFLOAT3 DungeonManager::GetPlayerPosition() const
 {
 	return player_->GetPosition();
-}
-
-int DungeonManager::GetMaxFloor() const
-{
-	return MAX_FLOOR;
 }

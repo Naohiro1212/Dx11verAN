@@ -5,8 +5,8 @@
 
 namespace
 {
-	const float GAUGE_POS_X = 100.0f; // マナゲージのX位置
-	const float GAUGE_POS_Y = 150.0f;  // マナゲージのY位置
+	const float GAUGE_POS_X = 0.05f; // マナゲージのX位置の割合（画面幅に対する割合）
+	const float GAUGE_POS_Y = 0.15f;  // マナゲージのY位置の割合（画面高さに対する割合）
 	const float GAUGE_FRAME_OFFSET = 5.0f; // 枠のオフセット
 }
 
@@ -21,8 +21,8 @@ void ManaGauge::Initialize()
 	assert(gaugeImage_ != -1);
 	assert(frameImage_ != -1);
 
-	posX_ = GAUGE_POS_X; // 画面左上から少し右にオフセット
-	posY_ = GAUGE_POS_Y;  // 画面左上から少し下にオフセット
+	posX_ = Direct3D::screenWidth_ * GAUGE_POS_X; // 画面左上から少し右にオフセット
+	posY_ = Direct3D::screenHeight_ * GAUGE_POS_Y;  // 画面左上から少し下にオフセット
 
 	SetDrawOrder(1);
 
@@ -32,6 +32,10 @@ void ManaGauge::Initialize()
 
 void ManaGauge::Update()
 {
+	// 画面サイズが変わった時に位置を再計算する
+	posX_ = Direct3D::screenWidth_ * GAUGE_POS_X; // 画面左上から少し右にオフセット
+	posY_ = Direct3D::screenHeight_ * GAUGE_POS_Y;  // 画面左上から少し下にオフセット
+
 	// サイズをリセット
 	RECT rect = Image::GetRect(gaugeImage_);
 	// mana/maxmana の0～１にする
