@@ -8,6 +8,7 @@ class BillBoard;
 class BoxCollider;
 class LevelUpEffect;
 class Plane;
+class PlayerMovement;
 
 class Player : public GameObject
 {
@@ -177,4 +178,6 @@ private:
 	BillBoard* shadowBillboard_;
 	// ’n–Ê”»’è—p•½–Ê
 	Plane* pPlane_;
+
+	PlayerMovement* movement_;
 };

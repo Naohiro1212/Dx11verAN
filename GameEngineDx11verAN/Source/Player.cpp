@@ -20,6 +20,7 @@
 #include "../Engine/Audio.h"
 #include "../Source/testEnemy.h"
 #include "../Engine/BillBoard.h"
+#include "PlayerMovement.h"
 
 using namespace DirectX;
 
@@ -36,11 +37,11 @@ Player::Player(GameObject* parent) : GameObject(parent, "Player"),
     shadowBillboard_(nullptr),
 	shootSEHandle_(-1),
 	strafeSEHandle_(-1),
-	swingSEHandle_(-1)
+	swingSEHandle_(-1),
+	movement_()
 {
 	//先端までのベクトルとして（0,1,0)を代入しておく
 	//初期位置は原点
-
 	wallColliders_.clear();
 }
 
@@ -132,8 +133,12 @@ void Player::Initialize()
     shadowBillboard_->Load("circle_B.png");
 	assert(shadowBillboard_ != nullptr);
 
+	// Planeオブジェクトの取得
     pPlane_ = static_cast<Plane*>(FindObject("plane"));
     assert(pPlane_ != nullptr);
+
+	// playermovementクラスの初期化
+	movement_ = new PlayerMovement(cnf_, transform_, pPlane_);
 }
 
 void Player::Update()
@@ -195,8 +200,8 @@ void Player::Update()
         // カメラ基準の前方・右ベクトル計算
         CalcCameraDirectionXZ();
 
-        // 移動入力取得
-        MoveInput();
+        //// 移動入力取得
+        //MoveInput();
 
         PlayMoveSound();
 
@@ -205,119 +210,121 @@ void Player::Update()
         ChangeModel();
     }
 
-    if (isMovingNow_)
-    {
-        // カメラ前方ベクトル（XZ）をDirectXMathで取得済みとする
-        XMVECTOR vForward = XMLoadFloat3(&forward);
+	movement_->Update(isAttacking_, health_, forward, wallColliders_);
 
-        // プレイヤーの現在の向き（Y軸回転）をラジアンで取得
-        float currentYawRad = XMConvertToRadians(transform_.rotate_.y);
+    //if (isMovingNow_)
+    //{
+    //    // カメラ前方ベクトル（XZ）をDirectXMathで取得済みとする
+    //    XMVECTOR vForward = XMLoadFloat3(&forward);
 
-        // プレイヤーの前方ベクトル（XZ, Y=0）
-        XMVECTOR vPlayerForward = XMVectorSet(-sinf(currentYawRad), 0.0f, -cosf(currentYawRad), 0.0f);
+    //    // プレイヤーの現在の向き（Y軸回転）をラジアンで取得
+    //    float currentYawRad = XMConvertToRadians(transform_.rotate_.y);
 
-        // カメラ前方ベクトルの向きから目標ヨー角を計算
-        float targetYawRad = atan2f(forward.x, forward.z); // DirectXMathにもXMVectorGetX/Yはあるが、ここはfloatでOK
-        float targetYawDeg = XMConvertToDegrees(targetYawRad) + cnf_.FACE_OFFSET_DEG;
+    //    // プレイヤーの前方ベクトル（XZ, Y=0）
+    //    XMVECTOR vPlayerForward = XMVectorSet(-sinf(currentYawRad), 0.0f, -cosf(currentYawRad), 0.0f);
 
-        // 差分計算
-        float diff = targetYawDeg - transform_.rotate_.y;
-        // -180~180 に折り返し
-        while (diff > cnf_.HALF_TURN) diff -= cnf_.FULL_TURN;
-        while (diff < -cnf_.HALF_TURN) diff += cnf_.FULL_TURN;
+    //    // カメラ前方ベクトルの向きから目標ヨー角を計算
+    //    float targetYawRad = atan2f(forward.x, forward.z); // DirectXMathにもXMVectorGetX/Yはあるが、ここはfloatでOK
+    //    float targetYawDeg = XMConvertToDegrees(targetYawRad) + cnf_.FACE_OFFSET_DEG;
 
-        float step = cnf_.TURN_SPEED_DEG * dt_;
-        if (fabsf(diff) <= step) {
-            transform_.rotate_.y = targetYawDeg;
-        }
-        else {
-            transform_.rotate_.y += (diff > 0 ? step : -step);
-        }
-    }
+    //    // 差分計算
+    //    float diff = targetYawDeg - transform_.rotate_.y;
+    //    // -180~180 に折り返し
+    //    while (diff > cnf_.HALF_TURN) diff -= cnf_.FULL_TURN;
+    //    while (diff < -cnf_.HALF_TURN) diff += cnf_.FULL_TURN;
+
+    //    float step = cnf_.TURN_SPEED_DEG * dt_;
+    //    if (fabsf(diff) <= step) {
+    //        transform_.rotate_.y = targetYawDeg;
+    //    }
+    //    else {
+    //        transform_.rotate_.y += (diff > 0 ? step : -step);
+    //    }
+    //}
 
     // カメラ相対の移動ベクトルで移動
  // ジャンプ中は、現在の移動方向を維持したまま、XZ平面で移動する
  // 空中制御は完全不可能にする
-    XMVECTOR vMove = XMVectorZero();
+ //   XMVECTOR vMove = XMVectorZero();
 
-    // 地上入力から方向ベクトル（XZ）を作る
-    XMVECTOR vInput = XMVectorZero();
-    if (fwd_ != 0)
-    {
-        vInput = XMVectorAdd(vInput, XMVectorScale(vForward, static_cast<float>(fwd_)));
-    }
-    if (str_ != 0)
-    {
-        vInput = XMVectorAdd(vInput, XMVectorScale(vRight, static_cast<float>(str_)));
-    }
-    // XZ平面へ投影（y=0）
-    vInput = XMVectorSet(XMVectorGetX(vInput), 0.0f, XMVectorGetZ(vInput), 0.0f);
+ //   // 地上入力から方向ベクトル（XZ）を作る
+ //   XMVECTOR vInput = XMVectorZero();
+ //   if (fwd_ != 0)
+ //   {
+ //       vInput = XMVectorAdd(vInput, XMVectorScale(vForward, static_cast<float>(fwd_)));
+ //   }
+ //   if (str_ != 0)
+ //   {
+ //       vInput = XMVectorAdd(vInput, XMVectorScale(vRight, static_cast<float>(str_)));
+ //   }
+ //   // XZ平面へ投影（y=0）
+ //   vInput = XMVectorSet(XMVectorGetX(vInput), 0.0f, XMVectorGetZ(vInput), 0.0f);
 
-    // 地上→空中の遷移検出
-    bool justLeftGround = (prevOnGround_ && !onGround_);
+ //   // 地上→空中の遷移検出
+ //   bool justLeftGround = (prevOnGround_ && !onGround_);
 
-    if (!onGround_)
-    {
-        if (justLeftGround)
-        {
-            // 空中に出た瞬間に現在の移動方向をロック（無入力ならゼロ）
-            if (XMVectorGetX(XMVector3LengthSq(vInput)) > cnf_.EPSILON && wasMoving_)
-            {
-                vAirMove_ = XMVector3Normalize(vInput);
-            }
-            else
-            {
-                vAirMove_ = XMVectorZero();
-            }
-        }
+ //   if (!onGround_)
+ //   {
+ //       if (justLeftGround)
+ //       {
+ //           // 空中に出た瞬間に現在の移動方向をロック（無入力ならゼロ）
+ //           if (XMVectorGetX(XMVector3LengthSq(vInput)) > cnf_.EPSILON && wasMoving_)
+ //           {
+ //               vAirMove_ = XMVector3Normalize(vInput);
+ //           }
+ //           else
+ //           {
+ //               vAirMove_ = XMVectorZero();
+ //           }
+ //       }
 
-        // 空中では入力を無視してロック方向のみで移動
-        vMove = vAirMove_;
-    }
-    else
-    {
-        // 地上にいるときは入力に応じて移動
-        vMove = vInput;
-        // wasMoving_ の更新（無入力判定）
-        wasMoving_ = (XMVectorGetX(XMVector3LengthSq(vInput)) > cnf_.EPSILON);
-    }
+ //       // 空中では入力を無視してロック方向のみで移動
+ //       vMove = vAirMove_;
+ //   }
+ //   else
+ //   {
+ //       // 地上にいるときは入力に応じて移動
+ //       vMove = vInput;
+ //       // wasMoving_ の更新（無入力判定）
+ //       wasMoving_ = (XMVectorGetX(XMVector3LengthSq(vInput)) > cnf_.EPSILON);
+ //   }
 
-    // 次フレーム用に接地状態を保持
-    prevOnGround_ = onGround_;
+ //   // 次フレーム用に接地状態を保持
+ //   prevOnGround_ = onGround_;
 
-    // 正規化
-    if (XMVector3LengthSq(vMove).m128_f32[0] > cnf_.EPSILON)
-    {
-        vMove = XMVector3Normalize(vMove);
-    }
-    XMFLOAT3 moveVec;
-    XMStoreFloat3(&moveVec, vMove);
+ //   // 正規化
+ //   if (XMVector3LengthSq(vMove).m128_f32[0] > cnf_.EPSILON)
+ //   {
+ //       vMove = XMVector3Normalize(vMove);
+ //   }
+ //   XMFLOAT3 moveVec;
+ //   XMStoreFloat3(&moveVec, vMove);
 
-	// 移動処理
-	// 接地状態でSHIFTキーでダッシュ（速度2倍）
-    if (Input::IsKey(DIK_LSHIFT) && onGround_)
-    {
-		moveVec.x *= cnf_.DASH_MULTIPLIER;
-		moveVec.z *= cnf_.DASH_MULTIPLIER;
-    }
-    transform_.position_.x += moveVec.x * cnf_.PLAYER_SPEED * dt_;
-    transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
+	//// 移動処理
+	//// 接地状態でSHIFTキーでダッシュ（速度2倍）
+ //   if (Input::IsKey(DIK_LSHIFT) && onGround_)
+ //   {
+	//	moveVec.x *= cnf_.DASH_MULTIPLIER;
+	//	moveVec.z *= cnf_.DASH_MULTIPLIER;
+ //   }
+ //   transform_.position_.x += moveVec.x * cnf_.PLAYER_SPEED * dt_;
+ //   transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
 
-    // ダンジョンの壁との当たり判定
-    // ダンジョン再生成時に壁コライダーリストを更新する
-    for (auto* wallCollider_ : wallColliders_)
-    {
-		PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
-		if (res.overlapped)
-		{
-			transform_.position_.x += res.push.x + (res.push.x > 0 ? cnf_.WALL_EPS : (res.push.x < 0 ? -cnf_.WALL_EPS : 0.0f));
-			transform_.position_.z += res.push.z + (res.push.z > 0 ? cnf_.WALL_EPS : (res.push.z < 0 ? -cnf_.WALL_EPS : 0.0f));
-			if (fabsf(res.normal.y) < cnf_.WALL_SLIDE_MAX_NORMAL_Y)
-			{
-				moveVec = SlideAlongWall(moveVec, res.normal);
-			}
-		}
-    }
+  //  // ダンジョンの壁との当たり判定
+  //  // ダンジョン再生成時に壁コライダーリストを更新する
+  //  for (auto* wallCollider_ : wallColliders_)
+  //  {
+		//PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
+		//if (res.overlapped)
+		//{
+		//	transform_.position_.x += res.push.x + (res.push.x > 0 ? cnf_.WALL_EPS : (res.push.x < 0 ? -cnf_.WALL_EPS : 0.0f));
+		//	transform_.position_.z += res.push.z + (res.push.z > 0 ? cnf_.WALL_EPS : (res.push.z < 0 ? -cnf_.WALL_EPS : 0.0f));
+		//	if (fabsf(res.normal.y) < cnf_.WALL_SLIDE_MAX_NORMAL_Y)
+		//	{
+		//		moveVec = SlideAlongWall(moveVec, res.normal);
+		//	}
+		//}
+  //  }
 
     // 入力状態を保存（エッジ検出用）
     wasMoving_ = isMovingNow_;
@@ -393,6 +400,8 @@ void Player::Draw()
 void Player::Release()
 {
     shadowBillboard_->Release();
+    delete movement_;
+    movement_ = nullptr;
 }
 
 void Player::OnCollision(GameObject* pTarget)

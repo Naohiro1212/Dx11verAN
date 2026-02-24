@@ -309,3 +309,8 @@ XMFLOAT3 DungeonManager::GetPlayerPosition() const
 {
 	return player_->GetPosition();
 }
+
+int DungeonManager::GetMaxFloor() const
+{
+	return MAX_FLOOR;
+}

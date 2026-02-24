@@ -24,8 +24,12 @@ public:
 	PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane);
 	~PlayerMovement();
 	void Initialize();
-	void Update();
+
+	// 引数で体力を受け取るのは、体力に応じて移動可能かどうかを判断するため
+	void Update(bool isAttacking_, float health, XMFLOAT3& cameraForward, const std::vector<BoxCollider*>& wallColliders);
+
 	Dir GetMoveDir() const { return moveDir_; }
+	bool IsLangedThisFrame() const { return langedThisFrame_; }
 
 	/// <summary>
 	/// 壁のコライダーを受け取って、壁との衝突を解決する関数
@@ -41,14 +45,13 @@ public:
 
 private:
 	// 前後左右、入力方向の取得
-	// 引数で体力を受け取るのは、体力に応じて移動可能かどうかを判断するため
-	void MoveInput(bool isAttacking, float health);
+	void MoveInput();
 
 	// ジャンプ
 	void Jump();
 
-	// ダッシュ
-	void Dash();
+	// 移動状態の更新
+	void UpdateMovement();
 
 	// 重力更新
 	void UpdateGravity();
@@ -68,6 +71,9 @@ private:
 	float velocityY_ = 0.0f;
 	size_t jumpCount_ = 0;
 	XMVECTOR vAirMove_ = XMVectorZero();
+
+	// このフレームで着地したかどうか（着地音再生のため）
+	bool langedThisFrame_ = false;
 
 	/// <summary>
 	/// 入力処理や当たり判定関連の変数
