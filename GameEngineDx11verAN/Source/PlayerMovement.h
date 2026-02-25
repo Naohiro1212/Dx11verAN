@@ -4,10 +4,12 @@
 #include "PlayerConfig.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/Transform.h"
+#include "../Source/PlayerCamera.h"
 
 using namespace DirectX;
 
 class Plane;
+class BoxCollider;
 
 struct Dir
 {
@@ -21,15 +23,15 @@ public:
 	/// <summary>
 	/// 引数でコンフィグを受け取るコンストラクタ
 	/// </summary>
-	PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane);
+	PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane, BoxCollider* pCollider, PlayerCamera& plvision);
 	~PlayerMovement();
 	void Initialize();
 
 	// 引数で体力を受け取るのは、体力に応じて移動可能かどうかを判断するため
-	void Update(bool isAttacking_, float health, XMFLOAT3& cameraForward, const std::vector<BoxCollider*>& wallColliders);
+	void Update(bool isAttacking_, float health, const std::vector<BoxCollider*>& wallColliders);
 
 	Dir GetMoveDir() const { return moveDir_; }
-	bool IsLangedThisFrame() const { return langedThisFrame_; }
+	bool IsLandedThisFrame() const { return landedThisFrame_; }
 
 	/// <summary>
 	/// 壁のコライダーを受け取って、壁との衝突を解決する関数
@@ -42,7 +44,7 @@ public:
 	/// </summary>
 	void UpdateYawToCamera(const XMFLOAT3& cameraForward, float& playerYaw);
 
-
+	void SetCameraVision(PlayerCamera plvision) { plvision_ = plvision; }
 private:
 	// 前後左右、入力方向の取得
 	void MoveInput();
@@ -59,6 +61,9 @@ private:
 	// 壁ずり処理
 	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
+	// カメラ基準の前方・右方ベクトルの計算
+	void CalcCameraDirectionXZ();
+
 	/// <summary>
 	/// プレイヤーの移動やアクションに関する変数
 	/// </summary>
@@ -73,7 +78,7 @@ private:
 	XMVECTOR vAirMove_ = XMVectorZero();
 
 	// このフレームで着地したかどうか（着地音再生のため）
-	bool langedThisFrame_ = false;
+	bool landedThisFrame_ = false;
 
 	/// <summary>
 	/// 入力処理や当たり判定関連の変数
@@ -91,4 +96,14 @@ private:
 
 	// 地面判定レイキャスト用の平面
 	Plane* pPlane_;
+
+	// 壁との当たり判定用のコライダー
+	BoxCollider* pCollider_;
+
+	XMFLOAT3 forward_ = {};
+	XMFLOAT3 moveVec_;
+	XMVECTOR vForward_ = XMVectorZero();
+	XMFLOAT3 right_ = {};
+	XMVECTOR vRight_ = XMVectorZero();
+	PlayerCamera& plvision_;
 };

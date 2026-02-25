@@ -221,6 +221,7 @@
     <ClCompile Include="Source\MiniMap.h" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\PlayerCamera.cpp" />
+    <ClCompile Include="Source\PlayerMovement.cpp" />
     <ClCompile Include="Source\PopUpDamage.cpp" />
     <ClCompile Include="Source\PopUpLevelUp.cpp" />
     <ClCompile Include="Source\Portal.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\PlayerCamera.h" />
     <ClInclude Include="Source\PlayerConfig.h" />
+    <ClInclude Include="Source\PlayerMovement.h" />
     <ClInclude Include="Source\PopUpDamage.h" />
     <ClInclude Include="Source\PopUpLevelUp.h" />
     <ClInclude Include="Source\Portal.h" />

@@ -98,13 +98,13 @@ void Player::Initialize()
 	// プレイヤーの後方上位位置にカメラを設定
 	Camera::SetPosition(transform_.position_.x, transform_.position_.y + cnf_.CAMERA_INIT_POS_Y, transform_.position_.z - cnf_.CAMERA_INIT_POS_Z);
 
-    // ジャンプの初速度
-    JumpV0_ = sqrtf(cnf_.JUMP_V0_CONSTANT);
-    velocityY_ = 0.0f;
+    //// ジャンプの初速度
+    //JumpV0_ = sqrtf(cnf_.JUMP_V0_CONSTANT);
+    //velocityY_ = 0.0f;
 
-    // ジャンプ初期化
-    jumpCount_ = 0;
-    onGround_ = true;
+    //// ジャンプ初期化
+    //jumpCount_ = 0;
+    //onGround_ = true;
 
     nowModel_ = idleModel_;
 	plvision_.Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
@@ -138,7 +138,9 @@ void Player::Initialize()
     assert(pPlane_ != nullptr);
 
 	// playermovementクラスの初期化
-	movement_ = new PlayerMovement(cnf_, transform_, pPlane_);
+	movement_ = new PlayerMovement(cnf_, transform_, pPlane_, pCollider_, plvision_);
+    movement_->Initialize();
+    movement_->SetCameraVision(plvision_);
 }
 
 void Player::Update()
@@ -210,7 +212,7 @@ void Player::Update()
         ChangeModel();
     }
 
-	movement_->Update(isAttacking_, health_, forward, wallColliders_);
+	movement_->Update(isAttacking_, health_, wallColliders_);
 
     //if (isMovingNow_)
     //{
@@ -326,14 +328,14 @@ void Player::Update()
 		//}
   //  }
 
-    // 入力状態を保存（エッジ検出用）
-    wasMoving_ = isMovingNow_;
+    //// 入力状態を保存（エッジ検出用）
+    //wasMoving_ = isMovingNow_;
 
-    // ジャンプ
-    Jump();
+    //// ジャンプ
+    //Jump();
 
-    // 重力更新
-    UpdateGravity();
+    //// 重力更新
+    //UpdateGravity();
 
     // モデルのワールド行列更新
     Model::SetTransform(nowModel_, transform_);

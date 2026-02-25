@@ -3,9 +3,12 @@
 #include "../Engine/GameObject.h"
 #include "../Engine/GameTime.h"
 #include "../Engine/Input.h"
+#include "../Engine/Fbx.h"
+#include "../Engine/Model.h"
+#include "../Engine/Debug.h"
 
-PlayerMovement::PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane)
-	: cnf_(cnf), transform_(transform), pPlane_(pPlane)
+PlayerMovement::PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane, BoxCollider* pCollider, PlayerCamera& plvision)
+	: cnf_(cnf), transform_(transform), pPlane_(pPlane), pCollider_(pCollider), plvision_(plvision)
 {
 
 }
@@ -16,9 +19,6 @@ PlayerMovement::~PlayerMovement()
 
 void PlayerMovement::Initialize()
 {
-	transform_.position_ = { 0.0f, 0.0f, 0.0f };
-	transform_.rotate_ = { 0.0f, 0.0f, 0.0f };
-
 	JumpV0_ = sqrtf(cnf_.JUMP_V0_CONSTANT);
 	velocityY_ = 0.0f;
 
@@ -26,23 +26,20 @@ void PlayerMovement::Initialize()
 	onGround_ = true;
 }
 
-void PlayerMovement::Update(
-    bool isAttacking, 
-    float health, 
-    const XMFLOAT3& cameraForward,
-    const std::vector<BoxCollider*>& wallColliders
-)
+void PlayerMovement::Update(bool isAttacking_, float health, const std::vector<BoxCollider*>& wallColliders)
 {
-	dt_ = GameTime::DeltaTime();
+    dt_ = GameTime::DeltaTime();
+
+    CalcCameraDirectionXZ();
 
     // 1. 入力取得
     MoveInput();
 
     // 2. カメラ方向に回転補正
-	UpdateYawToCamera(cameraForward, transform_.rotate_.y);
+    UpdateYawToCamera(forward_, transform_.rotate_.y);
 
-	// 3. ジャンプ処理
-	Jump();
+    // 3. ジャンプ処理
+    Jump();
 
     // 4. 移動処理
     UpdateMovement();
@@ -53,6 +50,8 @@ void PlayerMovement::Update(
     // 6. 重力処理
     UpdateGravity();
 }
+
+
 
 void PlayerMovement::ResolveWallCollisions(std::vector<BoxCollider*> wallColliders)
 {
@@ -67,7 +66,7 @@ void PlayerMovement::ResolveWallCollisions(std::vector<BoxCollider*> wallCollide
 			transform_.position_.z += res.push.z + (res.push.z > 0 ? cnf_.WALL_EPS : (res.push.z < 0 ? -cnf_.WALL_EPS : 0.0f));
             if (fabsf(res.normal.y) < cnf_.WALL_SLIDE_MAX_NORMAL_Y)
             {
-                moveVec = SlideAlongWall(moveVec, res.normal);
+                moveVec_ = SlideAlongWall(moveVec_, res.normal);
             }
         }
     }
@@ -127,6 +126,11 @@ void PlayerMovement::MoveInput()
     {
         moveDir_.str_ -= 1;
     }
+    
+    Debug::Log(moveDir_.fwd_, false);
+	Debug::Log(moveDir_.str_, true);
+	Debug::Log(XMVectorGetX(vForward_), false);
+	Debug::Log(XMVectorGetZ(vForward_), true);
 
     isMovingNow_ = false;
     if (moveDir_.fwd_ != 0 || moveDir_.str_ != 0) {
@@ -153,13 +157,13 @@ void PlayerMovement::UpdateMovement()
 
     // 地上入力から方向ベクトル（XZ）を作る
     XMVECTOR vInput = XMVectorZero();
-    if (fwd_ != 0)
+    if (moveDir_.fwd_ != 0)
     {
-        vInput = XMVectorAdd(vInput, XMVectorScale(vForward, static_cast<float>(fwd_)));
+        vInput = XMVectorAdd(vInput, XMVectorScale(vForward_, static_cast<float>(moveDir_.fwd_)));
     }
-    if (str_ != 0)
+    if (moveDir_.str_ != 0)
     {
-        vInput = XMVectorAdd(vInput, XMVectorScale(vRight, static_cast<float>(str_)));
+        vInput = XMVectorAdd(vInput, XMVectorScale(vRight_, static_cast<float>(moveDir_.str_)));
     }
     // XZ平面へ投影（y=0）
     vInput = XMVectorSet(XMVectorGetX(vInput), 0.0f, XMVectorGetZ(vInput), 0.0f);
@@ -201,18 +205,17 @@ void PlayerMovement::UpdateMovement()
     {
         vMove = XMVector3Normalize(vMove);
     }
-    XMFLOAT3 moveVec;
-    XMStoreFloat3(&moveVec, vMove);
+    XMStoreFloat3(&moveVec_, vMove);
 
     // 移動処理
     // 接地状態でSHIFTキーでダッシュ（速度2倍）
     if (Input::IsKey(DIK_LSHIFT) && onGround_)
     {
-        moveVec.x *= cnf_.DASH_MULTIPLIER;
-        moveVec.z *= cnf_.DASH_MULTIPLIER;
+        moveVec_.x *= cnf_.DASH_MULTIPLIER;
+        moveVec_.z *= cnf_.DASH_MULTIPLIER;
     }
-    transform_.position_.x += moveVec.x * cnf_.PLAYER_SPEED * dt_;
-    transform_.position_.z += moveVec.z * cnf_.PLAYER_SPEED * dt_;
+    transform_.position_.x += moveVec_.x * cnf_.PLAYER_SPEED * dt_;
+    transform_.position_.z += moveVec_.z * cnf_.PLAYER_SPEED * dt_;
 }
 
 void PlayerMovement::UpdateGravity()
@@ -234,7 +237,7 @@ void PlayerMovement::UpdateGravity()
     hitData.dir = cnf_.RAY_DIR;
     Model::RayCast(pPlane_->GetPlaneHandle(), hitData);
 
-    landedThisFrame = false;
+    landedThisFrame_ = false;
 
     if (hitData.hit)
     {
@@ -250,7 +253,7 @@ void PlayerMovement::UpdateGravity()
 
             // 非接地→接地の遷移なら着地音
             if (!prevOnGround_) {
-                landedThisFrame = true;
+                landedThisFrame_ = true;
             }
 
             onGround_ = true;
@@ -264,7 +267,7 @@ void PlayerMovement::UpdateGravity()
 
             // 非接地→接地の遷移なら着地音
             if (!prevOnGround_ && onGround_) {
-                landedThisFrame = true;
+                landedThisFrame_ = true;
             }
 
             // 空中移動を適用
@@ -303,4 +306,29 @@ XMFLOAT3 PlayerMovement::SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n)
     XMFLOAT3 w;
     XMStoreFloat3(&w, vw);
     return w;
+}
+
+void PlayerMovement::CalcCameraDirectionXZ()
+{
+    // カメラ前方（XZ）を正規化
+    XMFLOAT3 focus = plvision_.GetFocus();
+    XMFLOAT3 camPos = plvision_.GetCameraPosition();
+    forward_ = {
+        focus.x - camPos.x,
+        0.0f,
+        focus.z - camPos.z
+    };
+    vForward_ = XMLoadFloat3(&forward_);
+    vForward_ = XMVector3Normalize(vForward_);
+    XMStoreFloat3(&forward_, vForward_);
+
+    // 右ベクトル（XZ）
+    right_ = {
+        forward_.z,
+        0.0f,
+        -forward_.x
+    };
+    vRight_ = XMLoadFloat3(&right_);
+    vRight_ = XMVector3Normalize(vRight_);
+    XMStoreFloat3(&right_, vRight_);
 }
