@@ -11,26 +11,20 @@ using namespace DirectX;
 class Plane;
 class BoxCollider;
 
-struct Dir
-{
-	int fwd_; // 前後（正のとき前、負のとき後ろ）
-	int str_; // 左右（正のとき右、負のとき左）
-};
-
 class PlayerMovement
 {
 public:
 	/// <summary>
 	/// 引数でコンフィグを受け取るコンストラクタ
 	/// </summary>
-	PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane, BoxCollider* pCollider, PlayerCamera& plvision);
+	PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane, BoxCollider* pCollider);
 	~PlayerMovement();
 	void Initialize();
 
 	// 引数で体力を受け取るのは、体力に応じて移動可能かどうかを判断するため
-	void Update(bool isAttacking_, float health, const std::vector<BoxCollider*>& wallColliders);
+	void Update(bool isAttacking_, float health, const std::vector<BoxCollider*>& wallColliders, PlayerCamera* plvision);
 
-	Dir GetMoveDir() const { return moveDir_; }
+	XMFLOAT2 GetMoveDir() const { return moveDir_; }
 	bool IsLandedThisFrame() const { return landedThisFrame_; }
 
 	/// <summary>
@@ -44,7 +38,6 @@ public:
 	/// </summary>
 	void UpdateYawToCamera(const XMFLOAT3& cameraForward, float& playerYaw);
 
-	void SetCameraVision(PlayerCamera plvision) { plvision_ = plvision; }
 private:
 	// 前後左右、入力方向の取得
 	void MoveInput();
@@ -83,7 +76,7 @@ private:
 	/// <summary>
 	/// 入力処理や当たり判定関連の変数
 	/// </summary>
-	Dir moveDir_;
+	XMFLOAT2 moveDir_;
 
 	//　プレイヤー設定読み込み用変数
 	PlayerConfig cnf_;
@@ -105,5 +98,5 @@ private:
 	XMVECTOR vForward_ = XMVectorZero();
 	XMFLOAT3 right_ = {};
 	XMVECTOR vRight_ = XMVectorZero();
-	PlayerCamera& plvision_;
+	PlayerCamera* plvision_;
 };

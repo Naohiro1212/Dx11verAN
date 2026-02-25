@@ -141,8 +141,7 @@ private:
 	float deathTimer_ = 0.0f;
 
 	//// “ü—Íˆ—‚â“–‚½‚è”»’èŠÖ˜A‚Ì•Ï”
-	int fwd_ = 0;
-	int str_ = 0;
+	XMFLOAT2 moveDir_;
 	BoxCollider* pCollider_ = nullptr;
 	std::vector<BoxCollider*> wallColliders_;
 	XMFLOAT3 rotateCenter_ = { 0.0f, 0.0f, 0.0f };

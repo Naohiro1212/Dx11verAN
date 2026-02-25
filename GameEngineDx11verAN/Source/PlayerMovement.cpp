@@ -7,8 +7,8 @@
 #include "../Engine/Model.h"
 #include "../Engine/Debug.h"
 
-PlayerMovement::PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane, BoxCollider* pCollider, PlayerCamera& plvision)
-	: cnf_(cnf), transform_(transform), pPlane_(pPlane), pCollider_(pCollider), plvision_(plvision)
+PlayerMovement::PlayerMovement(PlayerConfig cnf, Transform& transform, Plane* pPlane, BoxCollider* pCollider)
+	: cnf_(cnf), transform_(transform), pPlane_(pPlane), pCollider_(pCollider), plvision_(nullptr)
 {
 
 }
@@ -26,9 +26,10 @@ void PlayerMovement::Initialize()
 	onGround_ = true;
 }
 
-void PlayerMovement::Update(bool isAttacking_, float health, const std::vector<BoxCollider*>& wallColliders)
+void PlayerMovement::Update(bool isAttacking_, float health, const std::vector<BoxCollider*>& wallColliders, PlayerCamera* plvision)
 {
     dt_ = GameTime::DeltaTime();
+    plvision_ = plvision;
 
     CalcCameraDirectionXZ();
 
@@ -112,28 +113,28 @@ void PlayerMovement::MoveInput()
     // 攻撃しておらず、なおかつ死んでいない状態でのみ移動入力を受け付ける
     if (Input::IsKey(DIK_W)) 
     {
-        moveDir_.fwd_ += 1;
+        moveDir_.x += 1;
     }
     if (Input::IsKey(DIK_S))
     {
-        moveDir_.fwd_ -= 1;
+        moveDir_.x -= 1;
     }
     if (Input::IsKey(DIK_D))
     {
-        moveDir_.str_ += 1;
+        moveDir_.y += 1;
     }
     if (Input::IsKey(DIK_A))
     {
-        moveDir_.str_ -= 1;
+        moveDir_.y -= 1;
     }
     
-    Debug::Log(moveDir_.fwd_, false);
-	Debug::Log(moveDir_.str_, true);
+    Debug::Log(moveDir_.x, false);
+	Debug::Log(moveDir_.y, true);
 	Debug::Log(XMVectorGetX(vForward_), false);
 	Debug::Log(XMVectorGetZ(vForward_), true);
 
     isMovingNow_ = false;
-    if (moveDir_.fwd_ != 0 || moveDir_.str_ != 0) {
+    if (moveDir_.x != 0 || moveDir_.y != 0) {
         isMovingNow_ = true;
     }
 }
@@ -157,13 +158,13 @@ void PlayerMovement::UpdateMovement()
 
     // 地上入力から方向ベクトル（XZ）を作る
     XMVECTOR vInput = XMVectorZero();
-    if (moveDir_.fwd_ != 0)
+    if (moveDir_.x != 0)
     {
-        vInput = XMVectorAdd(vInput, XMVectorScale(vForward_, static_cast<float>(moveDir_.fwd_)));
+        vInput = XMVectorAdd(vInput, XMVectorScale(vForward_, static_cast<float>(moveDir_.x)));
     }
-    if (moveDir_.str_ != 0)
+    if (moveDir_.y != 0)
     {
-        vInput = XMVectorAdd(vInput, XMVectorScale(vRight_, static_cast<float>(moveDir_.str_)));
+        vInput = XMVectorAdd(vInput, XMVectorScale(vRight_, static_cast<float>(moveDir_.y)));
     }
     // XZ平面へ投影（y=0）
     vInput = XMVectorSet(XMVectorGetX(vInput), 0.0f, XMVectorGetZ(vInput), 0.0f);
@@ -310,9 +311,12 @@ XMFLOAT3 PlayerMovement::SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n)
 
 void PlayerMovement::CalcCameraDirectionXZ()
 {
+	// plvisionが無かったらassertで止める
+	assert(plvision_ != nullptr);
+
     // カメラ前方（XZ）を正規化
-    XMFLOAT3 focus = plvision_.GetFocus();
-    XMFLOAT3 camPos = plvision_.GetCameraPosition();
+    XMFLOAT3 focus = plvision_->GetFocus();
+    XMFLOAT3 camPos = plvision_->GetCameraPosition();
     forward_ = {
         focus.x - camPos.x,
         0.0f,
