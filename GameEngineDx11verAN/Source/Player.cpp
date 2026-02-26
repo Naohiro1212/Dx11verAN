@@ -139,44 +139,9 @@ void Player::Update()
     // デルタタイム取得
     dt_ = GameTime::DeltaTime();
 
-    // 1) 死亡を最優先（ここで初期化は1回だけ）
-    if (health_ <= 0.0f)
+    if (HandleDeath())
     {
-        if (!isDead_)
-        {
-            isDead_ = true;
-            deathTimer_ = 0.0f;
-            deathAnimStopped_ = false;
-
-            // 攻撃の後始末（任意）
-            isAttacking_ = false;
-            if (attackCollider_) { RemoveCollider(attackCollider_); attackCollider_ = nullptr; }
-
-            nowModel_ = deathModel_;
-            // 初期化はこの1回だけ
-            Model::SetAnimFrame(
-                nowModel_,
-                cnf_.ANIM_BASE_START,
-                cnf_.ANIM_DEATH_END,
-                cnf_.ANIM_DEATH_PLAY_SPEED
-            );
-        }
-
-        // 死亡中の進行と停止固定
-        deathTimer_ += dt_;
-        if (!deathAnimStopped_)
-        {
-            const int cur = Model::GetAnimFrame(nowModel_);
-			// 猶予を持ってアニメ終了で停止
-            if (cur >= cnf_.ANIM_DEATH_END - cnf_.ANIM_DEATH_BUFFER)
-            {
-                Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
-                deathAnimStopped_ = true;
-            }
-        }
-        Model::SetTransform(nowModel_, transform_);
-        plvision_.Update(transform_.position_);
-        return; // 以降の通常処理は走らせない
+        return;
     }
 
     // 攻撃モーション中は他の動作を行えない
@@ -358,7 +323,7 @@ void Player::ChangeModel()
     }
     else
     {
-        if (!onGround_)
+        if (!movement_->IsOnGround())
         {
             targetModel = jumpModel_;
         }
@@ -414,7 +379,7 @@ void Player::ChangeModel()
         }
         else if (nowModel_ == jumpModel_) 
         {
-            float jumpAnimSpeed = cnf_.ANIM_BASE_SPEED * (JumpV0_ / (JumpV0_ + cnf_.GRAVITY)) + cnf_.ANIM_JUMP_BUFFER;
+            float jumpAnimSpeed = cnf_.ANIM_BASE_SPEED * (movement_->GetJumpV0() / (movement_->GetJumpV0() + cnf_.GRAVITY)) + cnf_.ANIM_JUMP_BUFFER;
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_JUMP_END, jumpAnimSpeed);
         }
         else if (nowModel_ == deathModel_) 
@@ -598,4 +563,47 @@ void Player::PlayMoveSound()
         Audio::Stop(strafeSEHandle_);
         Audio::Stop(moveSEHandle_);
     }
+}
+
+bool Player::HandleDeath()
+{
+    if (health_ <= 0.0f)
+    {
+        if (!isDead_)
+        {
+            isDead_ = true;
+            deathTimer_ = 0.0f;
+            deathAnimStopped_ = false;
+
+            // 攻撃の後始末（任意）
+            isAttacking_ = false;
+            if (attackCollider_) { RemoveCollider(attackCollider_); attackCollider_ = nullptr; }
+
+            nowModel_ = deathModel_;
+            // 初期化はこの1回だけ
+            Model::SetAnimFrame(
+                nowModel_,
+                cnf_.ANIM_BASE_START,
+                cnf_.ANIM_DEATH_END,
+                cnf_.ANIM_DEATH_PLAY_SPEED
+            );
+        }
+
+        // 死亡中の進行と停止固定
+        deathTimer_ += dt_;
+        if (!deathAnimStopped_)
+        {
+            const int cur = Model::GetAnimFrame(nowModel_);
+            // 猶予を持ってアニメ終了で停止
+            if (cur >= cnf_.ANIM_DEATH_END - cnf_.ANIM_DEATH_BUFFER)
+            {
+                Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
+                deathAnimStopped_ = true;
+            }
+        }
+        Model::SetTransform(nowModel_, transform_);
+        plvision_.Update(transform_.position_);
+        return true; // 以降の通常処理は走らせない
+    }
+    return false;
 }

@@ -26,7 +26,7 @@ void PlayerMovement::Initialize()
 	onGround_ = true;
 }
 
-void PlayerMovement::Update(bool isAttacking_, float health, const std::vector<BoxCollider*>& wallColliders, PlayerCamera* plvision)
+void PlayerMovement::Update(bool isAttacking, float health, const std::vector<BoxCollider*>& wallColliders, PlayerCamera* plvision)
 {
     dt_ = GameTime::DeltaTime();
     plvision_ = plvision;
@@ -34,7 +34,7 @@ void PlayerMovement::Update(bool isAttacking_, float health, const std::vector<B
     CalcCameraDirectionXZ();
 
     // 1. 入力取得
-    MoveInput();
+    MoveInput(isAttacking, health);
 
     // 2. カメラ方向に回転補正
     UpdateYawToCamera(forward_, transform_.rotate_.y);
@@ -103,27 +103,30 @@ void PlayerMovement::UpdateYawToCamera(const XMFLOAT3& cameraForward, float& pla
     }
 }
 
-void PlayerMovement::MoveInput()
+void PlayerMovement::MoveInput(bool isAttacking, float health)
 {
     // 入力を +1/0/-1 に畳む（カメラ相対移動: W/S=前後, A/D=ストレイフ）
 	moveDir_ = { 0, 0 };
 
     // 攻撃しておらず、なおかつ死んでいない状態でのみ移動入力を受け付ける
-    if (Input::IsKey(DIK_W)) 
+    if (!isAttacking && health > 0.0f)
     {
-        moveDir_.x += 1;
-    }
-    if (Input::IsKey(DIK_S))
-    {
-        moveDir_.x -= 1;
-    }
-    if (Input::IsKey(DIK_D))
-    {
-        moveDir_.y += 1;
-    }
-    if (Input::IsKey(DIK_A))
-    {
-        moveDir_.y -= 1;
+        if (Input::IsKey(DIK_W))
+        {
+            moveDir_.x += 1;
+        }
+        if (Input::IsKey(DIK_S))
+        {
+            moveDir_.x -= 1;
+        }
+        if (Input::IsKey(DIK_D))
+        {
+            moveDir_.y += 1;
+        }
+        if (Input::IsKey(DIK_A))
+        {
+            moveDir_.y -= 1;
+        }
     }
     
     Debug::Log(moveDir_.x, false);

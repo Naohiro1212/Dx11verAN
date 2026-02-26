@@ -95,6 +95,11 @@ private:
 	/// </summary>
 	void PlayMoveSound();
 
+	/// <summary
+	/// éÄÇÒÇæÇ∆Ç´ÇÃèàóù
+	/// </summary>
+	bool HandleDeath();
+
 	// å≈íËÇµÇΩÇ¢çÇÇ≥
 	bool gFreezeY_ = true;
 
