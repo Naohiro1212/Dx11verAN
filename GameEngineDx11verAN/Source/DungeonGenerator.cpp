@@ -52,8 +52,10 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 	_dng->mapRoomPlayer.resize(_dng->mapDivCount, 0);
 
 	// GenerateDungeon の最初（_dng->mapDivCount を決める前）に追加
-	for (size_t i = 0; i < _dng->mapDivCount; ++i) {
-		for (size_t j = 0; j < AREA_COORD_COUNT; ++j) {
+	for (size_t i = 0; i < _dng->mapDivCount; ++i) 
+	{
+		for (size_t j = 0; j < AREA_COORD_COUNT; ++j) 
+		{
 			_dng->mapDiv[i][j] = 0;
 			_dng->mapRoom[i][j] = 0;
 			_dng->mapRoad[i][j] = static_cast<size_t>(-1);
@@ -183,7 +185,8 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 
 			// 区画内で部屋が取れる最大幅（端の壁を考慮）
 			size_t maxAvailableWidth = 0;
-			if (rightBorder > _dng->mapRoom[i][2] + 1) {
+			if (rightBorder > _dng->mapRoom[i][2] + 1)
+			{
 				// rightBorder と mapRoom[][2] の差分。既存コードの意図に合わせて -1 をしている。
 				maxAvailableWidth = rightBorder - (_dng->mapRoom[i][2] + 1);
 			}
@@ -193,13 +196,15 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			if (actualWidth < 1) actualWidth = (maxAvailableWidth >= 1 ? 1 : maxAvailableWidth); // maxAvailableWidth==0 の場合は 0 のまま
 
 			// mapRoom の終点は区画の右端を超えないように clamp
-			if (actualWidth > 0) {
+			if (actualWidth > 0) 
+			{
 				size_t tentativeXend = _dng->mapRoom[i][2] + actualWidth;
 				// 右端 (rightBorder) の直前までに収める（壁分の余裕が必要なら -1 等を調整）
 				if (tentativeXend >= rightBorder) tentativeXend = (rightBorder > 1 ? rightBorder - 1 : rightBorder);
 				_dng->mapRoom[i][0] = tentativeXend;
 			}
-			else {
+			else 
+			{
 				// maxAvailableWidth == 0 の場合のフォールバック（可能な範囲内で最小サイズにする）
 				_dng->mapRoom[i][0] = (std::min)(_dng->mapRoom[i][2] + 1, rightBorder > 0 ? rightBorder - 1 : rightBorder);
 			}
@@ -212,48 +217,59 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 			size_t desiredHeight = minH + (randH > 0 ? SafeRand(randH) : 0);
 
 			size_t maxAvailableHeight = 0;
-			if (bottomBorder > _dng->mapRoom[i][3] + 1) {
+			if (bottomBorder > _dng->mapRoom[i][3] + 1)
+			{
 				maxAvailableHeight = bottomBorder - (_dng->mapRoom[i][3] + 1);
 			}
 			size_t actualHeight = desiredHeight;
 			if (actualHeight > maxAvailableHeight) actualHeight = maxAvailableHeight;
 			if (actualHeight < 1) actualHeight = (maxAvailableHeight >= 1 ? 1 : maxAvailableHeight);
 
-			if (actualHeight > 0) {
+			if (actualHeight > 0) 
+			{
 				size_t tentativeYend = _dng->mapRoom[i][3] + actualHeight;
 				if (tentativeYend >= bottomBorder) tentativeYend = (bottomBorder > 1 ? bottomBorder - 1 : bottomBorder);
 				_dng->mapRoom[i][1] = tentativeYend;
 			}
-			else {
+			else 
+			{
 				_dng->mapRoom[i][1] = (std::min)(_dng->mapRoom[i][3] + 1, bottomBorder > 0 ? bottomBorder - 1 : bottomBorder);
 			}
 		}
 
 		// 幅や高さが極端に小さい場合の保険（区画の内側に収めるよう clamp）
 		// +2 は最低でも2マス分の広さを確保するための既存意図を尊重しつつ、区画を越えないようにする
-		if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2]) {
+		if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2])
+		{
 			size_t newXend = _dng->mapRoom[i][2] + 2;
-			if (newXend >= rightBorder) {
+			if (newXend >= rightBorder)
+			{
 				// 右端を越えるなら右端に詰める
 				_dng->mapRoom[i][0] = (rightBorder > 1 ? rightBorder - 1 : rightBorder);
 				// 必要なら始点を調整して幅を確保する（区画が極端に狭ければ開始位置を左に寄せる等のロジックを追加しても良い）
-				if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2] && rightBorder > 2) {
+				if (_dng->mapRoom[i][0] <= _dng->mapRoom[i][2] && rightBorder > 2) 
+				{
 					_dng->mapRoom[i][2] = rightBorder > 3 ? rightBorder - 3 : rightBorder - 2;
 				}
 			}
-			else {
+			else
+			{
 				_dng->mapRoom[i][0] = newXend;
 			}
 		}
-		if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3]) {
+		if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3])
+		{
 			size_t newYend = _dng->mapRoom[i][3] + 2;
-			if (newYend >= bottomBorder) {
+			if (newYend >= bottomBorder)
+			{
 				_dng->mapRoom[i][1] = (bottomBorder > 1 ? bottomBorder - 1 : bottomBorder);
-				if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3] && bottomBorder > 2) {
+				if (_dng->mapRoom[i][1] <= _dng->mapRoom[i][3] && bottomBorder > 2)
+				{
 					_dng->mapRoom[i][3] = bottomBorder > 3 ? bottomBorder - 3 : bottomBorder - 2;
 				}
 			}
-			else {
+			else
+			{
 				_dng->mapRoom[i][1] = newYend;
 			}
 		}
@@ -292,31 +308,43 @@ int DungeonGenerator::GenerateDungeon(DungeonMap_Info* const _dng, std::vector<s
 
 		// L字型通路（まずX方向、次にY方向）
 		// X方向
-		if (beforeCenterX <= afterCenterX) {
-			for (size_t x = beforeCenterX; x <= afterCenterX; ++x) {
-				if (x < _maprl.size() && beforeCenterY < _maprl[x].size()) {
+		if (beforeCenterX <= afterCenterX) 
+		{
+			for (size_t x = beforeCenterX; x <= afterCenterX; ++x)
+			{
+				if (x < _maprl.size() && beforeCenterY < _maprl[x].size())
+				{
 					_maprl[x][beforeCenterY].mapData = MAPCHIP_ROAD;
 				}
 			}
 		}
-		else {
-			for (size_t x = afterCenterX; x <= beforeCenterX; ++x) {
-				if (x < _maprl.size() && beforeCenterY < _maprl[x].size()) {
+		else
+		{
+			for (size_t x = afterCenterX; x <= beforeCenterX; ++x)
+			{
+				if (x < _maprl.size() && beforeCenterY < _maprl[x].size())
+				{
 					_maprl[x][beforeCenterY].mapData = MAPCHIP_ROAD;
 				}
 			}
 		}
 		// Y方向
-		if (beforeCenterY <= afterCenterY) {
-			for (size_t y = beforeCenterY; y <= afterCenterY; ++y) {
-				if (afterCenterX < _maprl.size() && y < _maprl[afterCenterX].size()) {
+		if (beforeCenterY <= afterCenterY)
+		{
+			for (size_t y = beforeCenterY; y <= afterCenterY; ++y)
+			{
+				if (afterCenterX < _maprl.size() && y < _maprl[afterCenterX].size()) 
+				{
 					_maprl[afterCenterX][y].mapData = MAPCHIP_ROAD;
 				}
 			}
 		}
-		else {
-			for (size_t y = afterCenterY; y <= beforeCenterY; ++y) {
-				if (afterCenterX < _maprl.size() && y < _maprl[afterCenterX].size()) {
+		else
+		{
+			for (size_t y = afterCenterY; y <= beforeCenterY; ++y)
+			{
+				if (afterCenterX < _maprl.size() && y < _maprl[afterCenterX].size())
+				{
 					_maprl[afterCenterX][y].mapData = MAPCHIP_ROAD;
 				}
 			}

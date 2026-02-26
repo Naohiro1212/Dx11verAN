@@ -13,24 +13,40 @@ class PlayerMovement;
 class Player : public GameObject
 {
 public:
-	//コンストラクタ
-	//引数：parent  親オブジェクト（SceneManager）
+	///コンストラクタ
+	///引数：parent  親オブジェクト（SceneManager）
 	Player(GameObject* parent);
 
-	//初期化
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
-	//更新
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
-	//描画
+	/// <summary>
+	/// 描画
+	/// </summary>
 	void Draw() override;
 
-	//開放
+	/// <summary>
+	/// 解放
+	/// </summary>
 	void Release() override;
 
+	/// <summary>
+	/// 衝突した場合の判定
+	/// </summary>
+	/// <param name="pTarget"></param>
 	void OnCollision(GameObject* pTarget) override;
 
+	/// <summary>
+	/// 壁のコライダーをセットする
+	/// </summary>
+	/// <param name="colliders"></param>
 	void SetWallColliders(const std::vector<BoxCollider*>& colliders) { wallColliders_ = colliders; }
 
 	// マナ取得
@@ -53,35 +69,31 @@ public:
 
 private:
 	//// 関数群
-	// 前後左右、入力方向の取得
-	void MoveInput();
 
-	// モデルチェンジ処理
+	/// <summary>
+	/// モデルを変更する
+	/// </summary>
 	void ChangeModel();
 
-	// 重力処理
-	void UpdateGravity();
-
-	// 魔法発射
+	/// <summary>
+	/// 魔法を発射する
+	/// </summary>
 	void ShootMagic();
 
-	// 近接攻撃
+	/// <summary>
+	/// 近接攻撃
+	/// </summary>
 	void MeleeAttack();
 
-	// カメラ基準の前方・右ベクトルを計算
-	void CalcCameraDirectionXZ();
-
-	// ジャンプ
-	void Jump();
-
-	// レベルアップのステータス処理
+	/// <summary>
+	/// レベルアップに伴う実装
+	/// </summary>
 	void LevelUp();
 
-	// 移動に伴う音再生
+	/// <summary>
+	/// 移動に伴う音再生
+	/// </summary>
 	void PlayMoveSound();
-
-	// 壁ずり処理
-	XMFLOAT3 SlideAlongWall(const XMFLOAT3& f, const XMFLOAT3& n);
 
 	// 固定したい高さ
 	bool gFreezeY_ = true;

@@ -98,14 +98,6 @@ void Player::Initialize()
 	// プレイヤーの後方上位位置にカメラを設定
 	Camera::SetPosition(transform_.position_.x, transform_.position_.y + cnf_.CAMERA_INIT_POS_Y, transform_.position_.z - cnf_.CAMERA_INIT_POS_Z);
 
-    //// ジャンプの初速度
-    //JumpV0_ = sqrtf(cnf_.JUMP_V0_CONSTANT);
-    //velocityY_ = 0.0f;
-
-    //// ジャンプ初期化
-    //jumpCount_ = 0;
-    //onGround_ = true;
-
     nowModel_ = idleModel_;
 	plvision_.Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);

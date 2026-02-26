@@ -4,11 +4,19 @@
 class PlayerCamera
 {
 public:
-	// _yawDeg		: 初期ヨー角度（度数法）
-	// _pitchDeg	: 初期ピッチ角度（度数法）
-	// _distance	: 初期距離
+
+	/// <summary>
+	/// プレイヤーカメラの初期化
+	/// </summary>
+	/// <param name="_yawDeg"></param>
+	/// <param name="_pitchDeg"></param>
+	/// <param name="_distance"></param>
 	void Initialize(float _yawDeg, float _pitchDeg, float _distance);
 
+	/// <summary>
+	/// プレイヤーカメラの更新
+	/// </summary>
+	/// <param name="_targetPos"></param>
 	void Update(const DirectX::XMFLOAT3& _targetPos);
 
 	DirectX::XMFLOAT3 GetFocus() const { return focus_; }
@@ -33,4 +41,6 @@ private:
 	DirectX::XMFLOAT3 focus_;
 	
 	DirectX::XMFLOAT3 camPos_;
+
+	
 };

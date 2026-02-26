@@ -11,6 +11,7 @@ namespace
 {
     const float CAMERA_DISTANCE = 15.0f;
 	const float MIN_CAMERA_HEIGHT = 1.8f;
+    const float MAX_CAMERA_HEIGHT = 2.5f;
 }
 
 void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance) 
@@ -70,10 +71,12 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos)
 				 focus_.z + offZ };
 
     // カメラは必ず地上
+    // 上限と下限を設定してその間にする
 	camPos_.y = (std::max)(camPos_.y, MIN_CAMERA_HEIGHT);
+    camPos_.y = (std::min)(camPos_.y, MAX_CAMERA_HEIGHT);
 
     // 壁を考慮したカメラ位置補正
-
+    
 
     Camera::SetTarget({ focus_.x, focus_.y, focus_.z });
 	Camera::SetPosition(camPos_.x, camPos_.y, camPos_.z);

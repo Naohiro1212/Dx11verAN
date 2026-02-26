@@ -125,5 +125,6 @@ float4 PS(VS_OUT inData) : SV_Target
 	//最終的な色
     float diffuseScale = 0.8f; // ディフューズの影響度調整
     float4 color = diffuse * shade * diffuseScale + diffuse * ambient + speculer;
+	
     return color;
 }
