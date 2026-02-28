@@ -1,37 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="リソース ファイル\Dungeon">
-      <UniqueIdentifier>{5f0bf41a-bb34-4b8b-9500-9644a3dc7589}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="リソース ファイル\Enemy">
-      <UniqueIdentifier>{c1094ee3-5093-4286-a6c5-3745e320bdb9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="リソース ファイル\UI">
-      <UniqueIdentifier>{9ad28170-e0b0-4648-b6f9-2478e5fb0b06}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="リソース ファイル\Player">
-      <UniqueIdentifier>{3ff7f718-3239-4e22-ac54-6148a3dcd2a6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="リソース ファイル\Scenes">
-      <UniqueIdentifier>{138765b0-3a32-41cd-860d-4b5b1b4945bc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="リソース ファイル\Scenes\TitleScene">
-      <UniqueIdentifier>{95fd2ef3-2eed-41ab-9d01-0cf50e80ed78}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="リソース ファイル\Scenes\EndScene">
-      <UniqueIdentifier>{a23de760-8ab0-4a4a-aa4e-2e23bd13938b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="リソース ファイル\Scenes\PlayScene">
-      <UniqueIdentifier>{694db77e-f079-4536-aa86-327f5eadf12e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{e74e206c-eb7e-49cd-a37b-afdfd066c921}</UniqueIdentifier>
@@ -48,10 +20,38 @@
     <Filter Include="Engine\ResourceManager">
       <UniqueIdentifier>{ff39afe6-32f2-4774-897e-369eb044dc0b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="リソース ファイル\Scenes\InfoScene">
+    <Filter Include="Source">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source\Dungeon">
+      <UniqueIdentifier>{5f0bf41a-bb34-4b8b-9500-9644a3dc7589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Enemy">
+      <UniqueIdentifier>{c1094ee3-5093-4286-a6c5-3745e320bdb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\UI">
+      <UniqueIdentifier>{9ad28170-e0b0-4648-b6f9-2478e5fb0b06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Player">
+      <UniqueIdentifier>{3ff7f718-3239-4e22-ac54-6148a3dcd2a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scenes">
+      <UniqueIdentifier>{138765b0-3a32-41cd-860d-4b5b1b4945bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scenes\TitleScene">
+      <UniqueIdentifier>{95fd2ef3-2eed-41ab-9d01-0cf50e80ed78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scenes\EndScene">
+      <UniqueIdentifier>{a23de760-8ab0-4a4a-aa4e-2e23bd13938b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scenes\PlayScene">
+      <UniqueIdentifier>{694db77e-f079-4536-aa86-327f5eadf12e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scenes\InfoScene">
       <UniqueIdentifier>{8ac653c1-671c-462b-8af2-29718b2475fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="リソース ファイル\Scenes\GameOverScene">
+    <Filter Include="Source\Scenes\GameOverScene">
       <UniqueIdentifier>{97bbfc66-0d81-46fe-8b11-61346afd7d50}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -123,37 +123,37 @@
       <Filter>Engine\ResourceManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\DungeonGenerator.cpp">
-      <Filter>リソース ファイル\Dungeon</Filter>
+      <Filter>Source\Dungeon</Filter>
     </ClCompile>
     <ClCompile Include="Source\DungeonManager.cpp">
-      <Filter>リソース ファイル\Dungeon</Filter>
+      <Filter>Source\Dungeon</Filter>
     </ClCompile>
     <ClCompile Include="Source\EnemyGenerator.cpp">
-      <Filter>リソース ファイル\Enemy</Filter>
+      <Filter>Source\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Source\MiniMap.cpp">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\MiniMap.h">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\Player.cpp">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClCompile>
     <ClCompile Include="Engine\GameTime.cpp">
       <Filter>Engine\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Source\MagicSphere.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Plane.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Jewel.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\PlayerCamera.cpp">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Text.cpp">
       <Filter>Engine</Filter>
@@ -162,61 +162,64 @@
       <Filter>Engine\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Source\Portal.cpp">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\TitleScene.cpp">
-      <Filter>リソース ファイル\Scenes\TitleScene</Filter>
+      <Filter>Source\Scenes\TitleScene</Filter>
     </ClCompile>
     <ClCompile Include="Source\EndScene.cpp">
-      <Filter>リソース ファイル\Scenes\EndScene</Filter>
+      <Filter>Source\Scenes\EndScene</Filter>
     </ClCompile>
     <ClCompile Include="Source\TestScene.cpp">
-      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+      <Filter>Source\Scenes\PlayScene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\ScoreManager.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\testEnemy.cpp">
-      <Filter>リソース ファイル\Enemy</Filter>
+      <Filter>Source\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Source\ManaGauge.cpp">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\PausePanel.cpp">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Timer.cpp">
       <Filter>Engine\ResourceManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\healthGauge.cpp">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\InfoScene.cpp">
-      <Filter>リソース ファイル\Scenes\InfoScene</Filter>
+      <Filter>Source\Scenes\InfoScene</Filter>
     </ClCompile>
     <ClCompile Include="Source\ObjectiveText.cpp">
-      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+      <Filter>Source\Scenes\PlayScene</Filter>
     </ClCompile>
     <ClCompile Include="Source\EnemyDeathEffect.cpp">
-      <Filter>リソース ファイル\Enemy</Filter>
+      <Filter>Source\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Source\PopUpDamage.cpp">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\LevelUpEffect.cpp">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClCompile>
     <ClCompile Include="Source\GameOverScene.cpp">
-      <Filter>リソース ファイル\Scenes\GameOverScene</Filter>
+      <Filter>Source\Scenes\GameOverScene</Filter>
     </ClCompile>
     <ClCompile Include="Source\CursorManager.cpp">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="Source\PopUpLevelUp.cpp">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClCompile>
     <ClCompile Include="Source\PlayerMovement.cpp">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EnemyDamageEffect.cpp">
+      <Filter>Source\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -296,37 +299,37 @@
       <Filter>Engine\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Source\Plane.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\MagicSphere.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\Jewel.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Engine\RandomNum.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\DungeonManager.h">
-      <Filter>リソース ファイル\Dungeon</Filter>
+      <Filter>Source\Dungeon</Filter>
     </ClInclude>
     <ClInclude Include="Source\DungeonData.h">
-      <Filter>リソース ファイル\Dungeon</Filter>
+      <Filter>Source\Dungeon</Filter>
     </ClInclude>
     <ClInclude Include="Source\DungeonGenerator.h">
-      <Filter>リソース ファイル\Dungeon</Filter>
+      <Filter>Source\Dungeon</Filter>
     </ClInclude>
     <ClInclude Include="Source\EnemyGenerator.h">
-      <Filter>リソース ファイル\Enemy</Filter>
+      <Filter>Source\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Source\Player.h">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClInclude>
     <ClInclude Include="Source\PlayerConfig.h">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClInclude>
     <ClInclude Include="Source\PlayerCamera.h">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Text.h">
       <Filter>Engine</Filter>
@@ -335,61 +338,64 @@
       <Filter>Engine\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Source\Portal.h">
-      <Filter>リソース ファイル</Filter>
+      <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\TitleScene.h">
-      <Filter>リソース ファイル\Scenes\TitleScene</Filter>
+      <Filter>Source\Scenes\TitleScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\EndScene.h">
-      <Filter>リソース ファイル\Scenes\EndScene</Filter>
+      <Filter>Source\Scenes\EndScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\TestScene.h">
-      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+      <Filter>Source\Scenes\PlayScene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\ScoreManager.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\ManaGauge.h">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\PausePanel.h">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Timer.h">
       <Filter>Engine\ResourceManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\healthGauge.h">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\testEnemy.h">
-      <Filter>リソース ファイル\Enemy</Filter>
+      <Filter>Source\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Source\InfoScene.h">
-      <Filter>リソース ファイル\Scenes\InfoScene</Filter>
+      <Filter>Source\Scenes\InfoScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\ObjectiveText.h">
-      <Filter>リソース ファイル\Scenes\PlayScene</Filter>
+      <Filter>Source\Scenes\PlayScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\EnemyDeathEffect.h">
-      <Filter>リソース ファイル\Enemy</Filter>
+      <Filter>Source\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Source\PopUpDamage.h">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\LevelUpEffect.h">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClInclude>
     <ClInclude Include="Source\GameOverScene.h">
-      <Filter>リソース ファイル\Scenes\GameOverScene</Filter>
+      <Filter>Source\Scenes\GameOverScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\CursorManager.h">
-      <Filter>リソース ファイル\UI</Filter>
+      <Filter>Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\PopUpLevelUp.h">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
     </ClInclude>
     <ClInclude Include="Source\PlayerMovement.h">
-      <Filter>リソース ファイル\Player</Filter>
+      <Filter>Source\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnemyDamageEffect.h">
+      <Filter>Source\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

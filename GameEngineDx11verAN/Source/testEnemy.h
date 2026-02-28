@@ -7,6 +7,7 @@ class BoxCollider;
 class Player;
 class Plane;
 class EnemyDeathEffect;
+class EnemyDamageEffect;
 
 //仮の敵を管理するクラス
 class testEnemy : public GameObject
@@ -115,4 +116,8 @@ private:
     // 何秒に一回徘徊するかのタイマー
     float patrolTimer_;
     bool isPatrolMove_;
+
+    // 流血エフェクト
+    EnemyDamageEffect* damageEffect_;
+
 };

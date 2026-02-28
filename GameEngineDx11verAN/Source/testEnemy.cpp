@@ -7,6 +7,7 @@
 #include "../Source/Player.h"
 #include "../Engine/GameTime.h"
 #include "../Source/EnemyDeathEffect.h"
+#include "../Source/EnemyDamageEffect.h"
 #include "../Source/Plane.h"
 #include "../Engine/ScoreManager.h"
 #include "../Source/PopUpDamage.h"
@@ -156,6 +157,12 @@ void testEnemy::Update()
     float dt_ = GameTime::DeltaTime();
 
     AttackPlayer();
+
+    // ダメージエフェクト更新
+    if (damageEffect_ != nullptr)
+    {
+		damageEffect_->SetPosition(transform_.position_);
+    }
 
     // ダメージクールタイム更新
     if (damageCooldown_ > 0.0f)
@@ -442,6 +449,9 @@ void testEnemy::OnCollision(GameObject* pTarget)
 			popup_->SetPosition(transform_.position_);
 			popup_->Initialize();
         }
+
+        // ダメージエフェクトを実装
+		damageEffect_ = Instantiate<EnemyDamageEffect>(GetParent(), transform_.position_);
 
         // ノックバック方向（攻撃発生源 → 敵 の反対方向）
         // Playerの位置を使う
