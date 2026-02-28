@@ -115,17 +115,6 @@ private:
 	int jumpModel_ = -1;
 	int deathModel_ = -1;
 
-	//// プレイヤーの移動やアクションに関する変数
-	bool wasMoving_ = false;
-	bool isMovingNow_ = false;
-	bool prevOnGround_ = true;
-	bool prevMouseLeftDown_ = false;
-	bool onGround_ = true;
-	float JumpV0_ = 0.0f;
-	float velocityY_ = 0.0f;
-	size_t jumpCount_ = 0;
-	XMVECTOR vAirMove_ = XMVectorZero();
-
 	//// カメラ関連の変数
 	float camYawRad_ = 0.0f;
 	float camPitchRad_ = 0.0f;
@@ -138,7 +127,7 @@ private:
 	XMVECTOR vForward = XMVectorZero();
 	XMFLOAT3 right = {};
 	XMVECTOR vRight = XMVectorZero();
-	PlayerCamera plvision_;
+	PlayerCamera* plvision_;
 
 	//// 戦闘関連の変数
 	bool isAttacking_ = false;

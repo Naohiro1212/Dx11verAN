@@ -317,7 +317,7 @@ void PlayerMovement::CalcCameraDirectionXZ()
 
     // カメラ前方（XZ）を正規化
     XMFLOAT3 focus = plvision_->GetFocus();
-    XMFLOAT3 camPos = plvision_->GetCameraPosition();
+    XMFLOAT3 camPos = plvision_->GetPosition();
     forward_ = {
         focus.x - camPos.x,
         0.0f,

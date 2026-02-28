@@ -33,7 +33,7 @@ Player::Player(GameObject* parent) : GameObject(parent, "Player"),
 	moveSEHandle_(-1),
     ongroundSEHandle_(-1),
     pPlane_(nullptr),
-    plvision_(),
+    plvision_(nullptr),
     shadowBillboard_(nullptr),
 	shootSEHandle_(-1),
 	strafeSEHandle_(-1),
@@ -94,12 +94,13 @@ void Player::Initialize()
 	transform_.rotate_ = { 0.0, 0.0, 0.0 };
 	transform_.scale_ = { cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE };
 	Camera::SetTarget(transform_.position_);
-    wasMoving_ = false;
 	// プレイヤーの後方上位位置にカメラを設定
 	Camera::SetPosition(transform_.position_.x, transform_.position_.y + cnf_.CAMERA_INIT_POS_Y, transform_.position_.z - cnf_.CAMERA_INIT_POS_Z);
 
     nowModel_ = idleModel_;
-	plvision_.Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
+
+    plvision_ = Instantiate<PlayerCamera>(this);
+	plvision_->Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
 
     pCollider_ = new BoxCollider(
@@ -163,7 +164,7 @@ void Player::Update()
     }
 
 	// 移動処理はまとめてPlayerMovementクラスに任せる
-	movement_->Update(isAttacking_, health_, wallColliders_, &plvision_);
+	movement_->Update(isAttacking_, health_, wallColliders_, plvision_);
 
 	// アニメーションに使うので向きは取得する
 	moveDir_ = movement_->GetMoveDir();
@@ -193,7 +194,7 @@ void Player::Update()
     }
 
     // カメラ更新
-    plvision_.Update(transform_.position_);
+    plvision_->Update(transform_.position_, wallColliders_);
  }
 
 void Player::Draw()
@@ -463,12 +464,12 @@ void Player::MeleeAttack()
         }
 
         Model::SetTransform(nowModel_, transform_);
-        plvision_.Update(transform_.position_);
+        plvision_->Update(transform_.position_, wallColliders_);
         return;
     }
 
     // 攻撃開始（開始時だけセット）
-    if (Input::IsMouseButtonDown(0) && onGround_ && !isDead_)
+    if (Input::IsMouseButtonDown(0) && movement_->IsOnGround() && !isDead_)
     {
         // その場で向きベクトルを作る（magicDir_ に依存しない）
         float yawRad = XMConvertToRadians(transform_.rotate_.y);
@@ -488,7 +489,7 @@ void Player::MeleeAttack()
         AddCollider(attackCollider_);
 
         // 入力・状態初期化
-        isMovingNow_ = false;
+		movement_->SetMovingNow(false); // 攻撃開始と同時に移動状態をリセット
         isAttacking_ = true;
 
         // タイマー初期化
@@ -500,7 +501,6 @@ void Player::MeleeAttack()
         nowModel_ = slashModel_;
         Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
         Model::SetTransform(nowModel_, transform_);
-        plvision_.Update(transform_.position_);
         return;
     }
 }
@@ -533,7 +533,7 @@ void Player::LevelUp()
 void Player::PlayMoveSound()
 {
     // 地上のみサウンド再生／停止を扱う
-    if (onGround_)
+    if (movement_->IsOnGround())
     {
         const bool isMoving = (moveDir_.y != 0 || moveDir_.x != 0);
         const bool isDash = Input::IsKey(DIK_LSHIFT);
@@ -602,7 +602,6 @@ bool Player::HandleDeath()
             }
         }
         Model::SetTransform(nowModel_, transform_);
-        plvision_.Update(transform_.position_);
         return true; // 以降の通常処理は走らせない
     }
     return false;

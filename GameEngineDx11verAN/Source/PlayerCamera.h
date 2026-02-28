@@ -1,9 +1,26 @@
 #pragma once
+#include "../Engine/GameObject.h"
 #include <DirectXMath.h>
+#include <vector>
 
-class PlayerCamera
+class BoxCollider;
+
+class PlayerCamera : public GameObject
 {
 public:
+
+	//コンストラクタ
+	PlayerCamera(GameObject* parent);
+	//デストラクタ
+	~PlayerCamera();
+
+	/// <summary>
+	/// 引数なしのInitialize
+	/// </summary>
+	void Initialize() override {}
+	void Update() override {}
+	void Draw() override {}
+	void Release() override {}
 
 	/// <summary>
 	/// プレイヤーカメラの初期化
@@ -17,10 +34,14 @@ public:
 	/// プレイヤーカメラの更新
 	/// </summary>
 	/// <param name="_targetPos"></param>
-	void Update(const DirectX::XMFLOAT3& _targetPos);
+	void Update(const DirectX::XMFLOAT3& _targetPos, std::vector<BoxCollider*> colliders);
 
 	DirectX::XMFLOAT3 GetFocus() const { return focus_; }
-	DirectX::XMFLOAT3 GetCameraPosition() const { return camPos_; }
+
+	/// <summary>
+	/// カメラの壁ずり処理 
+	/// </summary>
+	void ResolveWallCollisions();
 
 private:
 	// 調整用
@@ -39,8 +60,8 @@ private:
 
 	// プレイヤーからカメラへのベクトル
 	DirectX::XMFLOAT3 focus_;
-	
-	DirectX::XMFLOAT3 camPos_;
 
-	
+	// 壁との当たり判定用
+	BoxCollider* pCollider_;
+	std::vector<BoxCollider*> wallColliders_;
 };

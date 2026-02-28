@@ -42,6 +42,9 @@ public:
 	// ジャンプの初速を取得する関数
 	float GetJumpV0() const { return JumpV0_; }
 
+	void SetMovingNow(bool isMoving) { isMovingNow_ = isMoving; }
+	bool IsMovingNow() const { return isMovingNow_; }
+
 private:
 	// 前後左右、入力方向の取得
 	void MoveInput(bool isAttacking, float health);

@@ -4,6 +4,8 @@
 #include "../Engine/GameTime.h"
 #include <algorithm>
 #include <cmath>
+#include <vector>
+#include "../Engine/BoxCollider.h"
 
 using namespace DirectX;
 
@@ -11,10 +13,29 @@ namespace
 {
     const float CAMERA_DISTANCE = 15.0f;
 	const float MIN_CAMERA_HEIGHT = 1.8f;
-    const float MAX_CAMERA_HEIGHT = 50.0f;
+    const float MAX_CAMERA_HEIGHT = 45.0f;
 }
 
-void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance) 
+PlayerCamera::PlayerCamera(GameObject* parent) : GameObject(parent, "PlayerCamera"),
+    mouseSens_(0.004f),
+    zoomSens_(0.5f),
+    minPitchDeg_(-30.0f),
+    maxPitchDeg_(40.0f),
+    minDistance_(5.0f),
+    maxDistance_(25.0f),
+    yawRad_(0.0f),
+    pitchRad_(0.0f),
+    distance_(CAMERA_DISTANCE),
+    focus_({ 0.0f, 0.0f, 0.0f }),
+	pCollider_(nullptr)
+{
+}
+
+PlayerCamera::~PlayerCamera()
+{
+}
+
+void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance)
 { 
     mouseSens_ = 0.004f;
     zoomSens_ = 2.3f;
@@ -27,11 +48,20 @@ void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance)
     yawRad_ = XMConvertToRadians(_yawDeg);
     pitchRad_ = XMConvertToRadians(_pitchDeg);
     distance_ = std::clamp(_distance, minDistance_, maxDistance_);
+
+	transform_.position_ = { 0.0f, 0.0f, 0.0f };
+
+    pCollider_ = new BoxCollider(
+        XMFLOAT3(0.0f, 0.0f, 0.0f), // カメラ位置からの相対位置（カメラの中心点）
+        XMFLOAT3(1.0f, 1.0f, 1.0f)  // サイズ（適当に小さめの立方体）
+	);
+    AddCollider(pCollider_);
 }
 
-void PlayerCamera::Update(const XMFLOAT3& _targetPos)
+void PlayerCamera::Update(const XMFLOAT3& _targetPos, std::vector<BoxCollider*> colliders)
 {
 	float dt_ = GameTime::DeltaTime();
+	wallColliders_ = colliders;
 
     XMFLOAT3 md_ = Input::GetMouseMove();
     float dx_ = md_.x;
@@ -66,18 +96,30 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos)
 	float offY = radius_ * sp_;
     float offZ = radius_ * cp_ * cy_;
 
-	camPos_ = { focus_.x + offX,
-				 focus_.y + offY,
-				 focus_.z + offZ };
+	transform_.position_ = { focus_.x + offX, focus_.y + offY, focus_.z + offZ };
 
     // カメラは必ず地上
     // 上限と下限を設定してその間にする
-	camPos_.y = (std::clamp)(camPos_.y, focus_.y + MIN_CAMERA_HEIGHT, focus_.y + MAX_CAMERA_HEIGHT); 
-
+	transform_.position_.y = (std::clamp)(transform_.position_.y, focus_.y + MIN_CAMERA_HEIGHT, focus_.y + MAX_CAMERA_HEIGHT); 
     // 壁を考慮したカメラ位置補正
-    
+	ResolveWallCollisions();
 
     Camera::SetTarget({ focus_.x, focus_.y, focus_.z });
-	Camera::SetPosition(camPos_.x, camPos_.y, camPos_.z);
+	Camera::SetPosition(transform_.position_.x, transform_.position_.y, transform_.position_.z);
+}
+
+void PlayerCamera::ResolveWallCollisions()
+{
+    // 壁との当たり判定
+    for (auto* wallCollider_ : wallColliders_)
+    {
+        PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
+        if (res.overlapped)
+        {
+            transform_.position_.x += res.push.x;
+            transform_.position_.y += res.push.y;
+            transform_.position_.z += res.push.z;
+        }
+	}
 }
 
