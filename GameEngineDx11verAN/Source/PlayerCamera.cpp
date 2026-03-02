@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include "../Engine/BoxCollider.h"
+#include "../Engine/Debug.h"
 
 using namespace DirectX;
 
@@ -53,7 +54,7 @@ void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance)
 
     pCollider_ = new BoxCollider(
         XMFLOAT3(0.0f, 0.0f, 0.0f), // カメラ位置からの相対位置（カメラの中心点）
-        XMFLOAT3(1.0f, 1.0f, 1.0f)  // サイズ（適当に小さめの立方体）
+        XMFLOAT3(3.0f, 3.0f, 3.0f)  // サイズ（適当に小さめの立方体）
 	);
     AddCollider(pCollider_);
 }
@@ -62,6 +63,10 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos, std::vector<BoxCollider*> 
 {
 	float dt_ = GameTime::DeltaTime();
 	wallColliders_ = colliders;
+
+    Debug::Log(transform_.position_.x, false);
+    Debug::Log(transform_.position_.y, false);
+    Debug::Log(transform_.position_.z, true);
 
     XMFLOAT3 md_ = Input::GetMouseMove();
     float dx_ = md_.x;
@@ -113,12 +118,26 @@ void PlayerCamera::ResolveWallCollisions()
     // 壁との当たり判定
     for (auto* wallCollider_ : wallColliders_)
     {
+        // カメラ側ボックスのワールド中心
+        XMFLOAT3 centerA = pCollider_->GetCenter();
+
+        // 壁側ボックスのワールド中心
+        XMFLOAT3 centerB = wallCollider_->GetCenter();
+
+        Debug::Log("CamBox pos:", false);
+        Debug::Log(transform_.position_.x, false);
+        Debug::Log(transform_.position_.y, false);
+        Debug::Log(transform_.position_.z, true);
+
+        Debug::Log("WallBox pos:", false);
+        Debug::Log(centerB.x, false);
+        Debug::Log(centerB.y, false);
+        Debug::Log(centerB.z, true);
+
         PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
         if (res.overlapped)
         {
-            transform_.position_.x += res.push.x;
-            transform_.position_.y += res.push.y;
-            transform_.position_.z += res.push.z;
+            Debug::Log("deteimasu");  // 本当に一度も出ないか？
         }
 	}
 }

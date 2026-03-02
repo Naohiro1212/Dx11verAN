@@ -128,11 +128,6 @@ void PlayerMovement::MoveInput(bool isAttacking, float health)
             moveDir_.y -= 1;
         }
     }
-    
-    Debug::Log(moveDir_.x, false);
-	Debug::Log(moveDir_.y, true);
-	Debug::Log(XMVectorGetX(vForward_), false);
-	Debug::Log(XMVectorGetZ(vForward_), true);
 
     isMovingNow_ = false;
     if (moveDir_.x != 0 || moveDir_.y != 0) {

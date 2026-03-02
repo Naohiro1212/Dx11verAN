@@ -39,6 +39,7 @@ public:
 
 	bool GetResetDungeon() const { return resetDungeon_; }
 	bool GetNearPortal() const { return nearPortal_; }
+	int GetWallHandle() const { return wallModel_; }
 
 private:
 	// 敵の数が0かつ、ポータルとプレイヤーが近づきキーを押すとダンジョン再生成フラグを立てる
