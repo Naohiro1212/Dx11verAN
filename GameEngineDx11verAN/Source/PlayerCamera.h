@@ -42,9 +42,9 @@ public:
 	/// <summary>
 	/// ƒJƒƒ‰‚Ì•Ç‚¸‚èˆ— 
 	/// </summary>
-	void ResolveWallCollisions(BoxCollider* _wallBox);
+	/*void ResolveWallCollisions(BoxCollider* _wallBox);
 
-	void OnCollision(GameObject* pTarget) override;
+	void OnCollision(GameObject* pTarget) override;*/
 
 	void SetWallColliders(const std::vector<BoxCollider*>& colliders) { wallColliders_ = colliders; }
 
@@ -69,4 +69,5 @@ private:
 	// •Ç‚Æ‚Ì“–‚½‚è”»’è—p
 	BoxCollider* pCollider_;
 	std::vector<BoxCollider*> wallColliders_;
+	XMFLOAT3 collisionPush_;
 };

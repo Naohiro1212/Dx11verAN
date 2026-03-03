@@ -99,7 +99,7 @@ void Player::Initialize()
 
     nowModel_ = idleModel_;
 
-    plvision_ = Instantiate<PlayerCamera>(this);
+    plvision_ = Instantiate<PlayerCamera>(GetParent());
 	plvision_->Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
     Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
 
