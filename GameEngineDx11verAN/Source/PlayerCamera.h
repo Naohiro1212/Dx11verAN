@@ -28,20 +28,25 @@ public:
 	/// <param name="_yawDeg"></param>
 	/// <param name="_pitchDeg"></param>
 	/// <param name="_distance"></param>
+	/// <param name="_wallColliders"></param>
 	void Initialize(float _yawDeg, float _pitchDeg, float _distance);
 
 	/// <summary>
 	/// プレイヤーカメラの更新
 	/// </summary>
 	/// <param name="_targetPos"></param>
-	void Update(const DirectX::XMFLOAT3& _targetPos, std::vector<BoxCollider*> colliders);
+	void Update(const DirectX::XMFLOAT3& _targetPos);
 
 	DirectX::XMFLOAT3 GetFocus() const { return focus_; }
 
 	/// <summary>
 	/// カメラの壁ずり処理 
 	/// </summary>
-	void ResolveWallCollisions();
+	void ResolveWallCollisions(BoxCollider* _wallBox);
+
+	void OnCollision(GameObject* pTarget) override;
+
+	void SetWallColliders(const std::vector<BoxCollider*>& colliders) { wallColliders_ = colliders; }
 
 private:
 	// 調整用

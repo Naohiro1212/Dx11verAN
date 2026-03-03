@@ -194,7 +194,7 @@ void Player::Update()
     }
 
     // カメラ更新
-    plvision_->Update(transform_.position_, wallColliders_);
+    plvision_->Update(transform_.position_);
  }
 
 void Player::Draw()
@@ -254,7 +254,7 @@ void Player::OnCollision(GameObject* pTarget)
     std::string eName = pTarget->GetObjectName();
 
     // 宝石取得時
-    if (pTarget->GetObjectName() == "Jewel" && !pTarget->IsDead())
+    if (eName == "Jewel" && !pTarget->IsDead())
     {
         exp_ += cnf_.JEWEL_EXP; // 経験値加算
     }
@@ -464,7 +464,7 @@ void Player::MeleeAttack()
         }
 
         Model::SetTransform(nowModel_, transform_);
-        plvision_->Update(transform_.position_, wallColliders_);
+        plvision_->Update(transform_.position_);
         return;
     }
 

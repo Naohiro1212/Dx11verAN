@@ -7,6 +7,7 @@
 #include <algorithm> 
 #include <vector>
 #include "Player.h"
+#include "PlayerCamera.h"
 #include "MiniMap.h"
 #include "testEnemy.h"
 #include "Portal.h"
@@ -80,6 +81,9 @@ void DungeonManager::Initialize()
 	// 3) プレイヤー/ポータル生成（Resetで参照するため先に)
 	player_ = Instantiate<Player>(GetParent());
 	portal_ = Instantiate<Portal>(GetParent());
+
+	// プレイヤーカメラ取得
+	plvision_ = player_->GetCamera();
 
 	// 階層初期化
 	nowFloor_ = 0;
@@ -261,6 +265,7 @@ void DungeonManager::DungeonReset()
 	}
 
 	player_->SetWallColliders(wallColliders_);
+	plvision_->SetWallColliders(wallColliders_);
 
 	for (auto* enemy : enemies_)
 	{

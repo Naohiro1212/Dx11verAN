@@ -1,4 +1,4 @@
-#include "PlayerCamera.h"
+Ôªø#include "PlayerCamera.h"
 #include "../Engine/Input.h"
 #include "../Engine/Camera.h"
 #include "../Engine/GameTime.h"
@@ -45,7 +45,7 @@ void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance)
     minDistance_ = 20.0f;
     maxDistance_ = 60.0f;
 
-    // äpìxÅEãóó£
+    // ËßíÂ∫¶„ÉªË∑ùÈõ¢
     yawRad_ = XMConvertToRadians(_yawDeg);
     pitchRad_ = XMConvertToRadians(_pitchDeg);
     distance_ = std::clamp(_distance, minDistance_, maxDistance_);
@@ -53,35 +53,35 @@ void PlayerCamera::Initialize(float _yawDeg, float _pitchDeg, float _distance)
 	transform_.position_ = { 0.0f, 0.0f, 0.0f };
 
     pCollider_ = new BoxCollider(
-        XMFLOAT3(0.0f, 0.0f, 0.0f), // ÉJÉÅÉâà íuÇ©ÇÁÇÃëäëŒà íuÅiÉJÉÅÉâÇÃíÜêSì_Åj
-        XMFLOAT3(3.0f, 3.0f, 3.0f)  // ÉTÉCÉYÅiìKìñÇ…è¨Ç≥ÇﬂÇÃóßï˚ëÃÅj
+        XMFLOAT3(0.0f, 0.0f, 0.0f), // „Ç´„É°„É©‰ΩçÁΩÆ„Åã„Çâ„ÅÆÁõ∏ÂØæ‰ΩçÁΩÆÔºà„Ç´„É°„É©„ÅÆ‰∏≠ÂøÉÁÇπÔºâ
+        XMFLOAT3(3.0f, 3.0f, 3.0f)  // „Çµ„Ç§„Ç∫ÔºàÈÅ©ÂΩì„Å´Â∞è„Åï„ÇÅ„ÅÆÁ´ãÊñπ‰ΩìÔºâ
 	);
     AddCollider(pCollider_);
+    pCollider_->SetRole(Collider::Role::Body);
 }
 
-void PlayerCamera::Update(const XMFLOAT3& _targetPos, std::vector<BoxCollider*> colliders)
+void PlayerCamera::Update(const XMFLOAT3& _targetPos)
 {
 	float dt_ = GameTime::DeltaTime();
-	wallColliders_ = colliders;
 
-    Debug::Log(transform_.position_.x, false);
-    Debug::Log(transform_.position_.y, false);
-    Debug::Log(transform_.position_.z, true);
+    //Debug::Log(transform_.position_.x, false);
+    //Debug::Log(transform_.position_.y, false);
+    //Debug::Log(transform_.position_.z, true);
 
     XMFLOAT3 md_ = Input::GetMouseMove();
     float dx_ = md_.x;
     float dy_ = md_.y;
     float wheelSteps_ = md_.z / 120.0f;
 
-    // radïœä∑Ç∑ÇÈ
+    // radÂ§âÊèõ„Åô„Çã
 	float minPitchRad_ = XMConvertToRadians(minPitchDeg_);
 	float maxPitchRad_ = XMConvertToRadians(maxPitchDeg_);
 
-    // äpìxçXêV
+    // ËßíÂ∫¶Êõ¥Êñ∞
     yawRad_ += dx_ * mouseSens_;
     pitchRad_ = std::clamp(pitchRad_ + dy_ * mouseSens_, minPitchRad_, maxPitchRad_);
 
-    // ÉYÅ[ÉÄçXêVÅidt Ç≈ÉXÉÄÅ[ÉYÇ…Åj
+    // „Ç∫„Éº„É†Êõ¥Êñ∞Ôºàdt „Åß„Çπ„É†„Éº„Ç∫„Å´Ôºâ
     if (wheelSteps_ != 0.0f)
     {
         distance_ = std::clamp(distance_ - wheelSteps_ * zoomSens_, minDistance_, maxDistance_);
@@ -103,42 +103,30 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos, std::vector<BoxCollider*> 
 
 	transform_.position_ = { focus_.x + offX, focus_.y + offY, focus_.z + offZ };
 
-    // ÉJÉÅÉâÇÕïKÇ∏ínè„
-    // è„å¿Ç∆â∫å¿Çê›íËÇµÇƒÇªÇÃä‘Ç…Ç∑ÇÈ
+    // „Ç´„É°„É©„ÅØÂøÖ„ÅöÂú∞‰∏ä
+    // ‰∏äÈôê„Å®‰∏ãÈôê„ÇíË®≠ÂÆö„Åó„Å¶„Åù„ÅÆÈñì„Å´„Åô„Çã
 	transform_.position_.y = (std::clamp)(transform_.position_.y, focus_.y + MIN_CAMERA_HEIGHT, focus_.y + MAX_CAMERA_HEIGHT); 
-    // ï«Ççló∂ÇµÇΩÉJÉÅÉâà íuï‚ê≥
-	ResolveWallCollisions();
+    // Â£Å„ÇíËÄÉÊÖÆ„Åó„Åü„Ç´„É°„É©‰ΩçÁΩÆË£úÊ≠£
 
     Camera::SetTarget({ focus_.x, focus_.y, focus_.z });
 	Camera::SetPosition(transform_.position_.x, transform_.position_.y, transform_.position_.z);
 }
 
-void PlayerCamera::ResolveWallCollisions()
+void PlayerCamera::ResolveWallCollisions(BoxCollider* _wallBox)
 {
-    // ï«Ç∆ÇÃìñÇΩÇËîªíË
-    for (auto* wallCollider_ : wallColliders_)
+    Debug::Log("CamBox pos:", false);
+    Debug::Log(transform_.position_.x, false);
+    Debug::Log(transform_.position_.y, false);
+    Debug::Log(transform_.position_.z, true);
+
+    PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, _wallBox);
+    if (res.overlapped)
     {
-        // ÉJÉÅÉâë§É{ÉbÉNÉXÇÃÉèÅ[ÉãÉhíÜêS
-        XMFLOAT3 centerA = pCollider_->GetCenter();
-
-        // ï«ë§É{ÉbÉNÉXÇÃÉèÅ[ÉãÉhíÜêS
-        XMFLOAT3 centerB = wallCollider_->GetCenter();
-
-        Debug::Log("CamBox pos:", false);
-        Debug::Log(transform_.position_.x, false);
-        Debug::Log(transform_.position_.y, false);
-        Debug::Log(transform_.position_.z, true);
-
-        Debug::Log("WallBox pos:", false);
-        Debug::Log(centerB.x, false);
-        Debug::Log(centerB.y, false);
-        Debug::Log(centerB.z, true);
-
-        PenetrationResult res = Collider::ComputeBoxVsBoxPenetration(pCollider_, wallCollider_);
-        if (res.overlapped)
-        {
-            Debug::Log("deteimasu");  // ñ{ìñÇ…àÍìxÇ‡èoÇ»Ç¢Ç©ÅH
-        }
-	}
+        Debug::Log("deteimasu");
+    }
 }
 
+void PlayerCamera::OnCollision(GameObject* pTarget)
+{
+    Debug::Log("PlayerCamera::OnCollision CALLED, target=" + pTarget->GetObjectName(), true);
+}

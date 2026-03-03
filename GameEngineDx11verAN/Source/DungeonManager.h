@@ -5,6 +5,7 @@
 #include <vector>
 
 class Player;
+class PlayerCamera;
 class testEnemy;
 class Portal;
 class DungeonGenerator;
@@ -64,6 +65,7 @@ private:
 
 	// プレイヤーの開始位置
 	Player* player_;
+	PlayerCamera* plvision_;
 	XMFLOAT3 playerStartPos_;
 
 	// ポータルの位置

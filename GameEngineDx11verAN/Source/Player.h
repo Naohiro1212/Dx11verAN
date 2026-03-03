@@ -67,6 +67,8 @@ public:
 	// Œ»İƒŒƒxƒ‹æ“¾
 	int GetLevel() const {return level_; }
 
+	PlayerCamera* GetCamera() const { return plvision_; }
+
 private:
 	//// ŠÖ”ŒQ
 
