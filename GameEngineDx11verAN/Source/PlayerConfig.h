@@ -48,6 +48,8 @@ struct PlayerConfig
 	const float ANIM_JUMP_BUFFER = 0.12f; // ジャンプアニメーションの速度調整用
     const float ANIM_DEATH_PLAY_SPEED = 1.2f;
 
+    const float MAX_MODELS = 8;
+
     // プレイヤーのスケール
     const float PLAYER_SCALE = 0.1f;
 

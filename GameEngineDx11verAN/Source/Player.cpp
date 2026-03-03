@@ -48,56 +48,67 @@ Player::Player(GameObject* parent) : GameObject(parent, "Player"),
 void Player::Initialize()
 {
     // アニメーション読み込み
-	walkModel_ = Model::Load("Models/walk.fbx");
-    runModel_ = Model::Load("Models/run.fbx");
-    leftStrafeModel_ = Model::Load("Models/leftstrafe.fbx");
-    rightStrafeModel_ = Model::Load("Models/rightstrafe.fbx");
-    backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
-	idleModel_ = Model::Load("Models/idle.fbx");
-    slashModel_ = Model::Load("Models/slash.fbx");
-	jumpModel_ = Model::Load("Models/jump.fbx");
-	deathModel_ = Model::Load("Models/death.fbx");
+    //walkModel_ = Model::Load("Models/walk.fbx");
+ //   runModel_ = Model::Load("Models/run.fbx");
+ //   leftStrafeModel_ = Model::Load("Models/leftstrafe.fbx");
+ //   rightStrafeModel_ = Model::Load("Models/rightstrafe.fbx");
+ //   backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
+    //idleModel_ = Model::Load("Models/idle.fbx");
+ //   slashModel_ = Model::Load("Models/slash.fbx");
+    //jumpModel_ = Model::Load("Models/jump.fbx");
+    //deathModel_ = Model::Load("Models/death.fbx");
 
-	assert(walkModel_ != -1);
-    assert(runModel_ != -1);
-    assert(leftStrafeModel_ != -1);
-    assert(rightStrafeModel_ != -1);
-    assert(backStrafeModel_ != -1);
-    assert(idleModel_ != -1);
-    assert(slashModel_ != -1);
-    assert(jumpModel_ != -1);
-	assert(deathModel_ != -1);
+    Models_.resize(cnf_.MAX_MODELS);
+    Models_[WALK] = Model::Load("Models/walk.fbx");
+    Models_[RUN] = Model::Load("Models/run.fbx");
+    Models_[LEFTSTRAFE] = Model::Load("Models/leftstrafe.fbx");
+    Models_[RIGHTSTRAFE] = Model::Load("Models/rightstrafe.fbx");
+    Models_[BACKSTRAFE] = Model::Load("Models/backstrafe.fbx");
+    Models_[IDLE] = Model::Load("Models/idle.fbx");
+    Models_[SLASH] = Model::Load("Models/slash.fbx");
+    Models_[JUMP] = Model::Load("Models/jump.fbx");
+    Models_[DEATH] = Model::Load("Models/death.fbx");
+
+    //assert(walkModel_ != -1);
+ //   assert(runModel_ != -1);
+ //   assert(leftStrafeModel_ != -1);
+ //   assert(rightStrafeModel_ != -1);
+ //   assert(backStrafeModel_ != -1);
+ //   assert(idleModel_ != -1);
+ //   assert(slashModel_ != -1);
+ //   assert(jumpModel_ != -1);
+    //assert(deathModel_ != -1);
 
     // サウンド読み込み
     // ヒット音のみ2つ用意し、ヒットしたら切り替え
-	hitSEHandle_ = Audio::Load("Audio/hitsound.wav");
-	swingSEHandle_ = Audio::Load("Audio/slash.wav");
-	moveSEHandle_ = Audio::Load("Audio/move.wav", true,1);
-	strafeSEHandle_ = Audio::Load("Audio/strafe.wav", true,1);
-	shootSEHandle_ = Audio::Load("Audio/shootmagic.wav", false, 15);
-	jumpSEHandle_ = Audio::Load("Audio/jump.wav");
+    hitSEHandle_ = Audio::Load("Audio/hitsound.wav");
+    swingSEHandle_ = Audio::Load("Audio/slash.wav");
+    moveSEHandle_ = Audio::Load("Audio/move.wav", true, 1);
+    strafeSEHandle_ = Audio::Load("Audio/strafe.wav", true, 1);
+    shootSEHandle_ = Audio::Load("Audio/shootmagic.wav", false, 15);
+    jumpSEHandle_ = Audio::Load("Audio/jump.wav");
     ongroundSEHandle_ = Audio::Load("Audio/onGround.wav");
-	//levelUpSEHandle_ = Audio::Load("Audio/levelup.wav");
+    //levelUpSEHandle_ = Audio::Load("Audio/levelup.wav");
 
     Audio::SetMasterVolume(cnf_.MASTER_VOLUME);
 
-	assert(hitSEHandle_ != -1);
+    assert(hitSEHandle_ != -1);
     assert(swingSEHandle_ != -1);
-	assert(moveSEHandle_ != -1);
-	assert(strafeSEHandle_ != -1);
-	assert(shootSEHandle_ != -1);
+    assert(moveSEHandle_ != -1);
+    assert(strafeSEHandle_ != -1);
+    assert(shootSEHandle_ != -1);
     assert(jumpSEHandle_ != -1);
-	assert(ongroundSEHandle_ != -1);
+    assert(ongroundSEHandle_ != -1);
 
-	// 初期位置・スケール設定
-	transform_.position_ = { 0.0f, 0.0f, 0.0f };
-	transform_.rotate_ = { 0.0, 0.0, 0.0 };
-	transform_.scale_ = { cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE };
-	Camera::SetTarget(transform_.position_);
-	// プレイヤーの後方上位位置にカメラを設定
-	Camera::SetPosition(transform_.position_.x, transform_.position_.y + cnf_.CAMERA_INIT_POS_Y, transform_.position_.z - cnf_.CAMERA_INIT_POS_Z);
+    // 初期位置・スケール設定
+    transform_.position_ = { 0.0f, 0.0f, 0.0f };
+    transform_.rotate_ = { 0.0, 0.0, 0.0 };
+    transform_.scale_ = { cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE, cnf_.PLAYER_SCALE };
+    Camera::SetTarget(transform_.position_);
+    // プレイヤーの後方上位位置にカメラを設定
+    Camera::SetPosition(transform_.position_.x, transform_.position_.y + cnf_.CAMERA_INIT_POS_Y, transform_.position_.z - cnf_.CAMERA_INIT_POS_Z);
 
-    nowModel_ = idleModel_;
+    nowModel_ = Models_[IDLE];
 
     plvision_ = Instantiate<PlayerCamera>(GetParent());
 	plvision_->Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
@@ -320,13 +331,13 @@ void Player::ChangeModel()
     // 2) 体力が0なら死亡モーションへ（切り替え時に再生開始）
     if (isDead_)
     {
-        targetModel = deathModel_;
+        targetModel = Models_[DEATH];
     }
     else
     {
         if (!movement_->IsOnGround())
         {
-            targetModel = jumpModel_;
+            targetModel = Models_[JUMP];
         }
         else 
         {
@@ -334,25 +345,25 @@ void Player::ChangeModel()
 
             if (moveDir_.x > 0)
             {
-                if (moveDir_.y > 0)       targetModel = rightStrafeModel_;
-                else if (moveDir_.y < 0)  targetModel = leftStrafeModel_;
-                else                targetModel = walkModel_;
+                if (moveDir_.y > 0)       targetModel = Models_[RIGHTSTRAFE];
+                else if (moveDir_.y < 0)  targetModel = Models_[LEFTSTRAFE];
+                else                targetModel = Models_[WALK];
             }
             else if (moveDir_.x < 0) 
             {
-                targetModel = backStrafeModel_;
+				targetModel = Models_[BACKSTRAFE];
             }
             else if (moveDir_.y > 0) 
             {
-                targetModel = rightStrafeModel_;
+				targetModel = Models_[RIGHTSTRAFE];
             }
             else if (moveDir_.y < 0) 
             {
-                targetModel = leftStrafeModel_;
+				targetModel = Models_[LEFTSTRAFE];
             }
             else
             {
-                targetModel = idleModel_;
+                targetModel = Models_[IDLE];
             }
         }
     }
@@ -362,28 +373,28 @@ void Player::ChangeModel()
     {
         nowModel_ = targetModel;
 
-        if (nowModel_ == rightStrafeModel_ || nowModel_ == leftStrafeModel_)
+        if (nowModel_ == Models_[RIGHTSTRAFE] || nowModel_ == Models_[LEFTSTRAFE])
         {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_STRAFE_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == walkModel_)
+        else if (nowModel_ == Models_[WALK])
         {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_WALK_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == backStrafeModel_)
+        else if (nowModel_ == Models_[BACKSTRAFE])
         {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_BACK_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == idleModel_) 
+        else if (nowModel_ == Models_[IDLE])
         {
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
         }
-        else if (nowModel_ == jumpModel_) 
+        else if (nowModel_ == Models_[JUMP])
         {
             float jumpAnimSpeed = cnf_.ANIM_BASE_SPEED * (movement_->GetJumpV0() / (movement_->GetJumpV0() + cnf_.GRAVITY)) + cnf_.ANIM_JUMP_BUFFER;
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_JUMP_END, jumpAnimSpeed);
         }
-        else if (nowModel_ == deathModel_) 
+        else if (nowModel_ == Models_[DEATH])
         {
             // 死亡アニメ再生開始（非ループ化は上の固定ロジックで担保）
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_PLAY_SPEED);
@@ -440,7 +451,7 @@ void Player::MeleeAttack()
         }
 
         // 1周目の途中でループ（startに戻る）したら終了
-        int cur = Model::GetAnimFrame(slashModel_);
+        int cur = Model::GetAnimFrame(Models_[SLASH]);
         if (cur < lastSlashFrame_) // startへ巻き戻った＝ループ発生
         {
             isAttacking_ = false;
@@ -451,7 +462,7 @@ void Player::MeleeAttack()
                 RemoveCollider(attackCollider_);
                 attackCollider_ = nullptr;
             }
-            nowModel_ = idleModel_;
+            nowModel_ = Models_[IDLE];
             Model::SetAnimFrame(nowModel_, cnf_.ANIM_BASE_START, cnf_.ANIM_IDLE_END, cnf_.ANIM_BASE_SPEED);
 
             // 次回に向けて状態を戻す
@@ -498,7 +509,7 @@ void Player::MeleeAttack()
         attackHitThisSwing_ = false;
         attackSoundPlayedThisSwing_ = false; 
 
-        nowModel_ = slashModel_;
+        nowModel_ = Models_[SLASH];
         Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
         Model::SetTransform(nowModel_, transform_);
         return;
@@ -579,7 +590,7 @@ bool Player::HandleDeath()
             isAttacking_ = false;
             if (attackCollider_) { RemoveCollider(attackCollider_); attackCollider_ = nullptr; }
 
-            nowModel_ = deathModel_;
+            nowModel_ = Models_[DEATH];
             // 初期化はこの1回だけ
             Model::SetAnimFrame(
                 nowModel_,

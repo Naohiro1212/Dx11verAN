@@ -2,6 +2,12 @@
 #include "../Engine/GameObject.h"
 #include "../Engine/VFX.h"
 
+enum EffectType
+{
+	BLOOD_EFFECT = 0,
+	SLASH_EFFECT
+};
+
 class EnemyDamageEffect : public GameObject
 {
 public:
@@ -20,8 +26,13 @@ public:
 private:
 	// 経過時間計測用
 	float timer_;
+	float slashTimer_;
 
 	// VFXハンドル
+	// 流血エフェクト
 	EmitterData data_;
-	int hEmit_;
+
+	// 斬撃エフェクト
+	EmitterData slashData_;
+	int hEmit_[2];
 };

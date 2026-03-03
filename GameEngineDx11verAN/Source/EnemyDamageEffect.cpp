@@ -7,11 +7,11 @@ namespace
     const float DURATION = 2.0f;
 
 	// 頭上に表示するための高さオフセット
-	const float HEIGHT_OFFSET = 2.5f;
+	const float HEIGHT_OFFSET = 9.0f;
 }
 
 EnemyDamageEffect::EnemyDamageEffect(GameObject* parent, XMFLOAT3 pos) : GameObject(parent, "EnemyDamageEffect"),
-timer_(0.0f), data_(), hEmit_(-1)
+timer_(0.0f), data_(), hEmit_{ -1, -1 }, slashData_(), slashTimer_(0.0f)
 {
 	transform_.position_ = pos;
 }
@@ -46,7 +46,39 @@ void EnemyDamageEffect::Initialize()
     data_.spin = XMFLOAT3(0.0f, 0.0f, 0.12f);
     data_.rotateRnd = XMFLOAT3(0.0f, 0.0f, 180.0f);
 
-    hEmit_ = VFX::Start(data_);
+    hEmit_[BLOOD_EFFECT] = VFX::Start(data_);
+
+    slashData_;
+    slashData_.textureFileName = "Effects/slash_B.png"; // 横斬撃用テクスチャ
+    slashData_.isBillBoard = true;
+
+    // 斬撃の中心位置（例: エネミーの前方 or プレイヤーの前方）
+	slashData_.position = transform_.position_;
+	transform_.position_.y += HEIGHT_OFFSET;
+
+    slashData_.number = 1; // 1枚だけ
+    slashData_.lifeTime = 15;
+
+    // 横長のサイズ
+    slashData_.size = XMFLOAT2(3.5f, 1.0f); // 横幅3.5, 縦1.0
+    slashData_.sizeRnd = XMFLOAT2(0.0f, 0.0f);
+    slashData_.scale = XMFLOAT2(1.2f, 1.2f);
+
+    // 回転
+    slashData_.rotate = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    slashData_.rotateRnd = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+    // 移動関連
+    slashData_.direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    slashData_.directionRnd = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    slashData_.speed = 0.0f;
+    slashData_.accel = 1.0f;
+    slashData_.gravity = 0.0f;
+
+    // スピン
+    slashData_.spin = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+    hEmit_[SLASH_EFFECT] = VFX::Start(slashData_);
 }
 
 void EnemyDamageEffect::Update()
@@ -55,16 +87,26 @@ void EnemyDamageEffect::Update()
     timer_ += dt_;
     if (timer_ >= DURATION) // エフェクトの持続時間
     {
-        if (hEmit_ != -1) 
+        if (hEmit_[BLOOD_EFFECT] != -1) 
         {
-            VFX::End(hEmit_);
-            hEmit_ = -1;
+            VFX::End(hEmit_[BLOOD_EFFECT]);
+            hEmit_[BLOOD_EFFECT] = -1;
         }
         KillMe();
 	}
 
+    slashTimer_ += dt_;
+    if (slashTimer_ >= 0.1f)
+    {
+		if (hEmit_[SLASH_EFFECT] != -1)
+		{
+			VFX::End(hEmit_[SLASH_EFFECT]);
+			hEmit_[SLASH_EFFECT] = -1;
+		}
+    }
+
 	data_.position.y = transform_.position_.y + HEIGHT_OFFSET; // 常にプレイヤーの頭上に位置
-	VFX::SetEmitterPosition(hEmit_, data_.position);
+    VFX::SetEmitterPosition(hEmit_[BLOOD_EFFECT], data_.position);
 }
 
 void EnemyDamageEffect::Draw()

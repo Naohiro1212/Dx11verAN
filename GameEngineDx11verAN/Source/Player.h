@@ -10,6 +10,20 @@ class LevelUpEffect;
 class Plane;
 class PlayerMovement;
 
+enum PlayerState
+{
+	IDLE,
+	WALK,
+	RUN,
+	LEFTSTRAFE,
+	RIGHTSTRAFE,
+	BACKSTRAFE,
+	JUMP,
+	SLASH,
+	DEATH
+};
+
+
 class Player : public GameObject
 {
 public:
@@ -106,16 +120,18 @@ private:
 	bool gFreezeY_ = true;
 
 	//// ƒ‚ƒfƒ‹ó‘Ô‚ÉŠÖ‚·‚é•Ï”
-	int walkModel_ = -1;
-	int runModel_ = -1;
-	int leftStrafeModel_ = -1;
-	int rightStrafeModel_ = -1;
-	int backStrafeModel_ = -1;
-	int idleModel_ = -1;
-	int slashModel_ = -1;
+	//int walkModel_ = -1;
+	//int runModel_ = -1;
+	//int leftStrafeModel_ = -1;
+	//int rightStrafeModel_ = -1;
+	//int backStrafeModel_ = -1;
+	//int idleModel_ = -1;
+	//int slashModel_ = -1;
 	int nowModel_ = -1;
-	int jumpModel_ = -1;
-	int deathModel_ = -1;
+	//int jumpModel_ = -1;
+	//int deathModel_ = -1;
+
+	std::vector<int> Models_;
 
 	//// ƒJƒƒ‰ŠÖ˜A‚Ì•Ï”
 	float camYawRad_ = 0.0f;

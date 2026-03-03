@@ -39,13 +39,6 @@ public:
 
 	DirectX::XMFLOAT3 GetFocus() const { return focus_; }
 
-	/// <summary>
-	/// ƒJƒƒ‰‚Ì•Ç‚¸‚èˆ— 
-	/// </summary>
-	/*void ResolveWallCollisions(BoxCollider* _wallBox);
-
-	void OnCollision(GameObject* pTarget) override;*/
-
 	void SetWallColliders(const std::vector<BoxCollider*>& colliders) { wallColliders_ = colliders; }
 
 private:
