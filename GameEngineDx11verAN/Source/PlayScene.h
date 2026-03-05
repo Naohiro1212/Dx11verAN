@@ -7,15 +7,16 @@ class ManaGauge;
 class HealthGauge;
 class Player;
 class PausePanel;
+class SkillPanel;
 class ObjectiveText;
 
 //テストシーンを管理するクラス
-class TestScene : public GameObject
+class PlayScene : public GameObject
 {
 public:
 	//コンストラクタ
 	//引数：parent  親オブジェクト（SceneManager）
-	TestScene(GameObject* parent);
+	PlayScene(GameObject* parent);
 
 	//初期化
 	void Initialize() override;
@@ -41,6 +42,9 @@ private:
 
 	// ポーズパネル
 	PausePanel* pausePanel_;
+
+	SkillPanel* skillPanel_;
+	bool isSelecting_;
 
 	// 目的テキスト
 	ObjectiveText* objectiveText_;

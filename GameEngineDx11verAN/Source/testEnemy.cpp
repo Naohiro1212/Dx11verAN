@@ -122,12 +122,15 @@ void testEnemy::Initialize()
     pCollider_->SetRole(Collider::Role::Body);
 
 	player_ = dynamic_cast<Player*>(FindObject("Player"));
+	DungeonManager* dungeonManager_ = dynamic_cast<DungeonManager*>(FindObject("DungeonManager"));
 
     // velocity_ ‚Í MoveToPlayer ‚Å CHASE_SPEED ‚ðŠ|‚¯‚½’l‚É‚È‚Á‚Ä‚¢‚é‘O’ñ
     moveVec_ = { velocity_.x, 0.0f, velocity_.z };
 
     backTimer_ = 0.0f;
-    health_ = BASE_HEALTH;
+
+    // ƒ_ƒ“ƒWƒ‡ƒ“‚ÌŠK”‚Å‘‰Á‚³‚¹‚é
+    health_ = BASE_HEALTH + dungeonManager_->GetNowFloor() * 10;
 	damageCooldown_ = 0.0f;
 	deathTimer_ = 0.0f;
 

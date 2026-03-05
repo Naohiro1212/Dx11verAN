@@ -2,7 +2,7 @@
 #include "../Engine/Model.h"
 #include "../Engine/Debug.h"
 #include "../Engine/Input.h"
-#include "TestScene.h"
+#include "PlayScene.h"
 #include <assert.h>
 #include "../Engine/Camera.h"
 #include "../Engine/GameTime.h"
@@ -21,6 +21,7 @@
 #include "../Source/testEnemy.h"
 #include "../Engine/BillBoard.h"
 #include "PlayerMovement.h"
+#include "../Source/SkillPanel.h"
 
 using namespace DirectX;
 
@@ -47,16 +48,6 @@ Player::Player(GameObject* parent) : GameObject(parent, "Player"),
 
 void Player::Initialize()
 {
-    // アニメーション読み込み
-    //walkModel_ = Model::Load("Models/walk.fbx");
- //   runModel_ = Model::Load("Models/run.fbx");
- //   leftStrafeModel_ = Model::Load("Models/leftstrafe.fbx");
- //   rightStrafeModel_ = Model::Load("Models/rightstrafe.fbx");
- //   backStrafeModel_ = Model::Load("Models/backstrafe.fbx");
-    //idleModel_ = Model::Load("Models/idle.fbx");
- //   slashModel_ = Model::Load("Models/slash.fbx");
-    //jumpModel_ = Model::Load("Models/jump.fbx");
-    //deathModel_ = Model::Load("Models/death.fbx");
 
     Models_.resize(cnf_.MAX_MODELS);
     Models_[WALK] = Model::Load("Models/walk.fbx");
@@ -68,16 +59,6 @@ void Player::Initialize()
     Models_[SLASH] = Model::Load("Models/slash.fbx");
     Models_[JUMP] = Model::Load("Models/jump.fbx");
     Models_[DEATH] = Model::Load("Models/death.fbx");
-
-    //assert(walkModel_ != -1);
- //   assert(runModel_ != -1);
- //   assert(leftStrafeModel_ != -1);
- //   assert(rightStrafeModel_ != -1);
- //   assert(backStrafeModel_ != -1);
- //   assert(idleModel_ != -1);
- //   assert(slashModel_ != -1);
- //   assert(jumpModel_ != -1);
-    //assert(deathModel_ != -1);
 
     // サウンド読み込み
     // ヒット音のみ2つ用意し、ヒットしたら切り替え
@@ -527,6 +508,13 @@ void Player::LevelUp()
 		// レベルアップエフェクト生成
 		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
         
+        // スキルパネルをFindObjectして、パネルを表示する
+		SkillPanel* skillPanel_ = (SkillPanel*)(FindObject("SkillPanel"));
+        if (skillPanel_)
+        {
+            skillPanel_->SetSelecting(true);
+        }
+
         // レベルアップポップアップ生成
 		PopUpLevelUp* popup_ = Instantiate<PopUpLevelUp>(GetParent());
 		assert(popup_ != nullptr);

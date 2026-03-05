@@ -9,7 +9,7 @@ class PausePanel : public GameObject
 {
 public:
 	// コンストラクタ
-	// 引数：parent  親オブジェクト（TestScene）
+	// 引数：parent  親オブジェクト（PlayScene）
 	PausePanel(GameObject* parent);
 	// 初期化
 	void Initialize() override;

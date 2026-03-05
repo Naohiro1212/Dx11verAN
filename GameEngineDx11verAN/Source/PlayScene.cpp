@@ -1,4 +1,4 @@
-#include "../Source/TestScene.h"
+#include "../Source/PlayScene.h"
 #include "../Source/DungeonManager.h"
 #include "../Engine/Input.h"
 #include "../Source/Plane.h"
@@ -9,6 +9,7 @@
 #include "../Source/ManaGauge.h"
 #include "../Source/healthGauge.h"
 #include "../Source/PausePanel.h"
+#include "../Source/SkillPanel.h"
 #include "../Engine/Timer.h"
 #include "../Source/PopUpDamage.h" 
 #include "../Source/ObjectiveText.h"
@@ -22,20 +23,22 @@ namespace
 }
 
 //コンストラクタ
-TestScene::TestScene(GameObject * parent): 
-    GameObject(parent, "TestScene"), 
+PlayScene::PlayScene(GameObject * parent): 
+    GameObject(parent, "PlayScene"), 
     isPaused_(false), 
     objectiveText_(nullptr), 
     bgmHandle_(-1),
     dungeonManager_(nullptr),
     healthGauge_(nullptr),
+	pausePanel_(nullptr),
+    skillPanel_(nullptr),
 	manaGauge_(nullptr),
 	player_(nullptr)
 {
 }
 
 //初期化
-void TestScene::Initialize()
+void PlayScene::Initialize()
 {
     Instantiate<Plane>(this);
     dungeonManager_ = Instantiate<DungeonManager>(this);
@@ -56,6 +59,9 @@ void TestScene::Initialize()
 	// ポーズパネルの生成
 	pausePanel_ = Instantiate<PausePanel>(this);
 
+    // スキルパネルの生成
+	skillPanel_ = Instantiate<SkillPanel>(this);
+
     Timer::Initialize();
     Timer::Start();
 
@@ -69,7 +75,7 @@ void TestScene::Initialize()
 }
 
 //更新
-void TestScene::Update()
+void PlayScene::Update()
 {
     // タイマー更新
     Timer::Update();
@@ -100,6 +106,12 @@ void TestScene::Update()
 		isPaused_ = false;
     }
 
+	// スキルパネルでスキル選択中ならポーズ状態にする
+    if (skillPanel_->GetSelecting())
+    {
+        isSelecting_ = true;
+    }
+
 	// ポーズパネルでタイトルへ戻るボタンが押されたらタイトルシーンへ
     if (isPaused_ && pausePanel_->IsBackTitleButtonOn() && Input::IsMouseButtonDown(0))
     {
@@ -121,6 +133,20 @@ void TestScene::Update()
         this->ResumeAllUpdate();    // 子オブジェクトだけ再開
     }
 
+	// スキル選択中の反映
+	if (isSelecting_)
+	{
+		skillPanel_->SetSelecting(true);
+		Model::SetGlobalAnimPause(false); // モデルのアニメーションも停止
+		this->StopAllUpdate();      // 子オブジェクトだけ止める
+	}
+	else
+	{
+		skillPanel_->SetSelecting(false);
+		Model::SetGlobalAnimPause(true); // モデルのアニメーション再開
+		this->ResumeAllUpdate();    // 子オブジェクトだけ再開
+	}
+
     // ゲージの更新
     // シーンの子オブジェクトの最後にプッシュする(SetDrawOrderの順番)
     manaGauge_->SetMana(player_->GetMana());
@@ -128,7 +154,7 @@ void TestScene::Update()
 }
 
 //描画
-void TestScene::Draw()
+void PlayScene::Draw()
 {
 	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
     if (isPaused_)
@@ -142,6 +168,6 @@ void TestScene::Draw()
 }
 
 //開放
-void TestScene::Release()
+void PlayScene::Release()
 {
 }

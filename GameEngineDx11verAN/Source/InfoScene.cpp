@@ -62,7 +62,7 @@ void InfoScene::Update()
 	{
 		if (auto* pSceneManager = dynamic_cast<SceneManager*>(GetParent()))
 		{
-			pSceneManager->ChangeScene(SCENE_ID_TEST);
+			pSceneManager->ChangeScene(SCENE_ID_PLAY);
 		}
 	}
 

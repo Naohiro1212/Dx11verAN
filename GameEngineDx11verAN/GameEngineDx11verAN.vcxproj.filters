@@ -170,7 +170,7 @@
     <ClCompile Include="Source\EndScene.cpp">
       <Filter>Source\Scenes\EndScene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TestScene.cpp">
+    <ClCompile Include="Source\PlayScene.cpp">
       <Filter>Source\Scenes\PlayScene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\ScoreManager.cpp">
@@ -220,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="Source\EnemyDamageEffect.cpp">
       <Filter>Source\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SkillPanel.cpp">
+      <Filter>Source\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,7 +349,7 @@
     <ClInclude Include="Source\EndScene.h">
       <Filter>Source\Scenes\EndScene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TestScene.h">
+    <ClInclude Include="Source\PlayScene.h">
       <Filter>Source\Scenes\PlayScene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\ScoreManager.h">
@@ -396,6 +399,9 @@
     </ClInclude>
     <ClInclude Include="Source\EnemyDamageEffect.h">
       <Filter>Source\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SkillPanel.h">
+      <Filter>Source\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

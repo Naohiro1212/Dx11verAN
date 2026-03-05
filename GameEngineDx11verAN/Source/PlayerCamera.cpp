@@ -83,7 +83,7 @@ void PlayerCamera::Update(const XMFLOAT3& _targetPos)
 
     focus_ = { _targetPos.x, _targetPos.y + CAMERA_DISTANCE, _targetPos.z };
 
-    float radius_ = std::clamp(distance_ + 6.0f, minDistance_, maxDistance_ + 6.0f);
+    float radius_ = std::clamp(distance_, minDistance_, maxDistance_);
 
     float cp = std::cos(pitchRad_);
     float sp = std::sin(pitchRad_);

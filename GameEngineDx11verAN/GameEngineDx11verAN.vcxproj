@@ -226,8 +226,9 @@
     <ClCompile Include="Source\PopUpDamage.cpp" />
     <ClCompile Include="Source\PopUpLevelUp.cpp" />
     <ClCompile Include="Source\Portal.cpp" />
+    <ClCompile Include="Source\SkillPanel.cpp" />
     <ClCompile Include="Source\testEnemy.cpp" />
-    <ClCompile Include="Source\TestScene.cpp" />
+    <ClCompile Include="Source\PlayScene.cpp" />
     <ClCompile Include="Source\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -286,8 +287,9 @@
     <ClInclude Include="Source\PopUpDamage.h" />
     <ClInclude Include="Source\PopUpLevelUp.h" />
     <ClInclude Include="Source\Portal.h" />
+    <ClInclude Include="Source\SkillPanel.h" />
     <ClInclude Include="Source\testEnemy.h" />
-    <ClInclude Include="Source\TestScene.h" />
+    <ClInclude Include="Source\PlayScene.h" />
     <ClInclude Include="Source\TitleScene.h" />
   </ItemGroup>
   <ItemGroup>

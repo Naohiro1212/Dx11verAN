@@ -23,7 +23,7 @@ namespace
 }
 
 PausePanel::PausePanel(GameObject* parent) :
-	GameObject(parent),
+	GameObject(parent, "PausePanel"),
 	panelImage_(-1),
 	playerLevel_(1),
 	playerStrength_(1),
@@ -149,3 +149,4 @@ void PausePanel::Draw()
 void PausePanel::Release()
 {
 }
+
