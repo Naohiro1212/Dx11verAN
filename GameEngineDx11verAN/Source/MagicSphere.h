@@ -1,14 +1,17 @@
 #pragma once
 #include "../Engine/GameObject.h"
 #include "../Engine/VFX.h"
+#include <vector>
 
 class SphereCollider;
+class BoxCollider;
 
 class MagicSphere : public GameObject
 {
 public:
 	//コンストラクタ
 	MagicSphere(GameObject* parent);
+	MagicSphere(GameObject* parent, const std::vector<BoxCollider*>& _wallColliders);
 	//デストラクタ
 	~MagicSphere();
 	//初期化
@@ -29,4 +32,5 @@ private:
 	EmitterData effectData_;
 	int hEmit_;
 	SphereCollider* pCollider_;
+	std::vector<BoxCollider*> wallColliders_;
 };

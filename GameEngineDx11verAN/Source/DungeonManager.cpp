@@ -261,6 +261,7 @@ void DungeonManager::DungeonReset()
 			AddCollider(wallCollider_);
 			wallCollider_->SetRole(Collider::Role::Static);
 			wallColliders_.push_back(wallCollider_);
+
 		}
 	}
 

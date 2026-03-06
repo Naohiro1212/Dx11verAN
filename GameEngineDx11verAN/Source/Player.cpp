@@ -390,7 +390,7 @@ void Player::ShootMagic()
     {
         // ñÇñ@íeê∂ê¨
         XMFLOAT3 spawnPos = transform_.position_;
-        MagicSphere* sphere = Instantiate<MagicSphere>(GetParent());
+        MagicSphere* sphere = Instantiate<MagicSphere>(GetParent(), std::vector<BoxCollider*>(wallColliders_));
         sphere->SetPosition(
             spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
             spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,

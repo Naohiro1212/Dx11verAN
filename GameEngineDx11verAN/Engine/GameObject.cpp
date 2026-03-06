@@ -305,10 +305,10 @@ void GameObject::Collision(GameObject* pTarget)
 				const auto roleA = a->GetRole();
 				const auto roleB = b->GetRole();
 
-				const bool anyAttack =
+				const bool isAnyAttack =
 					(roleA == Collider::Role::Attack || roleB == Collider::Role::Attack);
 
-				const bool attackVsBody =
+				const bool isAttackVsBody =
 					(roleA == Collider::Role::Attack && roleB == Collider::Role::Body) ||
 					(roleB == Collider::Role::Attack && roleA == Collider::Role::Body);
 
@@ -319,10 +319,14 @@ void GameObject::Collision(GameObject* pTarget)
 				const bool isBothBody = 
 					(roleA == Collider::Role::Body && roleB == Collider::Role::Body);
 
-				if (anyAttack)
+				const bool isAttackVsStatic = 
+					(roleA == Collider::Role::Static || roleB == Collider::Role::Attack) ||
+					(roleA == Collider::Role::Attack || roleB == Collider::Role::Static);
+
+				if (isAnyAttack)
 				{
 					// 攻撃は Body 相手のみ通知（Attack×Static は除外）
-					if (!attackVsBody) continue;
+					if (!isAttackVsBody) continue;
 
 					this->OnCollision(pTarget);
 					pTarget->OnCollision(this);
@@ -337,6 +341,13 @@ void GameObject::Collision(GameObject* pTarget)
 				{
 					// プレイヤーだけ通知
 					this->OnCollision(pTarget);
+				}
+				else if (isAttackVsStatic)
+				{
+					// 攻撃は Body 相手のみ通知（Attack×Static は除外）
+					if (!isAttackVsBody) continue;
+					this->OnCollision(pTarget);
+					pTarget->OnCollision(this);
 				}
 			}
 		}

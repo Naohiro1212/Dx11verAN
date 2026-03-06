@@ -38,7 +38,18 @@ namespace
 	const int      MAGIC_SPHERE_EFFECT_NUMBER = 2;
 }
 
-MagicSphere::MagicSphere(GameObject* parent) : GameObject(parent, "MagicSphere"), magicModel_(-1), attackTimer_(0.0f)
+MagicSphere::MagicSphere(GameObject* parent)
+{
+}
+
+MagicSphere::MagicSphere(GameObject* parent, const std::vector<BoxCollider*>& _wallColliders)
+	: GameObject(parent, "MagicSphere")
+	, magicModel_(-1)
+	, attackTimer_(0.0f)
+	, effectData_()
+	, hEmit_(-1)
+	, pCollider_(nullptr)
+	, wallColliders_(_wallColliders)
 {
 }
 
@@ -111,6 +122,31 @@ void MagicSphere::Update()
 	{
 		VFX::End(hEmit_);
 		KillMe();
+	}
+
+	// --- ここから「弾 vs 壁」の自前当たり判定 ---
+	if (pCollider_)
+	{
+		for (auto* wallCol : wallColliders_)
+		{
+			if (!wallCol)
+			{
+				continue;
+			}
+
+			// 弾の SphereCollider と 壁の BoxCollider の当たり判定
+			if (pCollider_->IsHitBoxVsCircle(wallCol, pCollider_))
+			{
+				// GameObject::Collision 相当の情報だけセットして自分の OnCollision を呼ぶ
+				lastHitCollider_ = pCollider_;
+
+				VFX::End(hEmit_);
+				KillMe();
+
+				// 一度でも当たったら抜ける
+				break;
+			}
+		}
 	}
 }
 
