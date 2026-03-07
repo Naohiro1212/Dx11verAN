@@ -106,10 +106,13 @@ void PlayScene::Update()
 		isPaused_ = false;
     }
 
-	// スキルパネルでスキル選択中ならポーズ状態にする
-    if (skillPanel_->GetSelecting())
+    // スキル状態取得
+	isSelecting_ = skillPanel_->IsSelecting();
+
+	// スキルパネルでスキル選択されたらスキル選択状況解除
+    if (isSelecting_ && skillPanel_->IsSelecting() && Input::IsMouseButtonDown(0))
     {
-        isSelecting_ = true;
+        isSelecting_ = false;
     }
 
 	// ポーズパネルでタイトルへ戻るボタンが押されたらタイトルシーンへ

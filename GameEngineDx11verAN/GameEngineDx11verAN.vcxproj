@@ -207,6 +207,7 @@
     <ClCompile Include="Source\EnemyDeathEffect.cpp" />
     <ClCompile Include="Source\GameOverScene.cpp" />
     <ClCompile Include="Source\healthGauge.cpp" />
+    <ClCompile Include="Source\HomingMagicSphere.cpp" />
     <ClCompile Include="Source\InfoScene.cpp" />
     <ClCompile Include="Source\Jewel.cpp" />
     <ClCompile Include="Source\LevelUpEffect.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Source\EnemyDeathEffect.h" />
     <ClInclude Include="Source\GameOverScene.h" />
     <ClInclude Include="Source\healthGauge.h" />
+    <ClInclude Include="Source\HomingMagicSphere.h" />
     <ClInclude Include="Source\InfoScene.h" />
     <ClInclude Include="Source\Jewel.h" />
     <ClInclude Include="Source\LevelUpEffect.h" />

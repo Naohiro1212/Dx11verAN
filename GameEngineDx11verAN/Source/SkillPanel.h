@@ -33,7 +33,7 @@ public:
 	void Release() override;
 
 	bool GetPanelOnButton(int _index);
-	bool GetSelecting() { return nowSelecting_; }
+	bool IsSelecting() { return nowSelecting_; }
 	void SetSelecting(bool _selecting) { nowSelecting_ = _selecting; }
 
 private:

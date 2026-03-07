@@ -50,11 +50,11 @@ void SkillPanel::Update()
 		skillSelectPanels_[i].button_->SetButtonPosition(centerX + offsetX, centerY);
 	}
 
-	if (Input::IsMouseButtonDown(0))
+	if (nowSelecting_)
 	{
 		for (int i = 0;i < MAX_PANEL_NUM; ++i)
 		{
-			if (skillSelectPanels_[i].onButton_)
+			if (skillSelectPanels_[i].onButton_ && Input::IsMouseButtonDown(0))
 			{
 				// スキル選択の処理をここに書く
 				// 例: プレイヤーのスキルレベルを上げる、スキルの効果を適用するなど

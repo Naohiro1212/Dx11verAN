@@ -388,16 +388,25 @@ void Player::ShootMagic()
     // 右クリックで魔法発射
     if (Input::IsMouseButtonDown(1) && mana_ >= cnf_.MAGIC_MANA_COST)
     {
-        // 魔法弾生成
-        XMFLOAT3 spawnPos = transform_.position_;
-        MagicSphere* sphere = Instantiate<MagicSphere>(GetParent(), std::vector<BoxCollider*>(wallColliders_));
-        sphere->SetPosition(
-            spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
-            spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
-            spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
-        );
-        sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
-		mana_ -= cnf_.MAGIC_MANA_COST;
+        switch (magicType_)
+        {
+        case NORMAL:
+            // 魔法弾生成
+            XMFLOAT3 spawnPos = transform_.position_;
+            MagicSphere* sphere = Instantiate<MagicSphere>(GetParent(), std::vector<BoxCollider*>(wallColliders_));
+            sphere->SetPosition(
+                spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
+                spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
+                spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
+            );
+            sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
+            mana_ -= cnf_.MAGIC_MANA_COST;
+            break;
+
+        case HOMING:
+            // ホーミング弾生成
+
+        }
 
         // 魔法発射音
 		Audio::Play(shootSEHandle_);
@@ -413,6 +422,13 @@ void Player::ShootMagic()
         height,
         magicDir_.z * forwardDist
     );
+}
+
+bool Player::ChangeMagicType()
+{
+    // 魔法の種類を変更する処理をここに実装
+	magicType_ = HOMING; // 例としてホーミングタイプに変更
+    return true;
 }
 
 void Player::MeleeAttack()

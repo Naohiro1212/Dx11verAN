@@ -43,13 +43,13 @@ MagicSphere::MagicSphere(GameObject* parent)
 }
 
 MagicSphere::MagicSphere(GameObject* parent, const std::vector<BoxCollider*>& _wallColliders)
-	: GameObject(parent, "MagicSphere")
-	, magicModel_(-1)
-	, attackTimer_(0.0f)
-	, effectData_()
-	, hEmit_(-1)
-	, pCollider_(nullptr)
-	, wallColliders_(_wallColliders)
+	: GameObject(parent, "MagicSphere"), 
+	  magicModel_(-1),
+	  attackTimer_(0.0f),
+	  effectData_(),
+	  hEmit_(-1),
+	  pCollider_(nullptr),
+	  wallColliders_(_wallColliders)
 {
 }
 

@@ -23,6 +23,11 @@ enum PlayerState
 	DEATH
 };
 
+enum MacicType
+{
+	NORMAL,
+	HOMING
+};
 
 class Player : public GameObject
 {
@@ -97,6 +102,11 @@ private:
 	void ShootMagic();
 
 	/// <summary>
+	/// 魔法の弾の種類を変更する
+	/// </summary>
+	bool ChangeMagicType();
+
+	/// <summary>
 	/// 近接攻撃
 	/// </summary>
 	void MeleeAttack();
@@ -119,19 +129,10 @@ private:
 	// 固定したい高さ
 	bool gFreezeY_ = true;
 
-	//// モデル状態に関する変数
-	//int walkModel_ = -1;
-	//int runModel_ = -1;
-	//int leftStrafeModel_ = -1;
-	//int rightStrafeModel_ = -1;
-	//int backStrafeModel_ = -1;
-	//int idleModel_ = -1;
-	//int slashModel_ = -1;
 	int nowModel_ = -1;
-	//int jumpModel_ = -1;
-	//int deathModel_ = -1;
-
 	std::vector<int> Models_;
+
+	MacicType magicType_ = NORMAL;
 
 	//// カメラ関連の変数
 	float camYawRad_ = 0.0f;

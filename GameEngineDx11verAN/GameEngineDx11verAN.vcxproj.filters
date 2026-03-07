@@ -224,6 +224,9 @@
     <ClCompile Include="Source\MagicSphere.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Source\HomingMagicSphere.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Global.h">
@@ -401,6 +404,9 @@
       <Filter>Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\MagicSphere.h">
+      <Filter>Source\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\HomingMagicSphere.h">
       <Filter>Source\Player</Filter>
     </ClInclude>
   </ItemGroup>
