@@ -46,9 +46,9 @@ public:
 
     void SetWallColliders(const std::vector<BoxCollider*>& colliders) { enemyWallColliders_ = colliders; }
 
-    // セッター
     void SetPosition(const XMFLOAT3& pos);
     int GetAttackPower() { return attackPower_; }
+    XMFLOAT3 GetAimPosition();
 
     void ChangeModel();
 

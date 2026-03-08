@@ -11,6 +11,7 @@
 #include <algorithm>
 #include "../Engine/BoxCollider.h"
 #include "../Source/MagicSphere.h"
+#include "../Source/HomingMagicSphere.h"
 #include "../Source/Plane.h"
 #include "../Source/DungeonManager.h"
 #include "PopUpDamage.h"
@@ -48,7 +49,10 @@ Player::Player(GameObject* parent) : GameObject(parent, "Player"),
 
 void Player::Initialize()
 {
+    // 仮でホーミング弾にする
+    magicType_ = HOMING;
 
+	// モデル読み込み
     Models_.resize(cnf_.MAX_MODELS);
     Models_[WALK] = Model::Load("Models/walk.fbx");
     Models_[RUN] = Model::Load("Models/run.fbx");
@@ -172,6 +176,10 @@ void Player::Update()
         0.0f,          // Y
         -cosf(yawRad)  // Z
     };
+
+	// ホーミング弾に入れる敵の情報をDungeonManagerから取得
+    DungeonManager* dungeonManager = (DungeonManager*)(FindObject("DungeonManager"));
+    enemies_ = dungeonManager->GetEnemies();
 
     // 右クリックで魔法攻撃
     ShootMagic();
@@ -391,9 +399,9 @@ void Player::ShootMagic()
         switch (magicType_)
         {
         case NORMAL:
-            // 魔法弾生成
+        {
             XMFLOAT3 spawnPos = transform_.position_;
-            MagicSphere* sphere = Instantiate<MagicSphere>(GetParent(), std::vector<BoxCollider*>(wallColliders_));
+            MagicSphere* sphere = Instantiate<MagicSphere>(GetParent(), wallColliders_);
             sphere->SetPosition(
                 spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
                 spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
@@ -402,14 +410,58 @@ void Player::ShootMagic()
             sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
             mana_ -= cnf_.MAGIC_MANA_COST;
             break;
+        }
 
         case HOMING:
-            // ホーミング弾生成
+        {
+            // ここで一番近い敵を探す
+            testEnemy* closestEnemy_ = nullptr;
+            float       closestDistSq_ = 0.0f; // 最初は使われない値でOK
 
+            // enemies_ はどこかで管理している敵リスト（例: std::vector<testEnemy*>）
+
+
+            for (auto& enemy : enemies_)
+            {
+                if (!enemy) continue;
+                if (enemy->IsDead()) continue;
+
+                const XMFLOAT3 enemyPos = enemy->GetPosition();
+                const XMFLOAT3 toEnemy = {
+                    enemyPos.x - transform_.position_.x,
+                    enemyPos.y - transform_.position_.y,
+                    enemyPos.z - transform_.position_.z
+                };
+
+                const float distSq =
+                    toEnemy.x * toEnemy.x +
+                    toEnemy.y * toEnemy.y +
+                    toEnemy.z * toEnemy.z;
+
+                if (!closestEnemy_ || distSq < closestDistSq_)
+                {
+                    closestEnemy_ = enemy;
+                    closestDistSq_ = distSq;
+                }
+            }
+
+            XMFLOAT3 spawnPos = transform_.position_;
+            HomingMagicSphere* homingSphere =
+                Instantiate<HomingMagicSphere>(GetParent(), wallColliders_, closestEnemy_);
+
+            homingSphere->SetPosition(
+                spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
+                spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
+                spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
+            );
+            homingSphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
+            mana_ -= cnf_.MAGIC_MANA_COST;
+            break;
+        }
         }
 
         // 魔法発射音
-		Audio::Play(shootSEHandle_);
+        Audio::Play(shootSEHandle_);
     }
 
     // ローカル基準オフセット（元に使っていた値）

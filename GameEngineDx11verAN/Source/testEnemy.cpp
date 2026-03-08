@@ -705,6 +705,21 @@ void testEnemy::SetPosition(const XMFLOAT3& pos)
     initPos_ = pos;
 }
 
+XMFLOAT3 testEnemy::GetAimPosition()
+{
+    if(pCollider_)
+    {
+        // コライダーの中心位置を基準にする
+        XMFLOAT3 colCenter = pCollider_->GetCenter();
+        return XMFLOAT3(transform_.position_.x + colCenter.x, transform_.position_.y + colCenter.y, transform_.position_.z + colCenter.z);
+    }
+    else
+    {
+        // コライダーがない場合はオブジェクトの位置を返す
+        return transform_.position_;
+	}
+}
+
 // 敵が死んだときに宝石をドロップする処理
 // 現在円状にドロップする実装
 void testEnemy::DropJewel(int numJewels)

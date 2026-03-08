@@ -5,13 +5,14 @@
 
 class SphereCollider;
 class BoxCollider;
+class testEnemy;
 
 class HomingMagicSphere : public GameObject
 {
 public:
     // コンストラクタ
     HomingMagicSphere(GameObject* parent);
-	HomingMagicSphere(GameObject* parent, const std::vector<BoxCollider*>& _wallColliders, GameObject* _target);
+	HomingMagicSphere(GameObject* parent, const std::vector<BoxCollider*> _wallColliders, testEnemy* _target);
     
 	// デストラクタ
 	~HomingMagicSphere();
@@ -33,7 +34,7 @@ public:
 private:
     std::vector<BoxCollider*> wallColliders_;
 	SphereCollider* pCollider_;
-    GameObject* target_;
+    testEnemy* target_;
     float attackTimer_;
     float speed_;
 

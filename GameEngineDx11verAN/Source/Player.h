@@ -4,6 +4,7 @@
 #include "PlayerConfig.h"
 #include <vector>
 
+class testEnemy;
 class BillBoard;
 class BoxCollider;
 class LevelUpEffect;
@@ -204,4 +205,7 @@ private:
 	Plane* pPlane_;
 
 	PlayerMovement* movement_;
+
+	// “G‚Ì”z—ñ
+	std::vector<testEnemy*> enemies_;
 };

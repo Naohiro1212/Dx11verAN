@@ -1,6 +1,9 @@
 #include "HomingMagicSphere.h"
 #include "../Engine/GameTime.h"
 #include "../Engine/Model.h"
+#include "../Engine/Debug.h"
+#include "../Source/testEnemy.h"
+#include "../Engine/BoxCollider.h"
 
 #include <cmath>
 #include <algorithm>
@@ -38,23 +41,26 @@ namespace
 	const int      MAGIC_SPHERE_EFFECT_LIFETIME = 40;
 	const int      MAGIC_SPHERE_EFFECT_DELAY = 3;
 	const int      MAGIC_SPHERE_EFFECT_NUMBER = 2;
+
+	const float HOMING_START_DISTANCE = 60.0f;
 }
 
 HomingMagicSphere::HomingMagicSphere(GameObject* parent)
 {
 }
 
-HomingMagicSphere::HomingMagicSphere(GameObject* parent, const std::vector<BoxCollider*>& _wallColliders, GameObject* _target)
-    : GameObject(parent, "HomingMagicSphere"), 
-	  magicModel_(-1), 
-	  attackTimer_(0.0f), 
-	  effectData_(), 
-	  hEmit_(-1), 
-	  pCollider_(nullptr),
-	  wallColliders_(_wallColliders), 
-      target_(_target)
+HomingMagicSphere::HomingMagicSphere(GameObject* parent, const std::vector<BoxCollider*> _wallColliders, testEnemy* _target)
+	: GameObject(parent, "HomingMagicSphere"),
+	magicModel_(-1),
+	attackTimer_(0.0f),
+	effectData_(),
+	hEmit_(-1),
+	pCollider_(nullptr),
+	wallColliders_(_wallColliders),
+	target_(_target)
 {
 }
+
 
 HomingMagicSphere::~HomingMagicSphere()
 {
@@ -112,24 +118,37 @@ void HomingMagicSphere::Update()
 	{
 		// 自分とターゲットの位置
 		XMFLOAT3 pos = transform_.position_;
-		XMFLOAT3 targetPos = target_->GetPosition();
+		XMFLOAT3 targetPos = target_->GetAimPosition(); // ターゲットの狙い位置を取得
 
 		const float dx = targetPos.x - pos.x;
 		const float dy = targetPos.y - pos.y;
 		const float dz = targetPos.z - pos.z;
 
 		// 目標方向ベクトルの長さ
-		const float distSq_ = dx * dx + dy * dy + dz * dz;
-		if (distSq_ > 0.0001f)
+		float distSq_ = dx * dx + dy * dy + dz * dz;
+		const float homingStartDistanceSq = HOMING_START_DISTANCE * HOMING_START_DISTANCE;
+
+		// ホーミング開始距離内で、かつホーミング終了距離以上の場合にホーミング処理を行う
+		if (distSq_ > homingStartDistanceSq)
 		{
+			// 直進
+			float yawRad_ = DirectX::XMConvertToRadians(transform_.rotate_.y);
+			float vx = -sinf(yawRad_);
+			float vz = -cosf(yawRad_);
+
+			transform_.position_.x += vx * speed_ * dt_;
+			transform_.position_.z += vz * speed_ * dt_;
+		}
+		else
+		{
+			// ホーミング
 			const float dist_ = std::sqrt(distSq_);
 
 			// ヨー（左右回転） : XZ平面での角度
-			float desiredYawRad = std::atan2(dx, dz); // XZ平面での角度
+			float desiredYawRad = std::atan2(dx, dz);
 
 			// ピッチ（上下回転） : 高さdyと水平距離から計算
 			float horizontalDist = std::sqrt(dx * dx + dz * dz);
-			// 上方向を+pitchとする
 			float desiredPitchRad = std::atan2f(dy, horizontalDist);
 
 			// 現在の回転をラジアンで取得
@@ -141,7 +160,6 @@ void HomingMagicSphere::Update()
 			while (diffYaw > XM_PI) diffYaw -= 2 * XM_PI;
 			while (diffYaw < -XM_PI) diffYaw += 2 * XM_PI;
 
-			// ピッチは-90度から+90度の範囲に収める
 			float diffPitch = desiredPitchRad - currentPitchRad;
 
 			// LERP係数
@@ -154,59 +172,69 @@ void HomingMagicSphere::Update()
 			transform_.rotate_.y = XMConvertToDegrees(newYawRad);
 			transform_.rotate_.x = XMConvertToDegrees(newPitchRad);
 
-			// ロールは0と仮定する
-			float cp = std::cosf(newPitchRad);
-			float sp = std::sinf(newPitchRad);
-			float cy = std::cosf(newYawRad);
-			float sy = std::sinf(newYawRad);
-
-			// 前方向ベクトルを計算
-			float vx = -sy * cp;
-			float vy = sp;
-			float vz = -cy * cp;
+			// 敵の方向ベクトルを正規化
+			float vx = dx / dist_;
+			float vy = dy / dist_;
+			float vz = dz / dist_;
 
 			transform_.position_.x += vx * speed_ * dt_;
 			transform_.position_.y += vy * speed_ * dt_;
 			transform_.position_.z += vz * speed_ * dt_;
-		}
-		else
-		{
-			// ターゲットがいないときはそのまま直進（3D）
-			float yawRad = DirectX::XMConvertToRadians(transform_.rotate_.y);
-			float pitchRad = DirectX::XMConvertToRadians(transform_.rotate_.x);
-
-			float cp = std::cosf(pitchRad);
-			float sp = std::sinf(pitchRad);
-			float cy = std::cosf(yawRad);
-			float sy = std::sinf(yawRad);
-
-			float vx = -sy * cp;
-			float vy = sp;
-			float vz = -cy * cp;
-
-			transform_.position_.x += vx * speed_ * dt_;
-			transform_.position_.y += vy * speed_ * dt_;
-			transform_.position_.z += vz * speed_ * dt_;
-		}
-
-		// エフェクトの追従
-		effectData_.position = transform_.position_;
-		if (hEmit_ >= 0)
-		{
-			VFX::SetEmitterPosition(hEmit_, effectData_.position);
-		}
-
-		if (attackTimer_ >= ATTACK_DURATION)
-		{
-			VFX::End(hEmit_);
-			KillMe();
 		}
 	}
-	
+	else
+	{
+		// ターゲットがいない場合は直進
+		float yawRad_ = DirectX::XMConvertToRadians(transform_.rotate_.y);
+		float vx = -sinf(yawRad_);
+		float vz = -cosf(yawRad_);
+		transform_.position_.x += vx * speed_ * dt_;
+		transform_.position_.z += vz * speed_ * dt_;
+	}
+
+	// エフェクトの追従
+	effectData_.position = transform_.position_;
+	if (hEmit_ >= 0)
+	{
+		VFX::SetEmitterPosition(hEmit_, effectData_.position);
+	}
+
+	if (attackTimer_ >= ATTACK_DURATION)
+	{
+		VFX::End(hEmit_);
+		KillMe();
+	}
+
+	// --- ここから「弾 vs 壁」の自前当たり判定 ---
+	if (pCollider_)
+	{
+		for (auto* wallCol : wallColliders_)
+		{
+			if (!wallCol)
+			{
+				continue;
+			}
+
+			// 弾の SphereCollider と 壁の BoxCollider の当たり判定
+			if (pCollider_->IsHitBoxVsCircle(wallCol, pCollider_))
+			{
+				// GameObject::Collision 相当の情報だけセットして自分の OnCollision を呼ぶ
+				lastHitCollider_ = pCollider_;
+
+				VFX::End(hEmit_);
+				KillMe();
+
+				// 一度でも当たったら抜ける
+				break;
+			}
+		}
+	}
 }
 
 void HomingMagicSphere::Draw()
 {
+	Model::SetTransform(magicModel_, transform_);
+	Model::Draw(magicModel_);
 }
 
 void HomingMagicSphere::Release()
