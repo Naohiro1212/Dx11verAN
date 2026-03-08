@@ -11,7 +11,7 @@ class LevelUpEffect;
 class Plane;
 class PlayerMovement;
 
-enum PlayerState
+enum ModelState
 {
 	IDLE,
 	WALK,
@@ -24,10 +24,19 @@ enum PlayerState
 	DEATH
 };
 
-enum MacicType
+enum PlayerState
 {
 	NORMAL,
-	HOMING
+	ATTACK,
+	MAGIC,
+	LEVELUP,
+	DEAD
+};
+
+enum MacicType
+{
+	NORMALMAGIC,
+	HOMINGMAGIC
 };
 
 class Player : public GameObject
@@ -89,6 +98,8 @@ public:
 
 	PlayerCamera* GetCamera() const { return plvision_; }
 
+	void UpdateState();
+
 private:
 	//// 関数群
 
@@ -122,10 +133,20 @@ private:
 	/// </summary>
 	void PlayMoveSound();
 
-	/// <summary
+	/// <summary>
 	/// 死んだときの処理
 	/// </summary>
 	bool HandleDeath();
+
+	/// <summary>
+	/// マナ回復
+	/// </summary>
+	void RecoverMana();
+
+	/// <summary>
+	/// 攻撃用の方向ベクトル計算
+	/// </summary>
+	void CalculateAttackDir();
 
 	// 固定したい高さ
 	bool gFreezeY_ = true;
@@ -208,4 +229,7 @@ private:
 
 	// 敵の配列
 	std::vector<testEnemy*> enemies_;
+
+	// プレイヤーのState
+	PlayerState state_;
 };

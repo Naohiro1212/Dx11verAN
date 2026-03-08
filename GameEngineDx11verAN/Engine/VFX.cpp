@@ -5,6 +5,7 @@ namespace VFX
 {
     std::list<Emitter*>		emitterList_;	//エミッター達
     std::list<Particle*>	particleList_;	//パーティクル達
+	static int              nextHandle_ = 0;	//次のエミッターハンドル
 };
 
 //更新
@@ -253,17 +254,14 @@ void VFX::Release()
 		emitter = emitterList_.erase(emitter);
 	}
     emitterList_.clear();
+    nextHandle_ = 0;
 }
 
 
 //エミッタの作成
 int VFX::Start(EmitterData emitterData)
 {
-    int handle = 0;
-    for (auto i = emitterList_.begin(); i != emitterList_.end(); i++)
-    {
-        handle++;
-    }
+    const int handle = ++nextHandle_;
 
     Emitter* pEmitter = new Emitter;
 

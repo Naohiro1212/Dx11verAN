@@ -107,6 +107,7 @@ void EnemyDamageEffect::Update()
 
 	data_.position.y = transform_.position_.y + HEIGHT_OFFSET; // 常にプレイヤーの頭上に位置
     VFX::SetEmitterPosition(hEmit_[BLOOD_EFFECT], data_.position);
+	VFX::SetEmitterPosition(hEmit_[SLASH_EFFECT], slashData_.position);
 }
 
 void EnemyDamageEffect::Draw()

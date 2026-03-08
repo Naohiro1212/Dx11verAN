@@ -49,8 +49,7 @@ Player::Player(GameObject* parent) : GameObject(parent, "Player"),
 
 void Player::Initialize()
 {
-    // 仮でホーミング弾にする
-    magicType_ = HOMING;
+    magicType_ = NORMALMAGIC;
 
 	// モデル読み込み
     Models_.resize(cnf_.MAX_MODELS);
@@ -93,7 +92,7 @@ void Player::Initialize()
     // プレイヤーの後方上位位置にカメラを設定
     Camera::SetPosition(transform_.position_.x, transform_.position_.y + cnf_.CAMERA_INIT_POS_Y, transform_.position_.z - cnf_.CAMERA_INIT_POS_Z);
 
-    nowModel_ = Models_[IDLE];
+    nowModel_ = Models_[ModelState::IDLE];
 
     plvision_ = Instantiate<PlayerCamera>(GetParent());
 	plvision_->Initialize(cnf_.VISION_INIT_YAW_DEG, cnf_.VISION_INIT_PITCH_DEG, cnf_.VISION_INIT_DISTANCE);
@@ -136,18 +135,25 @@ void Player::Update()
     // デルタタイム取得
     dt_ = GameTime::DeltaTime();
 
-    if (HandleDeath())
+    if(state_ == DEAD)
     {
-        return;
+        if (HandleDeath())
+        {
+            return; // 死亡処理中はそれ以降の更新を行わない
+        }
+	}
+
+    UpdateState();
+
+    if (state_ == ATTACK)
+    {
+        MeleeAttack();
     }
 
-    // 攻撃モーション中は他の動作を行えない
-    MeleeAttack();
-
-	// ダメージクールタイム更新
+    // ダメージクールタイム更新
     if (damageCooldown_ > 0.0f)
     {
-		damageCooldown_ -= dt_;
+        damageCooldown_ -= dt_;
     }
 
     if (!isAttacking_)
@@ -159,43 +165,36 @@ void Player::Update()
         ChangeModel();
     }
 
-	// 移動処理はまとめてPlayerMovementクラスに任せる
-	movement_->Update(isAttacking_, health_, wallColliders_, plvision_);
+    // 移動処理はまとめてPlayerMovementクラスに任せる
+    movement_->Update(isAttacking_, health_, wallColliders_, plvision_);
 
-	// アニメーションに使うので向きは取得する
-	moveDir_ = movement_->GetMoveDir();
+    // アニメーションに使うので向きは取得する
+    moveDir_ = movement_->GetMoveDir();
 
     // モデルのワールド行列更新
     Model::SetTransform(nowModel_, transform_);
 
-    // 攻撃用の方向ベクトル計算(近接・魔法攻撃どちらも対応)
-    float yawRad = XMConvertToRadians(transform_.rotate_.y);
-    // 正面方向ベクトル（XZ平面、Yは0でOK）
-    magicDir_ = {
-        -sinf(yawRad), // X
-        0.0f,          // Y
-        -cosf(yawRad)  // Z
-    };
+    CalculateAttackDir();
 
-	// ホーミング弾に入れる敵の情報をDungeonManagerから取得
+    // ホーミング弾に入れる敵の情報をDungeonManagerから取得
     DungeonManager* dungeonManager = (DungeonManager*)(FindObject("DungeonManager"));
     enemies_ = dungeonManager->GetEnemies();
 
     // 右クリックで魔法攻撃
-    ShootMagic();
+    if (state_ == MAGIC)
+    {
+        ShootMagic();
+    }
 
     // 経験値100に達したらレベルアップでステータスアップ
     LevelUp();
 
-	// 体力・マナ回復処理
-    if(mana_ < cnf_.MAX_MANA)
-    {
-		mana_ += cnf_.MANA_RECOVERY_RATE * dt_;
-    }
+    // マナ回復処理
+    RecoverMana();
 
     // カメラ更新
     plvision_->Update(transform_.position_);
- }
+}
 
 void Player::Draw()
 {
@@ -306,6 +305,34 @@ void Player::OnCollision(GameObject* pTarget)
     }
 }
 
+void Player::UpdateState()
+{
+    if (health_ <= 0.0f)
+    {
+        state_ = DEAD;
+        return;
+    }
+
+    if (Input::IsMouseButtonDown(1) && mana_ >= cnf_.MAGIC_MANA_COST)
+    {
+        state_ = MAGIC;
+        return;
+    }
+
+    if (Input::IsMouseButtonDown(0) && movement_->IsOnGround() && !isDead_)
+    {
+        state_ = ATTACK;
+        return;
+    }
+
+    if(exp_ >= 100.0f)
+    {
+        state_ = LEVELUP;
+        return;
+	}
+    state_ = NORMAL;
+}
+
 void Player::ChangeModel()
 {
     // 1) すでに死亡モーション再生中で、終端に到達していたら固定して抜ける
@@ -394,75 +421,72 @@ void Player::ChangeModel()
 void Player::ShootMagic()
 {
     // 右クリックで魔法発射
-    if (Input::IsMouseButtonDown(1) && mana_ >= cnf_.MAGIC_MANA_COST)
+    switch (magicType_)
     {
-        switch (magicType_)
-        {
-        case NORMAL:
-        {
-            XMFLOAT3 spawnPos = transform_.position_;
-            MagicSphere* sphere = Instantiate<MagicSphere>(GetParent(), wallColliders_);
-            sphere->SetPosition(
-                spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
-                spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
-                spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
-            );
-            sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
-            mana_ -= cnf_.MAGIC_MANA_COST;
-            break;
-        }
-
-        case HOMING:
-        {
-            // ここで一番近い敵を探す
-            testEnemy* closestEnemy_ = nullptr;
-            float       closestDistSq_ = 0.0f; // 最初は使われない値でOK
-
-            // enemies_ はどこかで管理している敵リスト（例: std::vector<testEnemy*>）
-
-
-            for (auto& enemy : enemies_)
-            {
-                if (!enemy) continue;
-                if (enemy->IsDead()) continue;
-
-                const XMFLOAT3 enemyPos = enemy->GetPosition();
-                const XMFLOAT3 toEnemy = {
-                    enemyPos.x - transform_.position_.x,
-                    enemyPos.y - transform_.position_.y,
-                    enemyPos.z - transform_.position_.z
-                };
-
-                const float distSq =
-                    toEnemy.x * toEnemy.x +
-                    toEnemy.y * toEnemy.y +
-                    toEnemy.z * toEnemy.z;
-
-                if (!closestEnemy_ || distSq < closestDistSq_)
-                {
-                    closestEnemy_ = enemy;
-                    closestDistSq_ = distSq;
-                }
-            }
-
-            XMFLOAT3 spawnPos = transform_.position_;
-            HomingMagicSphere* homingSphere =
-                Instantiate<HomingMagicSphere>(GetParent(), wallColliders_, closestEnemy_);
-
-            homingSphere->SetPosition(
-                spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
-                spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
-                spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
-            );
-            homingSphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
-            mana_ -= cnf_.MAGIC_MANA_COST;
-            break;
-        }
-        }
-
-        // 魔法発射音
-        Audio::Play(shootSEHandle_);
+    case NORMALMAGIC:
+    {
+        XMFLOAT3 spawnPos = transform_.position_;
+        MagicSphere* sphere = Instantiate<MagicSphere>(GetParent(), wallColliders_);
+        sphere->SetPosition(
+            spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
+            spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
+            spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
+        );
+        sphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
+        mana_ -= cnf_.MAGIC_MANA_COST;
+        break;
     }
+
+    case HOMINGMAGIC:
+    {
+        // ここで一番近い敵を探す
+        testEnemy* closestEnemy_ = nullptr;
+        float       closestDistSq_ = 0.0f; // 最初は使われない値でOK
+
+        // enemies_ はどこかで管理している敵リスト（例: std::vector<testEnemy*>）
+
+
+        for (auto& enemy : enemies_)
+        {
+            if (!enemy) continue;
+            if (enemy->IsDead()) continue;
+
+            const XMFLOAT3 enemyPos = enemy->GetPosition();
+            const XMFLOAT3 toEnemy = {
+                enemyPos.x - transform_.position_.x,
+                enemyPos.y - transform_.position_.y,
+                enemyPos.z - transform_.position_.z
+            };
+
+            const float distSq =
+                toEnemy.x * toEnemy.x +
+                toEnemy.y * toEnemy.y +
+                toEnemy.z * toEnemy.z;
+
+            if (!closestEnemy_ || distSq < closestDistSq_)
+            {
+                closestEnemy_ = enemy;
+                closestDistSq_ = distSq;
+            }
+        }
+
+        XMFLOAT3 spawnPos = transform_.position_;
+        HomingMagicSphere* homingSphere =
+            Instantiate<HomingMagicSphere>(GetParent(), wallColliders_, closestEnemy_);
+
+        homingSphere->SetPosition(
+            spawnPos.x + magicDir_.x * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.x,
+            spawnPos.y + transform_.scale_.y * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.y,
+            spawnPos.z + magicDir_.z * transform_.scale_.z * cnf_.MAGIC_SPHERE_SPAWN_OFFSET.z
+        );
+        homingSphere->SetRotate(XMFLOAT3(0.0f, transform_.rotate_.y, 0.0f));
+        mana_ -= cnf_.MAGIC_MANA_COST;
+        break;
+    }
+    }
+
+    // 魔法発射音
+    Audio::Play(shootSEHandle_);
 
     // ローカル基準オフセット（元に使っていた値）
     float forwardDist = transform_.scale_.z * cnf_.FORWARDDIST_OFFSET;
@@ -479,7 +503,7 @@ void Player::ShootMagic()
 bool Player::ChangeMagicType()
 {
     // 魔法の種類を変更する処理をここに実装
-	magicType_ = HOMING; // 例としてホーミングタイプに変更
+	magicType_ = HOMINGMAGIC; // 例としてホーミングタイプに変更
     return true;
 }
 
@@ -528,73 +552,65 @@ void Player::MeleeAttack()
         return;
     }
 
-    // 攻撃開始（開始時だけセット）
-    if (Input::IsMouseButtonDown(0) && movement_->IsOnGround() && !isDead_)
-    {
-        // その場で向きベクトルを作る（magicDir_ に依存しない）
-        float yawRad = XMConvertToRadians(transform_.rotate_.y);
-        XMFLOAT3 forwardDir = { -sinf(yawRad), 0.0f, -cosf(yawRad) };
+    // その場で向きベクトルを作る（magicDir_ に依存しない）
+    float yawRad = XMConvertToRadians(transform_.rotate_.y);
+    XMFLOAT3 forwardDir = { -sinf(yawRad), 0.0f, -cosf(yawRad) };
 
-        // ローカル基準オフセット
-        XMFLOAT3 localOffset = {
-            forwardDir.x * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET,
-            transform_.scale_.y * cnf_.HEIGHT_OFFSET,
-            forwardDir.z * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET
-        };
+    // ローカル基準オフセット
+    XMFLOAT3 localOffset = {
+        forwardDir.x * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET,
+        transform_.scale_.y * cnf_.HEIGHT_OFFSET,
+        forwardDir.z * transform_.scale_.z * cnf_.ATTACK_COLLIDER_FORWARD_OFFSET
+    };
 
-        // 攻撃用コライダー生成
-        attackCollider_ = new BoxCollider(cnf_.ATTACK_COLLIDER_BASE_POS, cnf_.ATTACK_COLLIDER_SCALE);
-        attackCollider_->SetCenter(localOffset);
-        attackCollider_->SetRole(Collider::Role::Attack);
-        AddCollider(attackCollider_);
+    // 攻撃用コライダー生成
+    attackCollider_ = new BoxCollider(cnf_.ATTACK_COLLIDER_BASE_POS, cnf_.ATTACK_COLLIDER_SCALE);
+    attackCollider_->SetCenter(localOffset);
+    attackCollider_->SetRole(Collider::Role::Attack);
+    AddCollider(attackCollider_);
 
-        // 入力・状態初期化
-		movement_->SetMovingNow(false); // 攻撃開始と同時に移動状態をリセット
-        isAttacking_ = true;
+    // 入力・状態初期化
+    movement_->SetMovingNow(false); // 攻撃開始と同時に移動状態をリセット
+    isAttacking_ = true;
 
-        // タイマー初期化
-        attackTimer_ = 0.0f;
-        lastSlashFrame_ = cnf_.SLASH_ANIM_START;
-        attackHitThisSwing_ = false;
-        attackSoundPlayedThisSwing_ = false; 
+    // タイマー初期化
+    attackTimer_ = 0.0f;
+    lastSlashFrame_ = cnf_.SLASH_ANIM_START;
+    attackHitThisSwing_ = false;
+    attackSoundPlayedThisSwing_ = false;
 
-        nowModel_ = Models_[SLASH];
-        Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
-        Model::SetTransform(nowModel_, transform_);
-        return;
-    }
+    nowModel_ = Models_[SLASH];
+    Model::SetAnimFrame(nowModel_, cnf_.SLASH_ANIM_START, cnf_.SLASH_ANIM_END, cnf_.SLASH_PLAY_SPEED);
+    Model::SetTransform(nowModel_, transform_);
+    return;
 }
 
 void Player::LevelUp()
 {
-    // レベルアップ時の処理
-    if (exp_ >= 100.0f)
+    exp_ = 0.0f;
+    strength_ += cnf_.LEVELUP_STRENGTH;
+    level_++;
+    // レベルアップエフェクト生成
+    levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
+
+    // スキルパネルをFindObjectして、パネルを表示する
+    SkillPanel* skillPanel_ = (SkillPanel*)(FindObject("SkillPanel"));
+    if (skillPanel_)
     {
-        exp_ = 0.0f;
-        strength_ += cnf_.LEVELUP_STRENGTH;
-        level_++;
-		// レベルアップエフェクト生成
-		levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);
-        
-        // スキルパネルをFindObjectして、パネルを表示する
-		SkillPanel* skillPanel_ = (SkillPanel*)(FindObject("SkillPanel"));
-        if (skillPanel_)
-        {
-            skillPanel_->SetSelecting(true);
-        }
-
-        // レベルアップポップアップ生成
-		PopUpLevelUp* popup_ = Instantiate<PopUpLevelUp>(GetParent());
-		assert(popup_ != nullptr);
-		if (popup_)
-		{
-			popup_->SetPosition(transform_.position_);
-			popup_->Initialize();
-		}
-
-		// レベルアップ音再生
-        //Audio::Play(levelUpSEHandle_);
+        skillPanel_->SetSelecting(true);
     }
+
+    // レベルアップポップアップ生成
+    PopUpLevelUp* popup_ = Instantiate<PopUpLevelUp>(GetParent());
+    assert(popup_ != nullptr);
+    if (popup_)
+    {
+        popup_->SetPosition(transform_.position_);
+        popup_->Initialize();
+    }
+
+    // レベルアップ音再生
+    //Audio::Play(levelUpSEHandle_);
 }
 
 void Player::PlayMoveSound()
@@ -634,42 +650,72 @@ void Player::PlayMoveSound()
 
 bool Player::HandleDeath()
 {
-    if (health_ <= 0.0f)
+    if (health_ > 0.0f)
     {
-        if (!isDead_)
-        {
-            isDead_ = true;
-            deathTimer_ = 0.0f;
-            deathAnimStopped_ = false;
-
-            // 攻撃の後始末（任意）
-            isAttacking_ = false;
-            if (attackCollider_) { RemoveCollider(attackCollider_); attackCollider_ = nullptr; }
-
-            nowModel_ = Models_[DEATH];
-            // 初期化はこの1回だけ
-            Model::SetAnimFrame(
-                nowModel_,
-                cnf_.ANIM_BASE_START,
-                cnf_.ANIM_DEATH_END,
-                cnf_.ANIM_DEATH_PLAY_SPEED
-            );
-        }
-
-        // 死亡中の進行と停止固定
-        deathTimer_ += dt_;
-        if (!deathAnimStopped_)
-        {
-            const int cur = Model::GetAnimFrame(nowModel_);
-            // 猶予を持ってアニメ終了で停止
-            if (cur >= cnf_.ANIM_DEATH_END - cnf_.ANIM_DEATH_BUFFER)
-            {
-                Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
-                deathAnimStopped_ = true;
-            }
-        }
-        Model::SetTransform(nowModel_, transform_);
-        return true; // 以降の通常処理は走らせない
+        return false;
     }
-    return false;
+
+    if (!isDead_)
+    {
+        isDead_ = true;
+        deathTimer_ = 0.0f;
+        deathAnimStopped_ = false;
+
+        // 攻撃の後始末（任意）
+        isAttacking_ = false;
+        if (attackCollider_)
+        {
+            RemoveCollider(attackCollider_);
+            attackCollider_ = nullptr;
+        }
+
+        nowModel_ = Models_[DEATH];
+        // 初期化はこの1回だけ
+        Model::SetAnimFrame(
+            nowModel_,
+            cnf_.ANIM_BASE_START,
+            cnf_.ANIM_DEATH_END,
+            cnf_.ANIM_DEATH_PLAY_SPEED
+        );
+    }
+
+    // 死亡中の進行と停止固定
+    deathTimer_ += dt_;
+    if (!deathAnimStopped_)
+    {
+        const int cur = Model::GetAnimFrame(nowModel_);
+        // 猶予を持ってアニメ終了で停止
+        if (cur >= cnf_.ANIM_DEATH_END - cnf_.ANIM_DEATH_BUFFER)
+        {
+            Model::SetAnimFrame(nowModel_, cnf_.ANIM_DEATH_END, cnf_.ANIM_DEATH_END, 0.0f);
+            deathAnimStopped_ = true;
+        }
+    }
+    Model::SetTransform(nowModel_, transform_);
+    return true; // 以降の通常処理は走らせない
+}
+
+void Player::RecoverMana()
+{
+    // マナ回復処理（例: 時間経過で徐々に回復）
+    if (mana_ < cnf_.MAX_MANA)
+    {
+        mana_ += cnf_.MANA_RECOVERY_RATE * dt_;
+        if (mana_ > cnf_.MAX_MANA)
+        {
+            mana_ = cnf_.MAX_MANA; // 上限を超えないように
+        }
+	}
+}
+
+void Player::CalculateAttackDir()
+{
+    // 攻撃用の方向ベクトル計算(近接・魔法攻撃どちらも対応)
+    float yawRad = XMConvertToRadians(transform_.rotate_.y);
+    // 正面方向ベクトル（XZ平面、Yは0でOK）
+    magicDir_ = {
+        -sinf(yawRad), // X
+        0.0f,          // Y
+        -cosf(yawRad)  // Z
+    };
 }
