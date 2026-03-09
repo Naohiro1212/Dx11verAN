@@ -44,7 +44,7 @@ public:
 
 	bool GetPanelOnButton(int _index);
 	bool IsSelecting() { return nowSelecting_; }
-	void SetSelecting(bool _selecting) { nowSelecting_ = _selecting; }
+	void SetSelecting(bool _selecting);
 
 private:
 

@@ -136,6 +136,15 @@ bool SkillPanel::GetPanelOnButton(int _index)
 	return skillSelectPanels_[_index].onButton_;
 }
 
+void SkillPanel::SetSelecting(bool _selecting)
+{
+	nowSelecting_ = _selecting;
+	if (nowSelecting_)
+	{
+		randomSelected_ = false;
+	}
+}
+
 void SkillPanel::LoadPanelInfo()
 {
 	for (int i = 0;i < MAX_PANEL_NUM; ++i)
