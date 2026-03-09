@@ -81,11 +81,11 @@ public:
 	// マナ取得
 	float GetMana() const { return mana_; }
 	float GetExp() const { return exp_; }
-	float GetMaxMana() const { return cnf_.MAX_MANA; }
+	float GetMaxMana() const { return maxMana_; }
 
 	// 体力取得
 	int GetHealth() const { return health_; }
-	int GetMaxHealth() const { return cnf_.MAX_HEALTH; }
+	int GetMaxHealth() const { return maxHealth_; }
 
 	// デスタイマー取得
 	float GetDeathTimer() const { return deathTimer_; }
@@ -100,6 +100,26 @@ public:
 
 	void UpdateState();
 
+	/// <summary>
+	/// 攻撃力増加
+	/// </summary>
+	void AddStrength(int amount) { strength_ += amount; }
+
+	/// <summary>
+	/// 最大マナ増加
+	/// </summary>
+	void AddMaxMana(int amount) { maxMana_ += amount; }
+
+	/// <summary>
+	/// 最大体力増加
+	/// </summary>
+	void AddMaxHealth(int amount) { maxHealth_ += amount; }
+
+	/// <summary>
+	/// 魔法の弾の種類を変更する
+	/// </summary>
+	bool ChangeMagicType();
+
 private:
 	//// 関数群
 
@@ -112,11 +132,6 @@ private:
 	/// 魔法を発射する
 	/// </summary>
 	void ShootMagic();
-
-	/// <summary>
-	/// 魔法の弾の種類を変更する
-	/// </summary>
-	bool ChangeMagicType();
 
 	/// <summary>
 	/// 近接攻撃
@@ -154,7 +169,7 @@ private:
 	int nowModel_ = -1;
 	std::vector<int> Models_;
 
-	MacicType magicType_ = NORMAL;
+	MacicType magicType_;
 
 	//// カメラ関連の変数
 	float camYawRad_ = 0.0f;
@@ -175,14 +190,16 @@ private:
 	float attackTimer_ = 0.0f;
 	bool slashSoundPlayed_ = false;
 	float damageCooldown_ = 0.0f;
-	float strength_ = 10.0f;
+	int strength_ = 10;
 	int lastSlashFrame_ = 0;
 	XMFLOAT3 magicDir_ = { 0.0f, 0.0f, 0.0f };
 	BoxCollider* attackCollider_ = nullptr;
 
 	//// ステータス関連の変数
 	float health_ = 0.0f;
+	float maxHealth_ = 100.0f;
 	float mana_ = 0.0f;
+	float maxMana_ = 100.0f;
 	float exp_ = 0.0f;
 	int level_ = 1;
 	float deathTimer_ = 0.0f;

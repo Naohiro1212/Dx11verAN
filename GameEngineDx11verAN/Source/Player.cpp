@@ -104,6 +104,8 @@ void Player::Initialize()
     AddCollider(pCollider_);
     pCollider_->SetRole(Collider::Role::Body);
 
+    magicType_;
+
     // 経験値リセット
     exp_ = 0.0f;
 
@@ -111,7 +113,8 @@ void Player::Initialize()
     mana_ = cnf_.MAX_MANA;
 
 	// 体力初期化
-	health_ = cnf_.MAX_HEALTH;
+	maxHealth_ = cnf_.MAX_HEALTH;
+	health_ = maxHealth_;
 
 	// ダメージを受けたときの無敵時間用タイマー初期化
     damageCooldown_ = 0.0f;
@@ -143,12 +146,12 @@ void Player::Update()
         }
 	}
 
-    UpdateState();
-
     if (state_ == ATTACK)
     {
         MeleeAttack();
     }
+
+    UpdateState();
 
     // ダメージクールタイム更新
     if (damageCooldown_ > 0.0f)
@@ -187,7 +190,10 @@ void Player::Update()
     }
 
     // 経験値100に達したらレベルアップでステータスアップ
-    LevelUp();
+    if (state_ == LEVELUP)
+    {
+		LevelUp();
+    }
 
     // マナ回復処理
     RecoverMana();
@@ -313,15 +319,21 @@ void Player::UpdateState()
         return;
     }
 
-    if (Input::IsMouseButtonDown(1) && mana_ >= cnf_.MAGIC_MANA_COST)
+    if (isAttacking_)
     {
-        state_ = MAGIC;
+        state_ = ATTACK;
         return;
     }
 
     if (Input::IsMouseButtonDown(0) && movement_->IsOnGround() && !isDead_)
     {
         state_ = ATTACK;
+        return;
+    }
+
+    if (Input::IsMouseButtonDown(1) && mana_ >= cnf_.MAGIC_MANA_COST)
+    {
+        state_ = MAGIC;
         return;
     }
 
@@ -503,7 +515,7 @@ void Player::ShootMagic()
 bool Player::ChangeMagicType()
 {
     // 魔法の種類を変更する処理をここに実装
-	magicType_ = HOMINGMAGIC; // 例としてホーミングタイプに変更
+	this->magicType_ = HOMINGMAGIC; // 例としてホーミングタイプに変更
     return true;
 }
 
@@ -541,6 +553,9 @@ void Player::MeleeAttack()
             // 次回に向けて状態を戻す
             attackHitThisSwing_ = false;
             attackSoundPlayedThisSwing_ = false;
+
+            // ステートを通常状態に戻す
+            state_ = NORMAL;
         }
         else
         {
@@ -588,7 +603,8 @@ void Player::MeleeAttack()
 void Player::LevelUp()
 {
     exp_ = 0.0f;
-    strength_ += cnf_.LEVELUP_STRENGTH;
+// カードを選択してステータスを上げる形式にしたので無くす
+//    strength_ += cnf_.LEVELUP_STRENGTH;
     level_++;
     // レベルアップエフェクト生成
     levelUpEffect_ = Instantiate<LevelUpEffect>(GetParent(), transform_.position_);

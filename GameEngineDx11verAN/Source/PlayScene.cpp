@@ -122,33 +122,19 @@ void PlayScene::Update()
 		pSceneManager->ChangeScene(SCENE_ID_TITLE);
     }
 
-	// ポーズ状態の反映
-    if (isPaused_)
-    {
-        pausePanel_->SetPaused(true);
-		Model::SetGlobalAnimPause(false); // モデルのアニメーションも停止
-        this->StopAllUpdate();      // 子オブジェクトだけ止める
+	// スキル選択中の反映、ポーズ中の反映
+    if (isPaused_ || isSelecting_) {
+        pausePanel_->SetPaused(isPaused_);
+        skillPanel_->SetSelecting(isSelecting_);
+        Model::SetGlobalAnimPause(false);
+        this->StopAllUpdate();
     }
-    else
-    {
+    else {
         pausePanel_->SetPaused(false);
-		Model::SetGlobalAnimPause(true); // モデルのアニメーション再開
-        this->ResumeAllUpdate();    // 子オブジェクトだけ再開
+        skillPanel_->SetSelecting(false);
+        Model::SetGlobalAnimPause(true);
+        this->ResumeAllUpdate();
     }
-
-	// スキル選択中の反映
-	if (isSelecting_)
-	{
-		skillPanel_->SetSelecting(true);
-		Model::SetGlobalAnimPause(false); // モデルのアニメーションも停止
-		this->StopAllUpdate();      // 子オブジェクトだけ止める
-	}
-	else
-	{
-		skillPanel_->SetSelecting(false);
-		Model::SetGlobalAnimPause(true); // モデルのアニメーション再開
-		this->ResumeAllUpdate();    // 子オブジェクトだけ再開
-	}
 
     // ゲージの更新
     // シーンの子オブジェクトの最後にプッシュする(SetDrawOrderの順番)

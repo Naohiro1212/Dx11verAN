@@ -54,7 +54,7 @@ void EnemyDamageEffect::Initialize()
 
     // 斬撃の中心位置（例: エネミーの前方 or プレイヤーの前方）
 	slashData_.position = transform_.position_;
-	transform_.position_.y += HEIGHT_OFFSET;
+	slashData_.position.y += HEIGHT_OFFSET;
 
     slashData_.number = 1; // 1枚だけ
     slashData_.lifeTime = 15;
@@ -105,7 +105,8 @@ void EnemyDamageEffect::Update()
 		}
     }
 
-	data_.position.y = transform_.position_.y + HEIGHT_OFFSET; // 常にプレイヤーの頭上に位置
+	data_.position.y = transform_.position_.y + HEIGHT_OFFSET; // 常に敵の体の位置
+	slashData_.position.y = transform_.position_.y + HEIGHT_OFFSET; // 常に敵の体の位置
     VFX::SetEmitterPosition(hEmit_[BLOOD_EFFECT], data_.position);
 	VFX::SetEmitterPosition(hEmit_[SLASH_EFFECT], slashData_.position);
 }
