@@ -10,10 +10,11 @@ namespace
 	const float HEIGHT_OFFSET = 9.0f;
 }
 
-EnemyDamageEffect::EnemyDamageEffect(GameObject* parent, XMFLOAT3 pos) : GameObject(parent, "EnemyDamageEffect"),
+EnemyDamageEffect::EnemyDamageEffect(GameObject* parent, XMFLOAT3 pos, bool showSlash) : GameObject(parent, "EnemyDamageEffect"),
 timer_(0.0f), data_(), hEmit_{ -1, -1 }, slashData_(), slashTimer_(0.0f)
 {
 	transform_.position_ = pos;
+	showSlash_ = showSlash;
 }
 
 void EnemyDamageEffect::Initialize()
@@ -78,7 +79,10 @@ void EnemyDamageEffect::Initialize()
     // ƒXƒsƒ“
     slashData_.spin = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-    hEmit_[SLASH_EFFECT] = VFX::Start(slashData_);
+    if (showSlash_)
+    {
+        hEmit_[SLASH_EFFECT] = VFX::Start(slashData_);
+    }
 }
 
 void EnemyDamageEffect::Update()

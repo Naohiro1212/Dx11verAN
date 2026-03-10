@@ -13,7 +13,7 @@ class EnemyDamageEffect : public GameObject
 public:
 	//コンストラクタ
 	//引数：parent  親オブジェクト（SceneManager）
-	EnemyDamageEffect(GameObject* parent, XMFLOAT3 pos);
+	EnemyDamageEffect(GameObject* parent, XMFLOAT3 pos, bool showSlash);
 	//初期化
 	void Initialize() override;
 	//更新
@@ -34,5 +34,6 @@ private:
 
 	// 斬撃エフェクト
 	EmitterData slashData_;
+	bool showSlash_;
 	int hEmit_[2];
 };

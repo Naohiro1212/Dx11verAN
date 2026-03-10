@@ -456,7 +456,15 @@ void testEnemy::OnCollision(GameObject* pTarget)
         }
 
         // ダメージエフェクトを実装
-		damageEffect_ = Instantiate<EnemyDamageEffect>(GetParent(), transform_.position_);
+        // 近接攻撃なら斬撃エフェクトを表示、魔法による攻撃なら斬撃エフェクトをオフにします
+        if (isPlayer)
+        {
+            damageEffect_ = Instantiate<EnemyDamageEffect>(GetParent(), transform_.position_, true);
+        }
+		else if (isMagic)
+		{
+			damageEffect_ = Instantiate<EnemyDamageEffect>(GetParent(), transform_.position_, false);
+		}
 
         // ノックバック方向（攻撃発生源 → 敵 の反対方向）
         // Playerの位置を使う
