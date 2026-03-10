@@ -337,7 +337,7 @@ void Player::UpdateState()
         return;
     }
 
-    if(exp_ >= 100.0f)
+    if(exp_ >= 100.0f || Input::IsKeyDown(DIK_L))
     {
         state_ = LEVELUP;
         return;

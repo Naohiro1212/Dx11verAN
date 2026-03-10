@@ -73,6 +73,17 @@ void InfoScene::Update()
 void InfoScene::Draw()
 {
 	// 情報ページ画像描画
+	// 画像の元サイズを取得（仮: Image::GetWidth/Height がある場合）
+	RECT rect = Image::GetRect(InfoImages_[currentPage]);
+	float w = static_cast<float>(rect.right - rect.left);
+	float h = static_cast<float>(rect.bottom - rect.top);
+
+	float scaleX = Direct3D::screenWidth_ / w;
+	float scaleY = Direct3D::screenHeight_ / h;
+	float scale = (std::max)(scaleX, scaleY); // 画面全体を覆うスケール（cover）
+	
+	Image::SetSizePixels(InfoImages_[currentPage], w * scale, h * scale);
+	Image::SetPositionPixels(InfoImages_[currentPage], Direct3D::screenWidth_ / 2, Direct3D::screenHeight_ / 2, true);
 	Image::Draw(InfoImages_[currentPage]);
 
 	if(currentPage == 0)

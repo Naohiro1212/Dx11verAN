@@ -125,13 +125,11 @@ void PlayScene::Update()
 	// スキル選択中の反映、ポーズ中の反映
     if (isPaused_ || isSelecting_) {
         pausePanel_->SetPaused(isPaused_);
-        skillPanel_->SetSelecting(isSelecting_);
         Model::SetGlobalAnimPause(false);
         this->StopAllUpdate();
     }
     else {
         pausePanel_->SetPaused(false);
-        skillPanel_->SetSelecting(false);
         Model::SetGlobalAnimPause(true);
         this->ResumeAllUpdate();
     }
@@ -146,7 +144,7 @@ void PlayScene::Update()
 void PlayScene::Draw()
 {
 	CursorManager* pCursorManager = dynamic_cast<CursorManager*>(FindObject("CursorManager"));
-    if (isPaused_)
+    if (isPaused_ || isSelecting_)
     {
         pCursorManager->Visible();
     }

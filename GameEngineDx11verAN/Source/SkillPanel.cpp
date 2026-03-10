@@ -32,7 +32,7 @@ void SkillPanel::Initialize()
 	LoadPanelInfo();
 	RandomSelectPanel();
 
-	SetDrawOrder(2);
+	SetDrawOrder(1);
 	SetIsUIObject(true);
 
 	nowSelecting_ = false;

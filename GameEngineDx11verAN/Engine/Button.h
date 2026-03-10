@@ -23,6 +23,7 @@ public:
 	void SetButtonName(const std::string& name) { objectName_ = name; }
 	void SetButtonPosition(float x, float y) { transform_.position_.x = x; transform_.position_.y = y; }
 	bool GetOnButton() { return onButton_; }
+	int GetButtonImage() { return buttonImage_; }
 	// ’†‰›Šî€‚É‚·‚é‚©‚Ç‚¤‚©
 	void SetCenter(bool center) { center_ = center; }
 
