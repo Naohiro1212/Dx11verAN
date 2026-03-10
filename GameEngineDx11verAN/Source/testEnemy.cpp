@@ -239,15 +239,17 @@ void testEnemy::Update()
             {
                 transform_.position_.x += res.push.x + (res.push.x > 0 ? WALL_EPS : (res.push.x < 0 ? -WALL_EPS : 0.0f));
                 transform_.position_.z += res.push.z + (res.push.z > 0 ? WALL_EPS : (res.push.z < 0 ? -WALL_EPS : 0.0f));
+
+                // ’ÇÕ’†‚Í•Ç‚É‰ˆ‚Á‚ÄƒXƒ‰ƒCƒhAœpœj’†‚Í‰ñ“]‚µ‚Ä•ûŒü“]Š·
                 if (isSpotted_)
                 {
-					moveVec_ = SlideAlongWall(moveVec_, res.normal);
+                    moveVec_ = SlideAlongWall(moveVec_, res.normal);
                 }
-				else if (isReturning_)
-				{
-					// œpœj’†‚Í•Ç‚É‚Ô‚Â‚©‚é‚½‚Ñ‚É‰ñ“]‚³‚¹ˆÚ“®•ûŒü‚ð•Ï‚¦‚é
-					transform_.rotate_.y += PATROL_RADIUS;
-				}
+                else if (isReturning_ && isPatrolMove_ && knockbackTimer_ <= 0.0f)
+                {
+                    // œpœj’†‚¾‚¯‰ñ“]
+                    transform_.rotate_.y += PATROL_RADIUS;
+                }
             }
         }
 

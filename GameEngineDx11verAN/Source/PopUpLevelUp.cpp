@@ -6,9 +6,9 @@
 namespace
 {
 	const float DISPLAY_DURATION = 1.8f; // レベルアップ表示時間
-	const float HEAD_OFFSET_Y = 14.0f;        // 頭上表示のYオフセット
+	const float HEAD_OFFSET_Y = 20.0f;        // 頭上表示のYオフセット
 
-	const XMFLOAT3 SCALE = { 9.0f, 9.0f, 1.0f };
+	const XMFLOAT3 SCALE = { 3.0f, 1.0f, 1.0f };
 	const XMFLOAT4 COLOR = { 1.0f, 1.0f, 1.0f, 1.0f };
 }
 
@@ -19,7 +19,7 @@ PopUpLevelUp::PopUpLevelUp(GameObject* parent) : GameObject(parent, "PopUpLevelU
 void PopUpLevelUp::Initialize()
 {
 	levelUpBillboard_ = new BillBoard();
-	levelUpBillboard_->Load("levelUpPop.png");
+	levelUpBillboard_->Load("levelUpPoptest.png");
 
 	displayTime_ = 0.0f;
 	color_ = COLOR;

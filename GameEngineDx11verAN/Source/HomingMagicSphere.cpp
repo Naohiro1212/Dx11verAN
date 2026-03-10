@@ -50,7 +50,7 @@ HomingMagicSphere::HomingMagicSphere(GameObject* parent)
 }
 
 HomingMagicSphere::HomingMagicSphere(GameObject* parent, const std::vector<BoxCollider*> _wallColliders, testEnemy* _target)
-	: GameObject(parent, "HomingMagicSphere"),
+	: GameObject(parent, "MagicSphere"),
 	magicModel_(-1),
 	attackTimer_(0.0f),
 	effectData_(),

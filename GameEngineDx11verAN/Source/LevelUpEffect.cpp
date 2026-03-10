@@ -18,7 +18,7 @@ void LevelUpEffect::Initialize()
 	data_.textureFileName = "Effects/circle_B.png";
 	data_.isBillBoard = true;
 
-	data_.position = { transform_.position_.x, transform_.position_.y + 5.0f, transform_.position_.z };
+	data_.position = { transform_.position_.x, transform_.position_.y + 7.0f, transform_.position_.z };
 	data_.positionRnd = XMFLOAT3(0.6f, 0.2f, 0.6f);   // 少し広げて発生
 
 	data_.delay = 10;
@@ -37,7 +37,7 @@ void LevelUpEffect::Initialize()
 	data_.directionRnd = XMFLOAT3(20.0f, 20.0f, 20.0f); // 角度のランダム（小さめ）
 	data_.speed = 0.060f;    // 初速は弱め
 	data_.accel = 0.992f;    // ゆるく減速（拡散感）
-	data_.gravity = -0.0055f;   // 上昇を徐々に止める（落下はしない程度）
+	data_.gravity = -0.0095f;   // 上昇を徐々に止める（落下はしない程度）
 
 	// ほんの少し回転を付ける（煙のゆらぎ）
 	data_.spin = XMFLOAT3(0.0f, 0.0f, 0.06f);
